@@ -1,0 +1,12 @@
+group("src")
+project("ECU-strategy")
+  uuid("662723af-f740-40da-a659-e06c4c1063f2")
+  kind("StaticLib")
+  language("C++")
+  files({
+    "pitstop.cpp",
+    "pitstop.h",
+  })
+  links({
+    "irsdk",
+  })

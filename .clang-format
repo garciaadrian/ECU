@@ -1,0 +1,5 @@
+---
+BasedOnStyle: llvm
+DerivePointerAlignment: false
+PointerAlignment: Left
+SortIncludes: true

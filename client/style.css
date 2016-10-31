@@ -1,0 +1,14 @@
+*::selection {
+    background-color: transparent;
+    color: #000;
+    user-select: none;
+}
+
+* {
+    -webkit-user-select: none;
+}
+
+*:active,
+*:hover {
+    cursor: default;
+}

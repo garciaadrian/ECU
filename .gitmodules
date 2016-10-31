@@ -1,0 +1,9 @@
+[submodule "libs/sqlite3"]
+	path = libs/sqlite3
+	url = https://github.com/ECU-IR/sqlite3.git
+[submodule "libs/irsdk"]
+	path = libs/irsdk
+	url = https://github.com/ECU-IR/irsdk.git
+[submodule "libs/libmicrohttpd"]
+	path = libs/libmicrohttpd
+	url = https://github.com/ECU-IR/libmicrohttpd.git

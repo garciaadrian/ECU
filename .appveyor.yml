@@ -24,7 +24,7 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\devtools_resources.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\natives_blob.bin
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\snapshot_blobl.bin
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\snapshot_blob.bin
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\locales
 
 artifacts:

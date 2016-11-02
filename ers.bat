@@ -102,8 +102,8 @@ popd
 pushd libs\cef_binary_3.2704.1414.g185cd6c_windows64
 mkdir build && pushd build
 cmake -G "Visual Studio 14 Win64" ..
-msbuild /p:Configuration=Release /p:Platform="x64" cef.sln
-msbuild /p:Configuration=Debug /p:Platform="x64" cef.sln
+msbuild /p:Configuration=Release /p:Platform="x64" /nologo /m /v:m cef.sln
+msbuild /p:Configuration=Debug /p:Platform="x64" /nologo /m /v:m cef.sln
 popd
 popd
 tools\build\premake5.exe vs2015

@@ -1,13 +1,13 @@
 import click
 import os
 from glob import glob
-import urllib.request
 import bz2
 import tarfile
 import shutil
 import re
 import subprocess
 import sys
+import requests
 
 cef_url = 'http://opensource.spotify.com/cefbuilds/cef_binary_3.2704.1414.g185cd6c_windows64.tar.bz2'
 cef_dist_name = 'cef_binary_3.2704.1414.g185cd6c_windows64.tar.bz2'
@@ -80,7 +80,11 @@ def build(ctx, no_premake, configuration):
 def cef(ctx):
     if not os.path.exists('libs/' + cef_dist_name[:-8]):
         print('CEF lib not found. Downloading...')
-        urllib.request.urlretrieve(cef_url, 'libs/{dist}'.format(dist=cef_dist_name))
+        r = requests.get(cef_url)
+        if r.status_code == 200:
+            cef_f = r.raw.read()
+            with open('libs/' + cef_dist_name) as f:
+                f.write(cef_f)
         cef_compressed = bz2.BZ2File('libs/{dist}'.format(dist=cef_dist_name))
         data = cef_compressed.read()
         cef_compressed.close()

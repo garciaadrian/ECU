@@ -52,7 +52,7 @@ IF NOT EXIST "%DIR%" (
        PUSHD venv\Scripts
        CALL activate
        pip install click
-       pip install requests
+       pip install wget
        POPD
 )
 

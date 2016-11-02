@@ -82,13 +82,18 @@ def cef(ctx):
         click.echo('CEF lib not found. Downloading...')
         r = wget.download('http://opensource.spotify.com/cefbuilds/cef_binary_3.2704.1414.g185cd6c_windows64.tar.bz2')
         shutil.move(cef_dist_name, 'libs/' + cef_dist_name)
-        cef_compressed = bz2.BZ2File('libs/{dist}'.format(dist=cef_dist_name))
-        data = cef_compressed.read()
-        cef_compressed.close()
+        
         new_file_path = 'libs/{dist}'.format(dist=cef_dist_name)[:-4]
-        with open(new_file_path, 'wb') as file:
-            file.write(data)
-
+        cef_new = open(new_file_path, 'wb')
+        cef_decompressed = bz2.BZ2Decompressor()
+        with open('libs/' + cef_dist_name, 'rb') as f:
+            while True:
+                b = f.read(8096)
+                if not b:
+                    break
+                cef_new.write(bz2.BZ2Decompressor.decompress(cef_decompressed, b))
+        cef_new.close()
+        
         print('Untar cef')
         print('Opening {file}'.format(file=new_file_path))
         tar = tarfile.open(new_file_path)

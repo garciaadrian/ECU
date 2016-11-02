@@ -83,7 +83,7 @@ def cef(ctx):
         r = requests.get(cef_url)
         if r.status_code == 200:
             cef_f = r.raw.read()
-            with open('libs/' + cef_dist_name) as f:
+            with open('libs/' + cef_dist_name, 'wb') as f:
                 f.write(cef_f)
         cef_compressed = bz2.BZ2File('libs/{dist}'.format(dist=cef_dist_name))
         data = cef_compressed.read()

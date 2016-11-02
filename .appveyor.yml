@@ -1,0 +1,40 @@
+version: 1.0.{build}-{branch}
+
+os: Visual Studio 2015
+
+install:
+  - cmd: set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+  - cmd: ers.bat setup
+
+configuration:
+  - Release
+
+build_script:
+  - cmd: ers.bat build --configuration=Release
+
+after_build: >-
+  
+  7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\ECU.exe
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libcef.dll
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\d3dcompiler_47.dll
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\icudtl.dat
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libEGL.dll
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libGLESv2.dll
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef.pak
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\devtools_resources.pak
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\natives_blob.bin
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\snapshot_blobl.bin
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\locales
+
+artifacts:
+  - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip
+    
+deploy:
+  - provider: Environment
+    name: production
+    release: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit)-v$(appveyor_build_version)
+    artifact: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip
+    on:
+      branch: master
+      appveyor_repo_tag: true

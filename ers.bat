@@ -1,12 +1,67 @@
 @echo off
-REM tools\build\find.exe src/ -regex ".*\.\(h\|cpp\)" | tools\build\xargs.exe tools\build\clang-format -i style=file
 
-call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+REM move this to python script
 
-python ers.py --setup
+
+SET DIR=%~dp0
+
+SET FOUND_PYTHON_EXE=""
+1>NUL 2>NUL CMD /c where python2
+IF NOT ERRORLEVEL 1 (
+   SET FOUND_PYTHON_EXE=python2
+)
+
+IF %FOUND_PYTHON_EXE% EQU "" (
+   1>NUL 2>NUL CMD /c where python
+   IF NOT ERRORLEVEL 1 (
+      SET FOUND_PYTHON_EXE=python
+   )
+)
+
+IF %FOUND_PYTHON_EXE% EQU "" (
+  ECHO ERROR: no Python executable found on PATH.
+  ECHO Make sure you can run 'python' or 'python2' in a Command Prompt.
+  EXIT /b
+)
+
+SET "DIR=%DIR%\venv"
+SET "DEACTIVATE=%DIR%\venv\Scripts\deactivate.bat"
+
+IF "%1" == "setup" (
+   IF NOT DEFINED DevEnvDir (
+      CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+   )
+   GOTO :setup
+) ELSE (
+       CALL "%DIR%\Scripts\activate.bat"
+       python ers.py %*
+       CALL "%DIR%\Scripts\deactivate.bat"
+       EXIT /b %ERRORLEVEL%
+       GOTO :eof
+)
+
+:setup
+1>NUL 2>NUL CMD /c where virtualenv
+IF ERRORLEVEL 1 (
+   ECHO ERROR: virtualenv not installed.
+   EXIT /b 1
+)
+
+IF NOT EXIST "%DIR%" (
+       virtualenv venv
+       PUSHD venv\Scripts
+       CALL activate
+       pip install click
+       pip install requests
+       POPD
+)
 
 git submodule init
 git submodule update
+
+python ers.py cef
+
+CALL venv\Scripts\deactivate.bat
 
 IF NOT EXIST "build\bin" (
    ECHO Creating build\bin

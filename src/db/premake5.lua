@@ -10,4 +10,5 @@ files({
 })
 links({
       "sqlite",
+      "User32",
 })

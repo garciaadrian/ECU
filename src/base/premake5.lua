@@ -30,4 +30,5 @@ project("ECU-base")
         "ECU-hid",
         "ECU-server",
         "ECU-db",
+        "User32",
   })

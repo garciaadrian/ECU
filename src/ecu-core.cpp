@@ -21,6 +21,7 @@
 #include <db/sqlite.h>
 #include <hid/hid.h>
 
+
 #include "graphics/app.h"
 #include "include/cef_sandbox_win.h"
 
@@ -121,7 +122,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                             &answer_to_connection, NULL, MHD_OPTION_END);
 
   if (NULL == daemon) {
-    DEXIT_PROCESS();
+    DEXIT_PROCESS(L"Failed to start http server");
   }
 
  
@@ -138,7 +139,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                              500, 100, NULL, NULL, hInstance, NULL);
 
   if (!hWnd) {
-    DEXIT_PROCESS();
+    DEXIT_PROCESS(L"Window handle failed to create");
   }
 
   
@@ -179,7 +180,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifndef DEBUG
       CefDoMessageLoopWork();
 #endif
-    loop(config->db, ws);
+      loop(config->db, ws, config);
     time2 = timeGetTime();
     DEBUG_OUTA("time spent in LOOP: %ld ms\n", debug_stream, time2 - time1);
     

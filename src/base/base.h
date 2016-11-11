@@ -21,8 +21,10 @@
 typedef struct
 {
   wchar_t path[MAX_PATH_UNICODE];
+  wchar_t telemetry_path[MAX_PATH_UNICODE];
   sqlite3 *db;
   bool configured = false;
+  HANDLE dw_change_handle;
 } configuration;
 
 

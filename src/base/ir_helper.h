@@ -18,6 +18,6 @@
 #include <irsdk/yaml_parser.h>
 #include <irsdk/irsdk_defines.h>
 
-char *ir_get_variable(char *variable);
+char *ir_get_variable(char *variable, const char *session_string);
 
 #endif /* IR_HELPER_H */

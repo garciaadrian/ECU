@@ -12,16 +12,30 @@
 */
 
 #include "startup.h"
+#include <base/loop.h>
+#include <Strsafe.h>
 
 configuration *ecu_init()
 {
   configuration *config = (configuration *)malloc(sizeof(configuration));
   config->configured = false;
+  
   static char debug[128];
-  static wchar_t debug_wide[246];
+  PWSTR telemetry_path;
 
-  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0)
-    DEXIT_PROCESS();
+  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
+    DEXIT_PROCESS(L"Failed to get Module FileName");
+  }
+
+  SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);
+  StringCchCopy(config->telemetry_path, MAX_PATH_UNICODE, telemetry_path);
+  StringCchCat(config->telemetry_path, MAX_PATH_UNICODE, L"\\iRacing\\telemetry\\");
+
+  sort_ibt_directory(config->telemetry_path);
+  
+  config->dw_change_handle = FindFirstChangeNotification(config->telemetry_path, FALSE,
+                                                         FILE_NOTIFY_CHANGE_FILE_NAME);
+  
   size_t len = wcsnlen_s(config->path, MAX_PATH_UNICODE);
   
   /* TODO: add support for changing executable name */

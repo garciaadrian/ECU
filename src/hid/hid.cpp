@@ -24,7 +24,7 @@ BOOL CALLBACK DIEnumDeviceObjectsCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi,
     swprintf_s(debug, L"DEVICE OBJECT: %ls\n", lpddoi->tszName);
     OutputDebugString(debug);
   } else {
-    DEXIT_PROCESS();
+    DEXIT_PROCESS(L"Failed to obtain hid device");
   }
 
   return DIENUM_CONTINUE;
@@ -50,18 +50,18 @@ device initialize_hid(HINSTANCE hInstance, HWND hWnd) {
   if (DI_OK != DirectInput8Create(hInstance, DIRECTINPUT_VERSION,
                                   IID_IDirectInput8W, (LPVOID*)&g27.DInterface,
                                   NULL)) {
-    DEXIT_PROCESS();
+    DEXIT_PROCESS(L"DirectoryInput8Create failed.");
   }
 
   if (DI_OK !=
       g27.DInterface->EnumDevices(DI8DEVCLASS_GAMECTRL, DIEnumDevicesCallback,
                                   (void*)1, DIEDFL_FORCEFEEDBACK)) {
-    DEXIT_PROCESS();
+    DEXIT_PROCESS(L"EnumDevices failed.");
   }
 
   if (DI_OK !=
       g27.DInterface->CreateDevice(Instance, &g27.device_interface, NULL)) {
-    DEXIT_PROCESS();
+    DEXIT_PROCESS(L"CreateDevice failed.");
   }
 
   g27.device_interface->SetDataFormat(&c_dfDIJoystick);
@@ -82,7 +82,7 @@ device initialize_hid(HINSTANCE hInstance, HWND hWnd) {
   g27.dipdw.dwData = 10;
 
   if (FAILED(g27.device_interface->Acquire())) {
-    DExitProcess(__FILE__, __FUNCSIG__, __LINE__);
+    DEXIT_PROCESS(L"Failed to acquire HID interface")
   }
 
   hr = g27.device_interface->SetProperty(Instance, &g27.dipdw.diph);

@@ -122,7 +122,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                             &answer_to_connection, NULL, MHD_OPTION_END);
 
   if (NULL == daemon) {
-    DEXIT_PROCESS(L"Failed to start http server");
+    DEXIT_PROCESS(L"Failed to start http server", GetLastError());
   }
 
  
@@ -139,7 +139,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                              500, 100, NULL, NULL, hInstance, NULL);
 
   if (!hWnd) {
-    DEXIT_PROCESS(L"Window handle failed to create");
+    DEXIT_PROCESS(L"Window handle failed to create", GetLastError());
   }
 
   
@@ -182,7 +182,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
       loop(config->db, ws, config);
     time2 = timeGetTime();
-    DEBUG_OUTA("time spent in LOOP: %ld ms\n", debug_stream, time2 - time1);
+    int delta = time2 - time1;
+    int fps = 5;
+    // DEBUG_OUTA("Main loop: %d ms\n", debug_stream, time2 - time1);
+    if (delta < 1000.0f / fps)
+      Sleep((1000.0f / fps) - delta);
     
     // if (g27.joy.rgbButtons[21] == 128) {
     // brake.change_bias();

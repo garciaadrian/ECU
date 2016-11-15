@@ -32,7 +32,7 @@ int handle_sql_rc(int rc, char *sql, sqlite3 *db, bool step,
                    "[DATABASE]: ERROR: %s\n", buffer, rc, sqlite3_errstr(rc),
                    sqlite3_errmsg(db));
         if (warning_as_error)
-            DEXIT_PROCESS(L"sqlite3_step failed");
+          DEXIT_PROCESS(L"sqlite3_step failed", GetLastError());
         return 0;
       }
       if (rc == SQLITE_DONE && select) {
@@ -49,7 +49,7 @@ int handle_sql_rc(int rc, char *sql, sqlite3 *db, bool step,
                    "[DATABASE]: ERROR: %s\n", buffer, rc, sqlite3_errstr(rc),
                    sqlite3_errmsg(db));
         if (warning_as_error)
-            DEXIT_PROCESS(L"sqlite3_prepare_v2 failed.");
+          DEXIT_PROCESS(L"sqlite3_prepare_v2 failed.", GetLastError());
         return 0;
       }
       return 1;
@@ -80,13 +80,13 @@ void init_db(configuration *config) {
                              sizeof(db_path_mb)/sizeof(db_path_mb[0]),
                              NULL, NULL);
     if (rc == 0)
-      DEXIT_PROCESS(L"WideCharToMultiByte failed.");
+      DEXIT_PROCESS(L"WideCharToMultiByte failed.", GetLastError());
     
     rc = sqlite3_open(db_path_mb, &(config->db));
     if (rc) {
       DEBUG_OUTA("[DATABASE]: Can't open database %s\n", debug, db_path_mb);
       sqlite3_close(config->db);
-      DEXIT_PROCESS(L"Can't open database");
+      DEXIT_PROCESS(L"Can't open database", GetLastError());
     }    
   }
 
@@ -95,13 +95,14 @@ void init_db(configuration *config) {
     rc = WideCharToMultiByte(CP_UTF8, NULL, &db_path[0], -1, &db_path_mb[0],
                              sizeof(db_path_mb)/sizeof(db_path_mb[0]),
                              NULL, NULL);
-    if (rc == 0)
-      DEXIT_PROCESS(L"WideCharToMultiByte failed.");
+    if (rc == 0) {
+      DEXIT_PROCESS(L"WideCharToMultiByte failed.", GetLastError());
+    }
     rc = sqlite3_open(db_path_mb, &(config->db));
     if (rc) {
       DEBUG_OUTA("[DATABASE]: Can't open database %s\n", debug, db_path_mb);
       sqlite3_close(config->db);
-      DEXIT_PROCESS(L"Can't open database");
+      DEXIT_PROCESS(L"Can't open database", GetLastError());
     }
   }
     

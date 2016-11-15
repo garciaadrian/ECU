@@ -11,7 +11,7 @@ char* get_file_name() {
                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
   if (file == INVALID_HANDLE_VALUE) {
-    DEXIT_PROCESS(L"failed to open bin\result.html");
+    DEXIT_PROCESS(L"failed to open bin\result.html", GetLastError());
   }
 
   DWORD file_size = GetFileSize(file, NULL);

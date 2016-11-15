@@ -70,14 +70,14 @@ ibt *parse_ibt(intptr_t fd, wchar_t *file_name)
   if (fd != -1)
     file = _fdopen(fd, "r");
   else {
-    DEXIT_PROCESS(L"File descriptor invalid.");
+    DEXIT_PROCESS(L"File descriptor invalid.", GetLastError());
   }
 
   if (file == 0) {
     size_t chars_converted;
     wchar_t message[255];
-    swprintf(message, L"Invalid File: %s", file_name);
-    DEXIT_PROCESS(message);
+    swprintf_s(message, L"Invalid File: %s", file_name);
+    DEXIT_PROCESS(message, GetLastError());
   }
   
   ibt *telemetry = (ibt *)malloc(sizeof(ibt));
@@ -131,7 +131,7 @@ wchar_t *num_to_month(int month)
     case 12:
       return L"December";
     default:
-      DEXIT_PROCESS(L"INVALID TIME MONTH");
+      DEXIT_PROCESS(L"INVALID TIME MONTH", GetLastError());
   }
 }
 
@@ -150,7 +150,7 @@ void sort_ibt_directory(wchar_t *directory)
   search = FindFirstFile(directory_wildcard, &files);
 
   if (search == INVALID_HANDLE_VALUE) {
-    DEXIT_PROCESS(L"FindFirstFile returned invalid handle.");
+    DEXIT_PROCESS(L"FindFirstFile returned invalid handle.", GetLastError());
   }
 
   do
@@ -183,7 +183,7 @@ void sort_ibt_directory(wchar_t *directory)
                                    sizeof(driver_idx_unicode)/sizeof(driver_idx_unicode[0]),
                                    ir_buffer, strlen(ir_buffer)+1)))
       {
-        DEXIT_PROCESS(L"mbstowcs_s failed..");
+        DEXIT_PROCESS(L"mbstowcs_s failed..", GetLastError());
       }
 
       sprintf(vehicle_query, "DriverInfo:Drivers:CarIdx:{%d}CarScreenNameShort:", atoi(ir_buffer));
@@ -194,7 +194,7 @@ void sort_ibt_directory(wchar_t *directory)
                                     sizeof(vehicle_name_unicode)/sizeof(vehicle_name_unicode[0]),
                                     ir_buffer, strlen(ir_buffer)+1)))
       {
-        DEXIT_PROCESS(L"mbstowcs_s failed..");
+        DEXIT_PROCESS(L"mbstowcs_s failed..", GetLastError());
       }
       
       
@@ -207,7 +207,7 @@ void sort_ibt_directory(wchar_t *directory)
                                     sizeof(track_name_unicode)/sizeof(track_name_unicode[0]),
                                     ir_buffer, strlen(ir_buffer)+1)))
       {
-        DEXIT_PROCESS(L"mbstowcs_s failed..");
+        DEXIT_PROCESS(L"mbstowcs_s failed..", GetLastError());
       }
       
       wchar_t vehicle_path[MAX_PATH_UNICODE];
@@ -265,7 +265,7 @@ void watch_ibt_directory(wchar_t *directory, HANDLE dw_change_handle)
   DWORD dw_wait_status;
   
   if (dw_change_handle == INVALID_HANDLE_VALUE) {
-    DEXIT_PROCESS(L"Invalid Handle Value");
+    DEXIT_PROCESS(L"Invalid Handle Value", GetLastError());
   }
 
   dw_wait_status = WaitForSingleObject(dw_change_handle, 0);
@@ -276,14 +276,14 @@ void watch_ibt_directory(wchar_t *directory, HANDLE dw_change_handle)
       /* A file was created, renamed, or deleted in the directory */
       sort_ibt_directory(directory);
       if (FindNextChangeNotification(dw_change_handle) == FALSE) {
-        DEXIT_PROCESS(L"FindNextChangeNotification function failed.");
+        DEXIT_PROCESS(L"FindNextChangeNotification function failed.", GetLastError());
       }
       break;
       
     case WAIT_OBJECT_0 + 1:
       /* A directory was created, renamed, or deleted. */
       if (FindNextChangeNotification(dw_change_handle) == FALSE) {
-        DEXIT_PROCESS(L"FindNextChangeNotification function failed.");
+        DEXIT_PROCESS(L"FindNextChangeNotification function failed.", GetLastError());
       }
       break;
       

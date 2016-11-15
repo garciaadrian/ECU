@@ -14,6 +14,7 @@
 #include "startup.h"
 #include <base/loop.h>
 #include <Strsafe.h>
+#include <Dbghelp.h>
 
 configuration *ecu_init()
 {
@@ -23,8 +24,8 @@ configuration *ecu_init()
   static char debug[128];
   PWSTR telemetry_path;
 
-  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
-    DEXIT_PROCESS(L"Failed to get Module FileName");
+  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) != 0) {
+    DEXIT_PROCESS(L"Failed to get Module FileName", GetLastError());
   }
 
   SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);

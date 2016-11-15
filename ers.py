@@ -261,7 +261,7 @@ def generate_version_h():
 #define ECU_BUILD_DATE __DATE__
 #endif  // GENERATED_VERSION_H_
 ''' % (branch_name, commit, commit_short)
-    with open('build/version.h', 'w') as f:
+    with open('src/version.h', 'w') as f:
         f.write(contents)
         
 def git_submodule_update():

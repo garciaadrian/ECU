@@ -162,13 +162,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   while (g_Running) {
     MSG msg;
     while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-      if (msg.message == WM_QUIT) {
+      if (msg.message == WM_CLOSE) {
         // g27.DInterface->Release();
         if (!debug)
           CefShutdown();
         free(config);
         free(ws);
         g_Running = false;
+        return 0;
       }
       TranslateMessage(&msg);
       DispatchMessage(&msg);
@@ -199,8 +200,5 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   }
   
-  free(config);
-  free(ws);
-  CefShutdown();
   return 0;
 }

@@ -295,6 +295,8 @@ libs/cef_binary_3.2704.1414.g185cd6c_windows64/
 
 client/node_modules
 venv/
+dist/
+src/version.h
 
 GPATH
 GRTAGS

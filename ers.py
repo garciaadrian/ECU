@@ -111,9 +111,38 @@ def cef(ctx):
     else:
         print("Library cef OK")
 @cli.command()
+@click.option('--configuration', '-c', type=click.Choice(['release', 'debug']),
+              default='release')
 @click.pass_context
-def dist(ctx):
-    pass
+def dist(ctx, configuration):
+    if not os.path.exists('dist'):
+        os.makedirs('dist')
+    release_directory = 'build/bin/Release/'
+    release_directory_files = ['ECU.exe',
+                               'libcef.dll',
+                               'd3dcompiler_47.dll',
+                               'icudtl.dat',
+                               'libEGL.dll',
+                               'libGLESv2.dll',
+                               'cef.pak',
+                               'devtools_resources.pak',
+                               'natives_blob.bin',
+                               'snapshot_blob.bin',
+                               'cef_100_percent.pak',
+                               'cef_200_percent.pak',
+                               'cef_extensions.pak']
+    
+    shutil.copy('LICENSE', 'dist')
+    if configuration == 'debug':
+        shutil.copy('build/bin/Release/ECU.pdb', 'dist')
+    try:
+        shutil.copytree('build/bin/Release/locales', 'dist/locales')
+    except FileExistsError:
+        pass
+    
+    for resource in release_directory_files:
+        shutil.copy(release_directory + resource, 'dist')
+        
 
 @cli.command()
 @click.pass_context

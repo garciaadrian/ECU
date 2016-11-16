@@ -22,9 +22,9 @@ configuration *ecu_init()
   config->configured = false;
   
   static char debug[128];
-  PWSTR telemetry_path;
+  PWSTR telemetry_path = NULL;
 
-  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) != 0) {
+  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
     DEXIT_PROCESS(L"Failed to get Module FileName", GetLastError());
   }
 

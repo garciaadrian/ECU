@@ -41,7 +41,7 @@ void write_log(wchar_t *text, DWORD error)
              date.wDay, date.wMonth, date.wYear,
              date.wHour, date.wMinute, date.wSecond, error_text);
   
-  WriteFile(log, text_final, wcslen(text_final)*sizeof(wchar_t), NULL, NULL);
+  WriteFile(log, text_final, wcslen(text_final)*sizeof(wchar_t), &bytes_written, NULL);
   
   CloseHandle(log);
   HeapFree(GetProcessHeap(), NULL, error_text);
@@ -50,11 +50,9 @@ void write_log(wchar_t *text, DWORD error)
 void CreateMiniDump(int exit)
 {
   wchar_t filename[512];
-  StringCchCopy(filename, 512, _T(ECU_BUILD_COMMIT));
-  StringCchCat(filename, 512, L"-");
-  StringCchCat(filename, 512, _T(ECU_BUILD_BRANCH));
-  StringCchCat(filename, 512, L".dmp");
-  
+  swprintf_s(filename, 512, L"%s-%s.dmp", _T(ECU_BUILD_COMMIT),
+             _T(ECU_BUILD_BRANCH));
+
   HANDLE file = CreateFile(filename, GENERIC_READ|GENERIC_WRITE, 0, NULL,
                            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   

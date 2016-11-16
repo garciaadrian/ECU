@@ -79,8 +79,9 @@ void init_db(configuration *config) {
     rc = WideCharToMultiByte(CP_UTF8, NULL, &db_path[0], -1, &db_path_mb[0],
                              sizeof(db_path_mb)/sizeof(db_path_mb[0]),
                              NULL, NULL);
-    if (rc == 0)
+    if (rc == 0) {
       DEXIT_PROCESS(L"WideCharToMultiByte failed.", GetLastError());
+    }
     
     rc = sqlite3_open(db_path_mb, &(config->db));
     if (rc) {

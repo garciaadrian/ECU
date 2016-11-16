@@ -21,6 +21,7 @@
 #include <Strsafe.h>
 #include <io.h>
 #include <fcntl.h>
+#include <Shlobj.h>
 
 void check_track(sqlite3 *db)
 {
@@ -146,6 +147,10 @@ void sort_ibt_directory(wchar_t *directory)
   StringCchCopy(directory_wildcard, MAX_PATH_UNICODE, directory);
   
   StringCchCat(directory_wildcard, MAX_PATH_UNICODE, L"*");
+
+  if (!PathFileExists(directory))
+    /* Path length limit is 248 characters inc. null terminator */
+    SHCreateDirectory(NULL, directory);
   
   search = FindFirstFile(directory_wildcard, &files);
 

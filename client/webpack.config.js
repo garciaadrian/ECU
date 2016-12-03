@@ -38,18 +38,18 @@ WebpackShellPlugin.prototype.apply = function(compiler) {
 module.exports = {
     entry: "./main.js",
     output: {
-        path: __dirname + "/../build/bin/",
+        path: "",
         filename: "bundle.js"
     },
     plugins: [
         new WebpackShellPlugin({
             onBuildStart: [],
-            onBuildEnd: ['python post-build.py']
+            onBuildEnd: []
         })
     ],
     module: {
         loaders: [
-            {test: /\.css$/, loader: "style!css"}
+            {test: /\.css$/, loader: "style-loader!css-loader"}
         ]
     }
 };

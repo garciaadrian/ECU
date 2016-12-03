@@ -26,6 +26,8 @@ def cli(ctx, debug):
         sys.exit(1)
     
     self_path = os.path.dirname(os.path.abspath(__file__))
+    ctx.obj['self_path'] = self_path
+    
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
     
     os.environ['PATH'] += os.pathsep + os.pathsep.join([
@@ -36,10 +38,44 @@ def cli(ctx, debug):
     if not get_bin('git'):
         print('ERROR: git must be installed and on PATH.')
         sys.exit(1)
+
+@cli.command()
+@click.option('--configuration', type=click.Choice(['release', 'debug'])
+              , default='release')
+@click.pass_context
+def client(ctx, configuration):
+    
+    client_dir = ctx.obj['self_path'] + '\\client\\'
+    
+    if configuration == 'release':
+        build_dir = ctx.obj['self_path'] + '\\build\\bin\\Release\\'
+    else:
+        build_dir = ctx.obj['self_path'] + '\\build\\bin\\Debug\\'
+    
+    os.chdir(client_dir)
+
+    result = subprocess.call(['webpack'], shell=True)
+
+    if result != 0:
+        click.echo('ERROR: webpack failed with one or more errors.')
+        return result
+
+    with open(client_dir + 'index.html') as index:
+        index_content = index.read()
+        
+    with open(client_dir + 'bundle.js') as bundle:
+        bundle_content = bundle.read()
+
+    with open(build_dir + 'client.html', 'w') as client:
+        client.write(index_content)
+        client.write('<script>')
+        client.write(bundle_content)
+        client.write('</script>')
         
 @cli.command()
 @click.pass_context
 def clean(ctx):
+    
     paths = ['build/bin/Debug', 'build/bin/Release']
     for path in paths:
         for file in glob(path + '/*.lib'):
@@ -63,7 +99,9 @@ def build(ctx, no_premake, configuration):
         shell_call([
             os.path.join('tools', 'build', 'premake5.exe'),
             'vs2015'])
+        
     generate_version_h()
+    
     result = subprocess.call([
         'msbuild',
         'build/ECU.sln',

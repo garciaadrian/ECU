@@ -7,7 +7,7 @@
 
 char* get_file_name() {
   LPDWORD bytes_read = 0;
-  HANDLE file = CreateFile(L"bin/result.html", GENERIC_READ, FILE_SHARE_READ, NULL,
+  HANDLE file = CreateFile(L"client.html", GENERIC_READ, FILE_SHARE_READ, NULL,
                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
   if (file == INVALID_HANDLE_VALUE) {

@@ -184,7 +184,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       loop(config->db, ws, config);
     time2 = timeGetTime();
     int delta = time2 - time1;
-    int fps = 5;
+    int fps = 120;
     // DEBUG_OUTA("Main loop: %d ms\n", debug_stream, time2 - time1);
     if (delta < 1000.0f / fps)
       Sleep((1000.0f / fps) - delta);

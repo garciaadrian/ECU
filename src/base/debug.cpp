@@ -19,7 +19,7 @@ char* DExitProcess(char* file, char* func_signature, int line) {
 }
 
 
-void write_log(wchar_t *text, DWORD error)
+void write_log(wchar_t *text, DWORD error, char *file, int line)
 {
   HANDLE log = CreateFile(L"log.txt", GENERIC_READ|GENERIC_WRITE, 0, NULL,
                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -37,10 +37,25 @@ void write_log(wchar_t *text, DWORD error)
   SetFilePointer(log, 0, NULL, FILE_END);
   wchar_t text_final[4096];
   
-  swprintf_s(text_final, 4096,
-             L"[%d/%d/%d %d:%d:%d]: %s",
-             date.wDay, date.wMonth, date.wYear,
-             date.wHour, date.wMinute, date.wSecond, error_text);
+  wchar_t file_wide[248];
+  size_t char_converted;
+  mbstowcs_s(&char_converted, file_wide, 248, file, _TRUNCATE);
+
+  if (error == 0) {
+    swprintf_s(text_final, 4096,
+               L"[%d/%d/%d %d:%d:%d] %s[%d]: %s\r\n",
+               date.wDay, date.wMonth, date.wYear,
+               date.wHour, date.wMinute, date.wSecond, file_wide,
+               line, text);
+  }
+  
+  else {
+    swprintf_s(text_final, 4096,
+               L"[%d/%d/%d %d:%d:%d] %s[%d]: %s\r\n",
+               date.wDay, date.wMonth, date.wYear,
+               date.wHour, date.wMinute, date.wSecond, file_wide,
+               line, error_text);
+  }
   
   WriteFile(log, text_final, wcslen(text_final)*sizeof(wchar_t), &bytes_written, NULL);
   
@@ -78,7 +93,7 @@ BOOL ListProcessThreads(DWORD dwOwnerPID)
   do
   {
     if (te32.th32OwnerProcessID == dwOwnerPID) {
-      // EnumThreadWindows(dwOwnerPID, WNDENUMPROC (close_window), 0);
+      EnumThreadWindows(dwOwnerPID, WNDENUMPROC (close_window), 0);
       PostThreadMessage(te32.th32ThreadID, WM_CLOSE, 0, 0);
     }
   } while (Thread32Next(hThreadSnap, &te32));
@@ -90,9 +105,11 @@ BOOL ListProcessThreads(DWORD dwOwnerPID)
 
 void CreateMiniDump(int exit)
 {
+  size_t char_converted;
   wchar_t filename[512];
-  swprintf_s(filename, 512, L"%s-%s.dmp", _T(ECU_BUILD_COMMIT),
-             _T(ECU_BUILD_BRANCH));
+ 
+  swprintf_s(filename, 512, L"%s-%s_%d.dmp", _T(ECU_BUILD_COMMIT_SHORT),
+             _T(ECU_BUILD_BRANCH), exit);
 
   HANDLE file = CreateFile(filename, GENERIC_READ|GENERIC_WRITE, 0, NULL,
                            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);

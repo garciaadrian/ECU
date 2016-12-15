@@ -25,6 +25,7 @@ typedef struct
   sqlite3 *db;
   bool configured = false;
   HANDLE dw_change_handle;
+  const char *ip;
 } configuration;
 
 

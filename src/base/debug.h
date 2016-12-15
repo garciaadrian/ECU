@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #define DEXIT_PROCESS(string, exit)                             \
-  write_log(string, exit);                                      \
+  write_log(string, exit, __FILE__, __LINE__);                  \
   MessageBoxW(NULL, string, NULL, MB_ICONERROR);                \
   CreateMiniDump(exit);
 
@@ -30,6 +30,6 @@ char* DExitProcess(char* file, char* func_signature, int line);
 
 void CreateMiniDump(int exit);
 
-void write_log(wchar_t *text, DWORD error);
+void write_log(wchar_t *text, DWORD error, char *file, int line);
 
 #endif

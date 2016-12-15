@@ -138,6 +138,8 @@ wchar_t *num_to_month(int month)
 
 void sort_ibt_directory(wchar_t *directory)
 {
+  wchar_t debug[1024];
+  
   WIN32_FIND_DATA files;
   HANDLE search;
   wchar_t directory_wildcard[MAX_PATH_UNICODE];
@@ -166,9 +168,34 @@ void sort_ibt_directory(wchar_t *directory)
     if (lstrcmp(extension, L"ibt") == 0) {
       StringCchCopy(filename, MAX_PATH_UNICODE, directory);
       StringCchCat(filename, MAX_PATH_UNICODE, files.cFileName);
-      HANDLE file_handle = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL,
-                               OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
+      
+      HANDLE file_handle;
+      
+      __try {
+        file_handle = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL,
+                                        OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
+      }
+      
+      __except (EXCEPTION_EXECUTE_HANDLER) {
+        if (INVALID_HANDLE_VALUE != file_handle)
+          CloseHandle(file_handle);
+        
+        file_handle = INVALID_HANDLE_VALUE;
+        continue;
+      }
+      
       int fd = _open_osfhandle((intptr_t)file_handle, _O_APPEND | _O_RDONLY);
+      
+      if (fd == -1) {
+        if (INVALID_HANDLE_VALUE != file_handle)
+          CloseHandle(file_handle);
+        
+        file_handle = INVALID_HANDLE_VALUE;
+        swprintf_s(debug, L"failed to obtain file descriptor for file %s", files.cFileName);
+        DEXIT_PROCESS(debug, 0);
+        continue;
+      }
+      
       ibt *telemetry = parse_ibt(fd, filename);
       char *ir_buffer;
       

@@ -15,6 +15,21 @@
 #include <base/loop.h>
 #include <Strsafe.h>
 #include <Dbghelp.h>
+#include <ini.h>
+
+int config_ini_handler(void *user, const char *section, const char *name,
+                       const char *value)
+{
+  configuration *config = (configuration *)user;
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+  if (strcmp(name, "ip") == 0) {
+    config->ip = value;
+  }
+  else {
+    return 0;
+  }
+  return 0;
+}
 
 configuration *ecu_init()
 {
@@ -27,7 +42,7 @@ configuration *ecu_init()
   if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
     DEXIT_PROCESS(L"Failed to get Module FileName", GetLastError());
   }
-
+  
   SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);
   StringCchCopy(config->telemetry_path, MAX_PATH_UNICODE, telemetry_path);
   StringCchCat(config->telemetry_path, MAX_PATH_UNICODE, L"\\iRacing\\telemetry\\");
@@ -41,6 +56,37 @@ configuration *ecu_init()
   
   /* TODO: add support for changing executable name */
   config->path[len - 7] = '\0'; /* ECU.exe */
+  
+  wchar_t temp_path[MAX_PATH_UNICODE];
+  wcscpy_s(temp_path, MAX_PATH_UNICODE, config->path);
+  
+  swprintf_s(config->path, MAX_PATH_UNICODE, L"\\\\?\\%s", temp_path);
+  
+  HANDLE config_ini_handle;
+  DWORD config_ini_size;
+
+  if (!PathFileExists(L"config.ini")) {
+    config_ini_handle = CreateFile(L"config.ini", GENERIC_WRITE, FILE_SHARE_READ, NULL,
+                                   CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+    
+    if (config_ini_handle == INVALID_HANDLE_VALUE) {
+      DEXIT_PROCESS(L"Invalid Handle", GetLastError());
+    } 
+
+    const char ini_text[] = "[network]\r\n"
+                            "ip = 192.168.29.29";
+    DWORD bytes_written;
+    
+    if (!WriteFile(config_ini_handle, ini_text, sizeof(ini_text)/sizeof(ini_text[0]),
+                   &bytes_written, NULL)) {
+      DEXIT_PROCESS(L"Can't write to config.ini", GetLastError());
+    }
+    CloseHandle(config_ini_handle);
+  }
+  
+  if (ini_parse("config.ini", config_ini_handler, config) < 0) {
+    DEXIT_PROCESS(L"Can't load config.ini", 0);
+  }
   
   // Don't execute anything until iRacing is running
   DEBUG_OUTA("[STARTUP]: Init ECU\n", debug);

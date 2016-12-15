@@ -7,3 +7,6 @@
 [submodule "libs/libmicrohttpd"]
 	path = libs/libmicrohttpd
 	url = https://github.com/ECU-IR/libmicrohttpd.git
+[submodule "libs/inih"]
+        path = libs/inih
+        url = https://github.com/ECU-IR/inih.git

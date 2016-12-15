@@ -91,8 +91,8 @@ def clean(ctx):
 
 @cli.command()
 @click.option('--no-premake', is_flag=True)
-@click.option('--configuration', type=click.Choice(['Release', 'Debug'])
-              , default='Release')
+@click.option('--configuration', '-c', type=click.Choice(['release', 'debug'])
+              , default='release')
 @click.pass_context
 def build(ctx, no_premake, configuration):
     if not no_premake:
@@ -155,7 +155,7 @@ def cef(ctx):
 def dist(ctx, configuration):
     if not os.path.exists('dist'):
         os.makedirs('dist')
-    release_directory = 'build/bin/Release/'
+    release_directory = 'build/Release/'
     release_directory_files = ['ECU.exe',
                                'libcef.dll',
                                'd3dcompiler_47.dll',
@@ -168,7 +168,8 @@ def dist(ctx, configuration):
                                'snapshot_blob.bin',
                                'cef_100_percent.pak',
                                'cef_200_percent.pak',
-                               'cef_extensions.pak']
+                               'cef_extensions.pak',
+                               'client.html']
     
     shutil.copy('LICENSE', 'dist')
     if configuration == 'debug':

@@ -17,6 +17,7 @@ files({
 links({
   "sqlite",
   "irsdk",
+  "inih",
   "libcef",
   "libcef_dll_wrapper",
   "dxguid",

@@ -6,6 +6,7 @@ includedirs({
  ".",
  "src",
  "libs/cef_binary_3.2704.1414.g185cd6c_windows64/",
+ "libs/inih",
 })
 
 defines({ "_UNICODE", "UNICODE", "STRICT", "NOMINMAX", })
@@ -130,6 +131,7 @@ solution("ECU")
   end
   configurations({"Debug", "Release"})
 
+  include("libs/inih")
   include("libs/sqlite3")
   include("libs/irsdk")
   include("src/")

@@ -78,9 +78,9 @@ IF NOT EXIST "build\bin\Release" (
    mkdir build\bin\Release
 )
 
-pushd client
+cd client
 npm install
-popd
+cd ..
 
 pushd libs\cef_binary_3.2704.1414.g185cd6c_windows64\Debug
 for %%f in (*.*) do mklink /H ..\..\..\build\bin\Debug\%%f %%f

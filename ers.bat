@@ -78,6 +78,10 @@ IF NOT EXIST "build\bin\Release" (
    mkdir build\bin\Release
 )
 
+pushd client
+npm install
+popd
+
 pushd libs\cef_binary_3.2704.1414.g185cd6c_windows64\Debug
 for %%f in (*.*) do mklink /H ..\..\..\build\bin\Debug\%%f %%f
 popd

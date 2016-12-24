@@ -79,8 +79,11 @@ IF NOT EXIST "build\bin\Release" (
 )
 
 cd client
+pwd
 npm install
+pwd
 cd ..
+pwd
 
 pushd libs\cef_binary_3.2704.1414.g185cd6c_windows64\Debug
 for %%f in (*.*) do mklink /H ..\..\..\build\bin\Debug\%%f %%f

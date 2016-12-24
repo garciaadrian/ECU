@@ -1,6 +1,3 @@
-require("./style.css");
-
-
 var debugServer = new WebSocket("ws://127.0.0.1:8765");
 var domWebsocketStatus = document.getElementById('websocketStatus');
 var domLastMessage = document.getElementById('lastMessage');

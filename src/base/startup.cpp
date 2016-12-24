@@ -73,7 +73,9 @@ configuration *ecu_init()
       DEXIT_PROCESS(L"Invalid Handle", GetLastError());
     } 
 
-    const char ini_text[] = "[network]\r\n"
+    const char ini_text[] = "[core]\r\n"
+                            "ibt_sorting = true"
+                            "[network]\r\n"
                             "ip = 192.168.29.29";
     DWORD bytes_written;
     
@@ -88,7 +90,7 @@ configuration *ecu_init()
     DEXIT_PROCESS(L"Can't load config.ini", 0);
   }
   
-  // Don't execute anything until iRacing is running
+  /* Don't execute anything until iRacing is running */
   DEBUG_OUTA("[STARTUP]: Init ECU\n", debug);
   init_db(config);
   return config;

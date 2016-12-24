@@ -10,7 +10,7 @@ configuration:
   - Release
 
 build_script:
-  - cmd: ers.bat build --configuration=Release
+  - cmd: ers.bat build --configuration=release
 
 after_build: >-
   
@@ -29,7 +29,6 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_100_percent.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_200_percent.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_extensions.pak
-  
 
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip

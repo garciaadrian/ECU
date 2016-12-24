@@ -25,6 +25,7 @@ char *ir_get_variable(char *variable, const char *session_string)
   char *ir_buffer;
   
   /* As of SDK 1.09, session strings are atleast 50 kilabytes */
+  /* TODO: get strlen_s of session string, use for malloc instead of guessing*/
   ir_buffer = (char *)malloc(60000);
   int cutoff;
 

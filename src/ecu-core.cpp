@@ -120,7 +120,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   struct MHD_Daemon* daemon;
   daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &answer_to_connection, NULL, MHD_OPTION_END);
-
+  
   if (NULL == daemon) {
     DEXIT_PROCESS(L"Failed to start http server", GetLastError());
   }

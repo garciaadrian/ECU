@@ -142,5 +142,3 @@ solution("ECU")
   include("src/graphics")
   include("src/server")
   include("src/car")
-
-

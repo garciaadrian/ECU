@@ -47,11 +47,6 @@ def client(ctx, configuration):
     
     client_dir = ctx.obj['self_path'] + '\\client\\'
     
-    if configuration == 'release':
-        build_dir = ctx.obj['self_path'] + '\\build\\bin\\Release\\'
-    else:
-        build_dir = ctx.obj['self_path'] + '\\build\\bin\\Debug\\'
-    
     os.chdir(client_dir)
 
     result = subprocess.call(['webpack'], shell=True)
@@ -66,7 +61,7 @@ def client(ctx, configuration):
     with open(client_dir + 'bundle.js') as bundle:
         bundle_content = bundle.read()
 
-    with open(build_dir + 'client.html', 'w') as client:
+    with open(client_dir + 'client.html', 'w') as client:
         client.write(index_content)
         client.write('<script>')
         client.write(bundle_content)

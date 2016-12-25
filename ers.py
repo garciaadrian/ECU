@@ -48,6 +48,21 @@ def client(ctx, configuration):
     client_dir = ctx.obj['self_path'] + '\\client\\'
     
     os.chdir(client_dir)
+    
+    if not os.path.exists(client_dir + '\\node_modules\\'):
+        result = subprocess.call(['npm', 'install'], shell=True)
+        if result != 0:
+            click.echo('ERROR: "npm install" failed with one or more errors.')
+            return result
+        
+        result = subprocess.call(['npm',
+                                  'install',
+                                  '-g',
+                                  'webpack'], shell=True)
+        if result != 0:
+            click.echo('ERROR: "npm install -g webpack" failed with one or more errors.')
+            return result
+
 
     result = subprocess.call(['webpack'], shell=True)
 

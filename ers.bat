@@ -114,3 +114,7 @@ msbuild /p:Configuration=Debug /p:Platform="x64" /nologo /m /v:m cef.sln
 popd
 popd
 tools\build\premake5.exe vs2015
+
+CALL "%DIR%\Scripts\activate.bat"
+python ers.py client
+CALL "%DIR%\Scripts\deactivate.bat

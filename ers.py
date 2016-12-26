@@ -39,6 +39,10 @@ def cli(ctx, debug):
         print('ERROR: git must be installed and on PATH.')
         sys.exit(1)
 
+    if not get_bin('npm'):
+        print('ERROR: npm must be installed and on PATH.')
+        sys.exit(1)
+
 @cli.command()
 @click.option('--configuration', type=click.Choice(['release', 'debug'])
               , default='release')

@@ -24,6 +24,10 @@ links({
   "dinput8",
   "ECU-base",
 })
+filter("configurations:Debug")
+  linkoptions({
+    "/ENTRY:WinMainCRTStartup",
+})
 filter("configurations:Release")
   linkoptions({
     "/RELEASE",

@@ -1,6 +1,18 @@
 ECU is a sofware used to make detailed performance analysis on the
-iRacing MP4-30; it's used to make drivers go faster.
+iRacing MP4-30
 
 #Installing
-Open a shell as administrator and run ers.bat, it'll call ers.py to pull the right
-CEF version and git submodules, then hardlink the libraries into the bin folders
+Open command prompt and type
+
+```
+ers setup
+```
+
+The generated solution has an odd problem where the working directory is set to 'ECU/build' directory. This only happens to the
+debug builds. The working directory should be 'ECU/build/bin/Debug'
+
+To fix this open the solution generated in the build directory and make sure the configuration is Debug. Right-click ECU-core and choose properties. Click the Debugging section and copy the following section into 'Working Directory'
+
+```
+$(ProjectDir)bin\Debug
+```

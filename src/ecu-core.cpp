@@ -107,11 +107,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     CefSettings settings;
     settings.remote_debugging_port = 9991;
     settings.log_severity = LOGSEVERITY_WARNING;
+    settings.multi_threaded_message_loop = true;
 
 #ifndef CEF_USE_SANDBOX
     settings.no_sandbox = true;
 #endif
-    CefRefPtr<SimpleApp> app(new SimpleApp);
+    CefRefPtr<SimpleApp> app(new SimpleApp(GetCurrentThreadId()));
 
     CefInitialize(main_args, settings, app.get(), sandbox_info);
 
@@ -164,13 +165,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
       if (msg.message == WM_CLOSE) {
         // g27.DInterface->Release();
-        if (!debug)
-          CefShutdown();
+
         free(config);
         free(ws);
         g_Running = false;
+        CefShutdown();
         return 0;
       }
+      
       TranslateMessage(&msg);
       DispatchMessage(&msg);
        // server.poll();
@@ -178,13 +180,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     
     time1 = timeGetTime();
-#ifndef DEBUG
-      CefDoMessageLoopWork();
-#endif
-      loop(config->db, ws, config);
+
+    loop(config->db, ws, config);
     time2 = timeGetTime();
     int delta = time2 - time1;
-    int fps = 120;
+    int fps = 620;
     // DEBUG_OUTA("Main loop: %d ms\n", debug_stream, time2 - time1);
     if (delta < 1000.0f / fps)
       Sleep((1000.0f / fps) - delta);

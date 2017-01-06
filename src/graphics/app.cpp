@@ -53,7 +53,8 @@ class SimpleWindowDelegate : public CefWindowDelegate {
 
 }  // namespace
 
-SimpleApp::SimpleApp() {
+SimpleApp::SimpleApp(int main_thread)
+    : main_thread(main_thread){
 }
 
 void SimpleApp::OnContextInitialized() {
@@ -73,7 +74,7 @@ void SimpleApp::OnContextInitialized() {
 #endif
 
   // SimpleHandler implements browser-level callbacks.
-  CefRefPtr<SimpleHandler> handler(new SimpleHandler(use_views));
+  CefRefPtr<SimpleHandler> handler(new SimpleHandler(use_views, main_thread));
 
   // Specify CEF browser settings here.
   CefBrowserSettings browser_settings;

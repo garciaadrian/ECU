@@ -72,6 +72,7 @@ filter("configurations:Release")
   })
   linkoptions({
     "/ignore:4099",
+    "/LTCG",
   })
   flags({
     "Optimize",
@@ -112,6 +113,7 @@ filter("configurations:Debug")
   })
   linkoptions({
     "/ignore:4099",
+    "/LTCG"    
   })
   runtime("Debug")
   defines({

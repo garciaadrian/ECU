@@ -11,7 +11,8 @@
 
 #define DEBUG_OUT(string, buffer, ...)                                  \
   swprintf_s(buffer, sizeof(buffer), (wchar_t*)string, __VA_ARGS__);    \
-  OutputDebugString(buffer);
+  OutputDebugString(buffer);                                            \
+  OutputDebugString(L"\n");
 
 /*
  * Output ASCII only, for libs like sqlite3.

@@ -40,7 +40,7 @@ configuration *ecu_init()
   PWSTR telemetry_path = NULL;
 
   if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
-    DEXIT_PROCESS(L"Failed to get Module FileName", GetLastError());
+    DEXIT_PROCESS(L"Failed to get Module Filename", GetLastError());
   }
   
   SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);
@@ -74,9 +74,9 @@ configuration *ecu_init()
     } 
 
     const char ini_text[] = "[core]\r\n"
-                            "ibt_sorting = true"
+                            "ibt_sorting = true\r\n"
                             "[network]\r\n"
-                            "ip = 192.168.29.29";
+                            "ip = 192.168.29.29\r\n";
     DWORD bytes_written;
     
     if (!WriteFile(config_ini_handle, ini_text, sizeof(ini_text)/sizeof(ini_text[0]),

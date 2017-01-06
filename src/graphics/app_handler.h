@@ -8,13 +8,16 @@
 #include "include/cef_client.h"
 
 #include <list>
+#include <WTypesbase.h>
 
 class SimpleHandler : public CefClient,
                       public CefDisplayHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler {
  public:
-  explicit SimpleHandler(bool use_views);
+  int main_thread;
+  
+  explicit SimpleHandler(bool use_views, int main_thread);
   ~SimpleHandler();
 
   // Provide access to the single global instance of this object.
@@ -65,6 +68,8 @@ class SimpleHandler : public CefClient,
   BrowserList browser_list_;
 
   bool is_closing_;
+
+  
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(SimpleHandler);

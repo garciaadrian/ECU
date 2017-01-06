@@ -11,7 +11,9 @@
 class SimpleApp : public CefApp,
                   public CefBrowserProcessHandler {
  public:
-  SimpleApp();
+  int main_thread;
+  
+  SimpleApp(int main_thread);
 
   // CefApp methods:
   virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()

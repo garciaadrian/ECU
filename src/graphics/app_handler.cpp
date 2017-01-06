@@ -4,6 +4,7 @@
 
 #include "app_handler.h"
 
+
 #include <sstream>
 #include <string>
 
@@ -20,8 +21,9 @@ SimpleHandler* g_instance = NULL;
 
 }  // namespace
 
-SimpleHandler::SimpleHandler(bool use_views)
+SimpleHandler::SimpleHandler(bool use_views, int main_thread)
     : use_views_(use_views),
+      main_thread(main_thread),
       is_closing_(false) {
   DCHECK(!g_instance);
   g_instance = this;
@@ -93,6 +95,7 @@ void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   if (browser_list_.empty()) {
     // All browser windows have closed. Quit the application message loop.
     CefQuitMessageLoop();
+    PostThreadMessage(main_thread, WM_CLOSE, 0, 0);
   }
 }
 

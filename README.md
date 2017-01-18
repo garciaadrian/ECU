@@ -8,6 +8,12 @@ Open command prompt and type
 ers setup
 ```
 
+Open the generated .sln in the build folder and compile from visual studio or to build from the command line type
+
+```
+ers build
+```
+
 The generated solution has an odd problem where the working directory is set to 'ECU/build' directory. This only happens to the
 debug builds. The working directory should be 'ECU/build/bin/Debug'
 

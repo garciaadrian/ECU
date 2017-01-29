@@ -1,6 +1,13 @@
 ECU is a sofware used to make detailed performance analysis on the
 iRacing MP4-30
 
+#Requirements
+- Visual Studio 2015
+- CMake
+- Python 2.7 and pip
+- Windows 7 or newer
+
+
 #Installing
 Open command prompt and type
 

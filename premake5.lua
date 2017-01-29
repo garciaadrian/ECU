@@ -36,11 +36,13 @@ filter("configurations:Release")
   targetdir("build/bin/Release")
 
   includedirs({
+        "libs/g3logger/src",
         "libs/libmicrohttpd/x86_64/VS2015/Release-static/",
         "libs/sqlite/",
         "libs",
   })
   libdirs({
+    "libs/g3logger/build/Release",
     "libs/cef_binary_3.2704.1414.g185cd6c_windows64/Release",
     "libs/cef_binary_3.2704.1414.g185cd6c_windows64/build/libcef_dll_wrapper/Release/",
     "libs/libmicrohttpd/x86_64/VS2015/Release-static/"
@@ -68,7 +70,8 @@ filter("configurations:Release")
     "psapi",
     "cef_sandbox",
     "libmicrohttpd",
-    "Bcrypt"
+    "Bcrypt",
+    "g3logger",
   })
   linkoptions({
     "/ignore:4099",
@@ -88,11 +91,13 @@ filter("configurations:Release")
 filter("configurations:Debug")
   targetdir("build/bin/Debug")  
   includedirs({
+        "libs/g3logger/src",
         "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
         "libs/sqlite/",
         "libs",
    })
   libdirs({
+    "libs/g3logger/build/Debug",
     "libs/cef_binary_3.2704.1414.g185cd6c_windows64/Debug",
     "libs/cef_binary_3.2704.1414.g185cd6c_windows64/build/libcef_dll_wrapper/Debug/",
     "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
@@ -110,6 +115,7 @@ filter("configurations:Debug")
     "cef_sandbox",
     "libmicrohttpd_d",
     "Bcrypt",
+    "g3logger",
   })
   linkoptions({
     "/ignore:4099",
@@ -117,7 +123,6 @@ filter("configurations:Debug")
   })
   runtime("Debug")
   defines({
-    "DEBUG",
     "_DEBUG",
     "_NO_DEBUG_HEAP=1",
     "USING_CEF_SHARED",

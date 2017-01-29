@@ -6,6 +6,8 @@ REM move this to python script
 SET DIR=%~dp0
 
 SET FOUND_PYTHON_EXE=""
+SET FOUND_CMAKE_EXE=""
+
 1>NUL 2>NUL CMD /c where python2
 IF NOT ERRORLEVEL 1 (
    SET FOUND_PYTHON_EXE=python2
@@ -21,6 +23,17 @@ IF %FOUND_PYTHON_EXE% EQU "" (
 IF %FOUND_PYTHON_EXE% EQU "" (
   ECHO ERROR: no Python executable found on PATH.
   ECHO Make sure you can run 'python' or 'python2' in a Command Prompt.
+  EXIT /b
+)
+
+1>NUL 2>NUL CMD /c where cmake
+IF NOT ERRORLEVEL 1 (
+   SET FOUND_CMAKE_EXE=cmake
+)
+
+IF %FOUND_CMAKE_EXE% EQU "" (
+  ECHO ERROR: no cmake executable found on PATH.
+  ECHO Make sure you can run 'cmake' in a Command Prompt.
   EXIT /b
 )
 
@@ -106,6 +119,15 @@ msbuild /p:Configuration=Release /p:Platform="x64" /nologo /m /v:m cef.sln
 msbuild /p:Configuration=Debug /p:Platform="x64" /nologo /m /v:m cef.sln
 popd
 popd
+
+pushd libs\g3logger
+mkdir build && pushd build
+cmake .. -G "Visual Studio 14 Win64"
+msbuild /p:Configuration=Debug g3log.sln
+msbuild /p:Configuration=Release g3log.sln
+popd
+popd
+
 tools\build\premake5.exe vs2015
 
 CALL "%DIR%\Scripts\activate.bat"

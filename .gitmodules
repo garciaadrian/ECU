@@ -10,3 +10,6 @@
 [submodule "libs/inih"]
 	path = libs/inih
 	url = https://github.com/ECU-IR/inih.git
+[submodule "libs\\g3logger"]
+	path = libs\\g3logger
+	url = https://github.com/ECU-IR/g3log.git

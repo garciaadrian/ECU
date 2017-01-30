@@ -20,7 +20,9 @@
 #include <base/websocket.h>
 #include <db/sqlite.h>
 #include <hid/hid.h>
-
+#include <Hidsdi.h>
+#include <g3log/g3log.hpp>
+#include <g3log/logworker.hpp>
 
 #include "graphics/app.h"
 #include "include/cef_sandbox_win.h"
@@ -29,37 +31,45 @@
 
 #define _WIN32_WINNT 0x0602
 #define STANDALONE 0
+#define WM_SOCKET 104
 
 bool g_Running = false;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 bool debug = true;
 #else
 bool debug = false;
 #endif
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+  
   LRESULT Result = 0;
 
   switch (Msg) {
-  case WM_LBUTTONDOWN: {
-    MessageBox(hWnd, L"You clicked me~", L"Click", MB_OK | MB_ICONINFORMATION);
-    break;
-  }
+      
+    case WM_LBUTTONDOWN: {
+      MessageBox(hWnd, L"You clicked me~", L"Click", MB_OK | MB_ICONINFORMATION);
+      break;
+    }
 
-  case WM_CLOSE: {
-    OutputDebugString(_T("WM_CLOSE\n"));
-    g_Running = false;
-    break;
-  }
+    case WM_CLOSE: {
+      OutputDebugString(_T("WM_CLOSE\n"));
+      g_Running = false;
+      break;
+    }
 
-  case WM_DESTROY: {
-    OutputDebugString(_T("WM_DESTROY"));
-    g_Running = false;
-    break;
-  }
+    case WM_INPUT: {
+      hid_poll(lParam);
+      break;
+    }
 
-  default: { Result = DefWindowProc(hWnd, Msg, wParam, lParam); }
+    case WM_DESTROY: {
+      OutputDebugString(_T("WM_DESTROY"));
+      g_Running = false;
+      break;
+    }
+
+    default: { Result = DefWindowProc(hWnd, Msg, wParam, lParam); }
   }
 
   return Result;
@@ -83,9 +93,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   window.lpszMenuName = NULL;
   window.lpszClassName = szWindowClass;
   window.hIconSm = 0;
-
-  ws_daemon *ws = (ws_daemon*)malloc(sizeof(ws_daemon));
-  ws_start_daemon(ws);
    
   if (!debug) {
     CefEnableHighDPISupport();
@@ -118,6 +125,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   }
 
+  auto worker = g3::LogWorker::createLogWorker();
+  auto handle = worker->addDefaultLogger("log", "./");
+  g3::initializeLogging(worker.get());
+
+  ws_daemon *ws = (ws_daemon*)malloc(sizeof(ws_daemon));
+  ws_start_daemon(ws);
+
   struct MHD_Daemon* daemon;
   daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &answer_to_connection, NULL, MHD_OPTION_END);
@@ -125,47 +139,38 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (NULL == daemon) {
     DEXIT_PROCESS(L"Failed to start http server", GetLastError());
   }
-
  
-  // Init websocket server
-  //static debug_server server;
-  //server.run();
-
   if (!RegisterClassEx(&window)) {
     return __LINE__;
   }
 
   HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE, szWindowClass, szTitle,
                              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                             500, 100, NULL, NULL, hInstance, NULL);
+                             500, 100, HWND_MESSAGE, NULL, hInstance, NULL);
 
   if (!hWnd) {
     DEXIT_PROCESS(L"Window handle failed to create", GetLastError());
   }
 
-  
-  // ShowWindow(hWnd, nCmdShow);
-  // UpdateWindow(hWnd);
+  /* ShowWindow(hWnd, nCmdShow); */
+  /* UpdateWindow(hWnd); */
 
   configuration *config = ecu_init();
   
   while (!config->configured) {
-    static char debug[1024];
-    DEBUG_OUTA("[STARTUP]: Waiting for iRacing...\n", debug);
+    LOGF(INFO, "Waiting for iRacing...");
     setup_weekend(config);
   }
 
   g_Running = true;
 
-  DWORD time1, time2;
-  char debug_stream[256];
-
+  register_devices(hWnd);
+  enumerate_devices();
+  
   while (g_Running) {
     MSG msg;
-    while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+    while (GetMessage(&msg, 0, 0, 0)) {
       if (msg.message == WM_CLOSE) {
-        // g27.DInterface->Release();
-
         free(config);
         free(ws);
         g_Running = false;
@@ -175,30 +180,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-       // server.poll();
-
+   
     }
     
-    time1 = timeGetTime();
-
-    loop(config->db, ws, config);
-    time2 = timeGetTime();
-    int delta = time2 - time1;
-    int fps = 620;
-    // DEBUG_OUTA("Main loop: %d ms\n", debug_stream, time2 - time1);
-    if (delta < 1000.0f / fps)
-      Sleep((1000.0f / fps) - delta);
-    
-    // if (g27.joy.rgbButtons[21] == 128) {
-    // brake.change_bias();
-    // }
-    
-    // if (irsdkClient::instance().waitForData(16)) {
-    //   // Callback other modules
-      
-    // }
-
   }
-  
   return 0;
 }

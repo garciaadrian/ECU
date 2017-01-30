@@ -22,9 +22,15 @@ int config_ini_handler(void *user, const char *section, const char *name,
 {
   configuration *config = (configuration *)user;
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-  if (strcmp(name, "ip") == 0) {
+
+  if (MATCH("core", "ibt_sorting")) {
+    config->ibt_sorting = atoi(value);
+  }
+  
+  if (MATCH("network", "ip")) {
     config->ip = value;
   }
+  
   else {
     return 0;
   }
@@ -34,9 +40,10 @@ int config_ini_handler(void *user, const char *section, const char *name,
 configuration *ecu_init()
 {
   configuration *config = (configuration *)malloc(sizeof(configuration));
+  
+  config->ibt_sorting = false;
   config->configured = false;
   
-  static char debug[128];
   PWSTR telemetry_path = NULL;
 
   if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
@@ -46,8 +53,6 @@ configuration *ecu_init()
   SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);
   StringCchCopy(config->telemetry_path, MAX_PATH_UNICODE, telemetry_path);
   StringCchCat(config->telemetry_path, MAX_PATH_UNICODE, L"\\iRacing\\telemetry\\");
-
-  sort_ibt_directory(config->telemetry_path);
   
   config->dw_change_handle = FindFirstChangeNotification(config->telemetry_path, FALSE,
                                                          FILE_NOTIFY_CHANGE_FILE_NAME);
@@ -74,7 +79,7 @@ configuration *ecu_init()
     } 
 
     const char ini_text[] = "[core]\r\n"
-                            "ibt_sorting = true\r\n"
+                            "ibt_sorting = false\r\n"
                             "[network]\r\n"
                             "ip = 192.168.29.29\r\n";
     DWORD bytes_written;
@@ -89,9 +94,14 @@ configuration *ecu_init()
   if (ini_parse("config.ini", config_ini_handler, config) < 0) {
     DEXIT_PROCESS(L"Can't load config.ini", 0);
   }
+
+  if (config->ibt_sorting) {
+    sort_ibt_directory(config->telemetry_path);
+  }
+
   
   /* Don't execute anything until iRacing is running */
-  DEBUG_OUTA("[STARTUP]: Init ECU\n", debug);
+  LOGF(DEBUG, "Init ECU");
   init_db(config);
   return config;
 }

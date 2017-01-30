@@ -25,7 +25,6 @@
 
 void check_track(sqlite3 *db)
 {
-  static char buffer[512];
   static char sql[512];
   sqlite3_stmt *sql_stmt = {0};
   int rc = 0;
@@ -41,13 +40,13 @@ void check_track(sqlite3 *db)
     handle_sql_rc(rc, sql, db, false, false, true);
     
     rc = sqlite3_step(sql_stmt);
-    DEBUG_OUTA("[STARTUP]: Checking if current track is on the database\n", buffer);
+    LOGF(INFO, "[STARTUP]: Checking if current track is on the database\n");
         
     if (!handle_sql_rc(rc, sql, db, true, true, true)) {
       
-      DEBUG_OUTA("[STARTUP]: Entry for track '%s' was not found in table `tracks`\n"
+      LOGF(INFO, "[STARTUP]: Entry for track '%s' was not found in table `tracks`\n"
                  "[STARTUP]: Creating entry in table `tracks` for '%s'\n",
-                 buffer, ir_buffer, ir_buffer);
+                 ir_buffer, ir_buffer);
       sprintf_s(sql, "INSERT INTO tracks(name) VALUES('%s')", ir_buffer);
 
       rc = sqlite3_prepare_v2(db, sql, sizeof(sql), &sql_stmt, NULL);
@@ -56,7 +55,7 @@ void check_track(sqlite3 *db)
       handle_sql_rc(rc, sql, db, true, true, false);
       
     } else {
-      DEBUG_OUTA("[STARTUP]: Track %s found in database\n", buffer, ir_buffer);
+      LOGF(INFO, "[STARTUP]: Track %s found in database\n", ir_buffer);
       const unsigned char *sql_result = sqlite3_column_text(sql_stmt, 1);
     }
 

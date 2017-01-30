@@ -21,7 +21,7 @@ links({
   "libcef",
   "libcef_dll_wrapper",
   "dxguid",
-  "dinput8",
+  "Hid",
   "ECU-base",
 })
 filter("configurations:Debug")

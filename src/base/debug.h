@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <cstdio>
+#include <g3log/g3log.hpp>
 
 #define DEXIT_PROCESS(string, exit)                             \
   write_log(string, exit, __FILE__, __LINE__);                  \
@@ -13,6 +14,9 @@
   swprintf_s(buffer, sizeof(buffer), (wchar_t*)string, __VA_ARGS__);    \
   OutputDebugString(buffer);                                            \
   OutputDebugString(L"\n");
+
+#define LOGA(string)                            \
+  write_log(string);                            \
 
 /*
  * Output ASCII only, for libs like sqlite3.
@@ -32,5 +36,7 @@ char* DExitProcess(char* file, char* func_signature, int line);
 void CreateMiniDump(int exit);
 
 void write_log(wchar_t *text, DWORD error, char *file, int line);
+void write_log(wchar_t *text);
+void write_log(const char *text);
 
 #endif

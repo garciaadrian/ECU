@@ -26,6 +26,7 @@ typedef struct
   bool configured = false;
   HANDLE dw_change_handle;
   const char *ip;
+  bool ibt_sorting = false;
 } configuration;
 
 

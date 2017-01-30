@@ -63,6 +63,55 @@ void write_log(wchar_t *text, DWORD error, char *file, int line)
   HeapFree(GetProcessHeap(), NULL, error_text);
 }
 
+void write_log(wchar_t *text)
+{
+  HANDLE log = CreateFile(L"log.txt", GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                          OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+  SYSTEMTIME date;
+  DWORD bytes_written;
+  
+  SetFilePointer(log, 0, NULL, FILE_END);
+  
+  
+  GetLocalTime(&date);
+  
+  wchar_t text_final[4096];
+  
+  swprintf_s(text_final, 4096,
+               L"[%d/%d/%d %d:%d:%d]: %s\r\n",
+               date.wDay, date.wMonth, date.wYear,
+               date.wHour, date.wMinute, date.wSecond, text);
+  
+  WriteFile(log, text, wcslen(text)*sizeof(wchar_t), &bytes_written, NULL);
+  CloseHandle(log);
+}
+
+void write_log(const char *text)
+{
+  HANDLE log = CreateFile(L"log.txt", GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                          OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+  SYSTEMTIME date;
+  DWORD bytes_written;
+  
+  SetFilePointer(log, 0, NULL, FILE_END);
+    
+  GetLocalTime(&date);
+  
+  size_t char_converted;
+  wchar_t text_wide[4096];
+  mbstowcs_s(&char_converted, text_wide, 4096, text, _TRUNCATE);
+
+  wchar_t text_final[4096];
+    
+  swprintf_s(text_final, 4096,
+               L"[%d/%d/%d %d:%d:%d]: %s\r\n",
+               date.wDay, date.wMonth, date.wYear,
+               date.wHour, date.wMinute, date.wSecond, text_wide);
+  
+  WriteFile(log, text_final, wcslen(text_final)*sizeof(wchar_t), &bytes_written, NULL);
+  CloseHandle(log);
+}
+
 BOOL close_window(HWND window, LPARAM param)
 {
   if (IsWindow(window)) {

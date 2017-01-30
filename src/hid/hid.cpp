@@ -128,7 +128,7 @@ void hid_poll(LPARAM lParam)
         }
       }
       if (!present) {
-        LOGF(DEBUG, "Button %d pressed (%S %S)",
+        LOGF(DEBUG, "Button %d released (%S %S)",
            keys[i],
            (manufacturer_string[0] == '\0') ? L"*": manufacturer_string,
            (product_string[0] == '\0') ? L"*": product_string);

@@ -166,23 +166,55 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   register_devices(hWnd);
   enumerate_devices();
+
+  HANDLE wait_handles[1];
+  wait_handles[0] = config->dw_change_handle;
   
   while (g_Running) {
     MSG msg;
-    while (GetMessage(&msg, 0, 0, 0)) {
-      if (msg.message == WM_CLOSE) {
-        free(config);
-        free(ws);
-        g_Running = false;
-        CefShutdown();
-        return 0;
+    int rc;
+    int wait_count = 1; /* dw_change_handle */
+
+
+    rc = MsgWaitForMultipleObjects(wait_count, wait_handles,
+                                   FALSE, INFINITE, QS_ALLINPUT);
+    
+    if (rc == WAIT_OBJECT_0 + wait_count) {
+      while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+        if (msg.message == WM_CLOSE) {
+          free(config);
+          free(ws);
+          g_Running = false;
+          CefShutdown();
+          return 0;
+        }
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
       }
-      
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-   
     }
     
+    else if (rc >= WAIT_OBJECT_0
+             && rc < WAIT_OBJECT_0 + wait_count) {
+      int index = rc - WAIT_OBJECT_0;
+      
+      if (config->ibt_sorting) {
+        sort_ibt_directory(config->telemetry_path);
+      }
+    }
+
+    else if (rc == WAIT_TIMEOUT) {
+
+    }
+
+    else if (rc >= WAIT_ABANDONED_0
+             && rc < WAIT_ABANDONED_0 + wait_count) {
+      int index = rc - WAIT_ABANDONED_0;
+      /* A thread died that owned a mutex */
+    }
+
+    else {
+      // something went wrong
+    }
   }
   return 0;
 }

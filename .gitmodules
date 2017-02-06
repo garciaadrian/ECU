@@ -1,15 +1,20 @@
 [submodule "libs/sqlite3"]
 	path = libs/sqlite3
 	url = https://github.com/ECU-IR/sqlite3.git
+        ignore = dirty
 [submodule "libs/irsdk"]
 	path = libs/irsdk
 	url = https://github.com/ECU-IR/irsdk.git
+        ignore = dirty
 [submodule "libs/libmicrohttpd"]
 	path = libs/libmicrohttpd
 	url = https://github.com/ECU-IR/libmicrohttpd.git
+        ignore = dirty
 [submodule "libs/inih"]
 	path = libs/inih
 	url = https://github.com/ECU-IR/inih.git
+        ignore = dirty
 [submodule "libs/g3logger"]
 	path = libs/g3logger
 	url = https://github.com/ECU-IR/g3log.git
+        ignore = dirty

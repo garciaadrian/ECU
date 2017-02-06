@@ -35,6 +35,8 @@ typedef struct {
   char send_buffer[4096];
   WSADATA wsa_data;
   WORD wsa_version;
+  fd_set fd_read;
+  fd_set fd_write;
 } ws_daemon;
 
 char *encode_base64();

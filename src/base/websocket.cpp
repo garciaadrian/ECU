@@ -151,135 +151,7 @@ void ws_init_conn()
 
 void ws_poll(ws_daemon *ws)
 {
-  static char debug[5000];
-  int ret = 0;
-  
-  ws->index = WSAWaitForMultipleEvents(ws->event_total, ws->event_array,
-                                       FALSE, 0, FALSE);
-  if (ws->index == WSA_WAIT_FAILED) {
-    DEBUG_OUTA("WSAWaitForMultipleEvents failed with error code %d\n",
-    debug, WSAGetLastError());
-  }
-  ws->index = ws->index - WSA_WAIT_EVENT_0;
 
-  for (int i = 0; i < ws->event_total; i++) {
-    ws->index = WSAWaitForMultipleEvents(1, &(ws->event_array[i]), true, 0, false);
-
-    if (ws->index == WSA_WAIT_FAILED || ws->index == WSA_WAIT_TIMEOUT) {
-      DEBUG_OUTA("ws->index is %d\n"
-                 "WSA_WAIT_FAILED: %d\n"
-                 "WSA_WAIT_TIMEOUT: %d\n"
-                 "error code %d\n",
-                 debug, ws->index, WSA_WAIT_FAILED, WSA_WAIT_TIMEOUT,
-                 WSAGetLastError());
-      continue;
-    }
-    
-    else {
-      ws->index = i;
-      ret = WSAEnumNetworkEvents(ws->socket_array[ws->index],
-                                 ws->event_array[ws->index],
-                                 &(ws->network_events));
-      if (ret != 0) {
-        printf("WSAEnumNetworkEvents failed with error code: %d\n",
-               WSAGetLastError());
-      }
-      
-      if (ws->network_events.lNetworkEvents & FD_ACCEPT) {
-        if (ws->network_events.iErrorCode[FD_ACCEPT_BIT] != 0) {
-          // DEBUG_OUTA("FD_ACCEPT failed with code %d, error %d\n", debug,
-          //            ws->network_events.iErrorCode[FD_ACCEPT_BIT],
-          //            WSAGetLastError());
-          break;
-        }
-
-        ws->accept = accept(ws->socket_array[ws->index], NULL, NULL);
-
-        if (ws->event_total > WSA_MAXIMUM_WAIT_EVENTS) {
-          DEBUG_OUTA("Too many connections", debug);
-          closesocket(ws->accept);
-          break;
-        }
-
-        ws->new_event = WSACreateEvent();
-
-        WSAEventSelect(ws->accept, ws->new_event,
-                       FD_READ | FD_WRITE | FD_CLOSE);
-
-        ws->event_array[ws->event_total] = ws->new_event;
-        ws->socket_array[ws->event_total] = ws->accept;
-        ws->event_total++;
-        DEBUG_OUTA("Socket %lld connected \n", debug, ws->accept);
-      }
-
-      if (ws->network_events.lNetworkEvents & FD_READ) {
-        if (ws->network_events.iErrorCode[FD_READ_BIT] != 0) {
-          // DEBUG_OUTA("FD_READ failed with code %d, error %d\n", debug,
-          //            ws->network_events.iErrorCode[FD_READ_BIT],
-          //            WSAGetLastError());
-          break;
-        }
-        int ret = 0;
-        ret = recv(ws->socket_array[ws->index - WSA_WAIT_EVENT_0],
-                   ws->recv_buffer,
-                   sizeof(ws->recv_buffer)/sizeof(ws->recv_buffer[0]), 0);
-
-        if (ret == SOCKET_ERROR) {
-          DEBUG_OUTA("recv failed with error %d\n", debug,
-                     WSAGetLastError());
-          break;
-        }
-
-        char recv_msg[4096];
-        strncpy_s(recv_msg,
-                  sizeof(recv_msg)/sizeof(recv_msg[0]),
-                  ws->recv_buffer, ret);
-
-        DEBUG_OUTA("received %s from socket %lld\n", debug,
-                   recv_msg,
-                   ws->socket_array[ws->index - WSA_WAIT_EVENT_0]);
-      }
-
-      if (ws->network_events.lNetworkEvents & FD_WRITE) {
-        if (ws->network_events.iErrorCode[FD_WRITE_BIT] != 0) {
-          // DEBUG_OUTA("FD_WRITE failed with error %d\n", debug,
-          //            ws->network_events.iErrorCode[FD_WRITE_BIT]);
-          break;
-        }
-        
-        int ret = 0;
-        strncpy_s(ws->send_buffer,
-                  (size_t)sizeof(ws->send_buffer)/sizeof(ws->send_buffer[0]),
-                "Hello World", _TRUNCATE);
-        ret = send(ws->socket_array[ws->index - WSA_WAIT_EVENT_0],
-                   ws->send_buffer,
-                   strlen(ws->send_buffer), 0); /* WATCH OUT strlen */
-        
-        if (ret == SOCKET_ERROR) {
-          DEBUG_OUTA("send failed with error %d\n", debug,
-                     WSAGetLastError());
-        }
-
-        DEBUG_OUTA("send %s to socket %lld\n", debug,
-                   ws->send_buffer,
-                   ws->socket_array[ws->index - WSA_WAIT_EVENT_0]);
-      }
-
-      if (ws->network_events.lNetworkEvents & FD_CLOSE) {
-        if (ws->network_events.iErrorCode[FD_CLOSE_BIT] != 0) {
-          DEBUG_OUTA("FD_CLOSE failed with error %d\n", debug,
-                     ws->network_events.iErrorCode[FD_CLOSE_BIT]);
-          break;
-        }
-
-        DEBUG_OUTA("closing socket %lld\n", debug,
-                   ws->socket_array[ws->index - WSA_WAIT_EVENT_0]);
-        
-        closesocket(ws->socket_array[ws->index]);
-        // CompressArrays(ws->event_array, ws->socket_array, &(ws->event_total));
-      }
-    }
-  }
 }
 
 ws_daemon *ws_start_daemon(ws_daemon *ws)
@@ -295,14 +167,7 @@ ws_daemon *ws_start_daemon(ws_daemon *ws)
 
   bind(ws->listen, (PSOCKADDR)&(ws->internet_addr), sizeof(ws->internet_addr));
 
-  ws->new_event = WSACreateEvent();
-
-  WSAEventSelect(ws->listen, ws->new_event, FD_ACCEPT | FD_CLOSE);
   listen(ws->listen, WSA_MAXIMUM_WAIT_EVENTS);
-  
-  ws->socket_array[ws->event_total] = ws->listen;
-  ws->event_array[ws->event_total] = ws->new_event;
-  ws->event_total++;
   
   return ws;
 }

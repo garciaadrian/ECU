@@ -22,25 +22,34 @@
 #include <string.h>
 #include <WinSock2.h>
 
+#define MAX_CONNECTIONS 5
+
 typedef struct {
-  SOCKET socket_array[WSA_MAXIMUM_WAIT_EVENTS];
-  WSAEVENT event_array[WSA_MAXIMUM_WAIT_EVENTS];
-  SOCKADDR_IN internet_addr;
-  SOCKET accept, listen;
-  DWORD event_total;
-  DWORD index, i;
-  _WSANETWORKEVENTS network_events;
-  WSAEVENT new_event;
-  char recv_buffer[4096];
-  char send_buffer[4096];
-  WSADATA wsa_data;
-  WORD wsa_version;
-  fd_set fd_read;
-  fd_set fd_write;
+  SOCKET listen;
+  addrinfo *result, *ptr, hints;
 } ws_daemon;
 
+typedef struct {
+  bool in_use;
+  SOCKET client_socket;
+  /* Sockaddr_In client_addr; */
+  DWORD thread_id;
+  HANDLE thread_handle;
+} CLIENTS;
+
+typedef struct _WORKER {
+  BOOL in_use;
+  SOCKET socket;
+  unsigned int  thread_id;
+  HANDLE thread_handle;
+  HANDLE exit_request;
+  HANDLE *thread_handles;
+  HANDLE worker_exit_event;
+  timeval interval;
+} WORKER;
+
 char *encode_base64();
-ws_daemon *ws_start_daemon(ws_daemon *ws);
 void ws_poll(ws_daemon *ws);
+unsigned __stdcall ws_start_daemon(void *p);
 
 #endif /* WEBSOCKET_H */

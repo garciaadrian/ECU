@@ -18,8 +18,6 @@ project("ECU-base")
         "track.h",
         "ir_helper.h",
         "ir_helper.cpp",
-        "websocket.cpp",
-        "websocket.h",
   })
   links({
         "irsdk",

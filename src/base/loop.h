@@ -17,7 +17,7 @@
 #include <wchar.h>
 #include <db/sqlite.h>
 #include <base/debug.h>
-#include <base/websocket.h>
+#include <server/websocket.h>
 #include "ir_helper.h"
 
 int create_var_row();

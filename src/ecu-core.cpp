@@ -17,10 +17,12 @@
 
 #include <base/startup.h>
 #include <base/loop.h>
-#include <base/websocket.h>
+#include <server/websocket.h>
+#include <base/debug.h>
 #include <db/sqlite.h>
 #include <hid/hid.h>
 #include <Hidsdi.h>
+#include <process.h>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
 
@@ -94,7 +96,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   window.lpszClassName = szWindowClass;
   window.hIconSm = 0;
    
-  if (!debug) {
+  if (1) {
     CefEnableHighDPISupport();
 
     void* sandbox_info = NULL;
@@ -129,8 +131,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto handle = worker->addDefaultLogger("log", "./");
   g3::initializeLogging(worker.get());
 
-  ws_daemon *ws = (ws_daemon*)malloc(sizeof(ws_daemon));
-  ws_start_daemon(ws);
+  // ws_daemon *ws = (ws_daemon*)malloc(sizeof(ws_daemon));
+  // ws_start_daemon(ws);
 
   struct MHD_Daemon* daemon;
   daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
@@ -167,23 +169,42 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   register_devices(hWnd);
   enumerate_devices();
 
-  HANDLE wait_handles[1];
+  HANDLE wait_handles[2];
   wait_handles[0] = config->dw_change_handle;
+  
+  unsigned int tid = 0;
+
+  HANDLE exit_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  wait_handles[1] = (HANDLE)_beginthreadex(NULL, 0, ws_start_daemon,
+                                           (void*)exit_event, 0, &tid);
+  SetThreadName("Websocket Thread Manager", tid);
+
+
+  
+  // if (wait_handles[1] != NULL) {
+  //   CloseHandle(wait_handles[1]);
+  // }
   
   while (g_Running) {
     MSG msg;
     int rc;
-    int wait_count = 1; /* dw_change_handle */
+    int wait_count = 2; /* dw_change_handle + Websocket Thread Manager*/
 
 
     rc = MsgWaitForMultipleObjects(wait_count, wait_handles,
                                    FALSE, INFINITE, QS_ALLINPUT);
+
     
     if (rc == WAIT_OBJECT_0 + wait_count) {
       while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_CLOSE) {
+          LOGF(DEBUG, "CEF Requested closing. signaling exit event");
+          SetEvent(exit_event);
+          /* Wait for 15 secs incase a thread hangs? */
+          WaitForMultipleObjects(wait_count-1, wait_handles+1, true, INFINITE);
+          LOGF(DEBUG, "All threads have closed. Closing ECU!");
           free(config);
-          free(ws);
+          // free(ws);
           g_Running = false;
           CefShutdown();
           return 0;

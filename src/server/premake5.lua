@@ -8,6 +8,8 @@ project("ECU-server")
     "http.cpp",
     "http.h",
     "client.h",
+    "websocket.cpp",
+    "websocket.h",
   })
   links({
   })

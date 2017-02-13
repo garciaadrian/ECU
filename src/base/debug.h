@@ -31,6 +31,16 @@
 #define DEBUG_OUTA(string, buffer, ...)
 #endif
 
+typedef struct tagTHREADNAME_INFO
+{
+  DWORD dwType;
+  LPCSTR szName;
+  DWORD dwThreadID;
+  DWORD   dwFlags;
+} THREADNAME_INFO;
+
+void SetThreadName(LPCSTR szThreadName, const DWORD dwThreadID);
+
 char* DExitProcess(char* file, char* func_signature, int line);
 
 void CreateMiniDump(int exit);

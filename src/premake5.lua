@@ -23,6 +23,7 @@ links({
   "dxguid",
   "Hid",
   "ECU-base",
+  "Crypt32",
 })
 filter("configurations:Debug")
   linkoptions({

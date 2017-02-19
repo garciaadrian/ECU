@@ -1,4 +1,4 @@
-var debugServer = new WebSocket("ws://127.0.0.1:8765");
+var debugServer = new WebSocket("ws://127.0.0.1:26162");
 var domWebsocketStatus = document.getElementById('websocketStatus');
 var domLastMessage = document.getElementById('lastMessage');
 var domBrake = document.getElementById('brake');

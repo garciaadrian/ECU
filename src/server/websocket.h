@@ -23,6 +23,8 @@
 #include <WinSock2.h>
 
 #define MAX_CONNECTIONS 5
+#define DATA_BUFSIZE 8192
+#define WEBSOC_KEYSIZE 256
 
 typedef struct {
   SOCKET listen;
@@ -37,6 +39,10 @@ typedef struct {
   HANDLE thread_handle;
 } CLIENTS;
 
+typedef struct {
+  char key[WEBSOC_KEYSIZE] = {0};
+} REQUEST;
+
 typedef struct _WORKER {
   BOOL in_use;
   SOCKET socket;
@@ -46,6 +52,8 @@ typedef struct _WORKER {
   HANDLE *thread_handles;
   HANDLE worker_exit_event;
   timeval interval;
+  char recv_buffer[DATA_BUFSIZE] = {0};
+  REQUEST req;
 } WORKER;
 
 char *encode_base64();

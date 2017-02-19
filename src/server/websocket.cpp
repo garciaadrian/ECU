@@ -22,50 +22,52 @@
 #include <Ws2tcpip.h>
 #include <conio.h>
 #include <Bcrypt.h>
+#include <Wincrypt.h>
 #include <process.h>
 
 #define PORT "26162"
 
 #define THREAD_POOL_SIZE 5
-#define DATA_BUFSIZE 8192
 
 static short worker_count = 0;
 static CRITICAL_SECTION thread_update;
 
-char *hash_secws_key(const unsigned char *key, int size)
+unsigned char *hash_secws_key(unsigned char *key, int size)
 {
-  BCRYPT_ALG_HANDLE alg_handle = {0};
-  BCRYPT_HASH_HANDLE sha_handle = {0};
-  DWORD hash_size = 0;
-  DWORD result_size = 0;
-  ULONG bytes_written;
+  HCRYPTPROV hProv;
+  HCRYPTHASH hHash;
 
+  DWORD cbHash;
   
-  BCryptOpenAlgorithmProvider(&alg_handle, BCRYPT_SHA1_ALGORITHM,
-                              NULL, BCRYPT_HASH_REUSABLE_FLAG);
-  BCryptGetProperty(alg_handle, BCRYPT_OBJECT_LENGTH, (PBYTE)&hash_size,
-                    sizeof(hash_size), &bytes_written, NULL);
-  
-  unsigned char *hash_obj = (unsigned char*)(malloc(hash_size));
-  
-  BCryptCreateHash(alg_handle, &sha_handle, hash_obj, hash_size,
-                   NULL, NULL, BCRYPT_HASH_REUSABLE_FLAG);
-  
-  BCryptHashData(sha_handle, (PUCHAR)key, size, NULL);
-  
-  BCryptGetProperty(alg_handle, BCRYPT_HASH_LENGTH, (PBYTE)&result_size,
-                    sizeof(result_size), &bytes_written, NULL);
-  
-  unsigned char *result = (unsigned char*)malloc(result_size);
-  
-  BCryptFinishHash(sha_handle, result, result_size, NULL);
+  if (!CryptAcquireContext(&hProv, NULL, NULL,
+                           PROV_RSA_FULL,
+                           CRYPT_VERIFYCONTEXT)) {
+    DEXIT_PROCESS(L"CryptAcquireContext failed.", GetLastError());
+  }
 
+  if (!CryptCreateHash(hProv, CALG_SHA1, 0, 0, &hHash)) {
+
+    CryptReleaseContext(hProv, 0);
+    DEXIT_PROCESS(L"CryptAcquireContext failed.", GetLastError());
+  }
+
+  if (!CryptHashData(hHash, key, size, NULL)) {
+    
+    CryptDestroyHash(hHash);
+    CryptReleaseContext(hProv, 0);
+    DEXIT_PROCESS(L"CryptAcquireContext failed.", GetLastError());
+  }
+
+  cbHash = 20;
+
+  unsigned char *output = (unsigned char*)malloc(size+1);
+  SecureZeroMemory(output, size+1);
   
-  BCryptDestroyHash(sha_handle);
-  free(hash_obj);
-  BCryptCloseAlgorithmProvider(alg_handle, NULL);
-  free(result);
-  return "lol";
+  if (CryptGetHashParam(hHash, HP_HASHVAL, output, &cbHash, NULL)) {
+    
+  }
+  
+  return output;
 }
 
 char lookup_base64(unsigned char value)
@@ -86,72 +88,21 @@ char lookup_base64(unsigned char value)
   return 100;
 }
 
-char *encode_base64()
+wchar_t *encode_base64(char *message)
 {
-  /* message in hex format */
-  const char message[] = "ff";
-  const char result[] =
-      "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIG"
-      "EgcG9pc29ub3VzIG11c2hyb29t";
-  
-  
-  const unsigned char hex[] = "0123456789ABCDEF";
-  
+  DWORD size = 256;
 
-  int length = sizeof(message)/sizeof(message[0]);
+  /*  CryptBinaryToString((unsigned char*)message, strlen(message),
+      CRYPT_STRING_BASE64, NULL, &size); */
 
-  unsigned char *output = (unsigned char *)malloc(length/2);
-  char *buffer = (char *)malloc(1);
+  wchar_t *output = (wchar_t*)malloc(256);
 
-  memcpy(buffer, &message[0], 2);
-  unsigned char a = 0;
-  unsigned char b = 0;
-  unsigned char c = 0;
-  
-  /*
-   *  49       27        6D
-   * 
-   * 01001001 00100111 01101101
-   *
-   * 010010 010010 011101 101101
-   */
-  
-  for (int i = 0; i < length; i+=6) {
-    memcpy(buffer, &message[i], 2);
-    a = (unsigned char)strtol(buffer, (char **)0, 16);
-    if (a == 0)
-      break;
-    memcpy(buffer, &message[i+2], 2);
-    b = (unsigned char)strtol(buffer, (char **)0, 16);
-    memcpy(buffer, &message[i+4], 2);
-    c = (unsigned char)strtol(buffer, (char **)0, 16);
-
-    unsigned char value1 = (a & 0xFC) >> 2;
-    unsigned char value2 = ((a & 0x3) << 4) + ((b & 0xF0) >> 4);
-    unsigned char value3 = (b == 0) ? 101 : ((b & 0xF) << 2) + ((c & 0xC0) >> 6);
-    unsigned char value4 = (c == 0) ? 101 : c & 0x3F;
-
-    printf("%c%c%c%c",
-           lookup_base64(value1),
-           lookup_base64(value2),
-           lookup_base64(value3),
-           lookup_base64(value4));
-    
-  }
-
-  printf("\n%s\n", result);
-
-  free(output);
-  free(buffer);
-
-  return "lol";
-
+  CryptBinaryToString((unsigned char*)message, strlen(message),
+                      CRYPT_STRING_BASE64, output, &size);
+  return output;
 }
 
-void ws_parse_header(char *request)
-{
 
-}
 
 void ws_init_conn()
 {
@@ -206,13 +157,99 @@ void worker_cleanup(WORKER *client)
   LeaveCriticalSection(&thread_update);
 }
 
+/* validate_connection? */
+int ws_open_handshake(WORKER *client)
+{
+  static const char request_line[] = "GET / HTTP/1.1\r\n";
+  static const char guid[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+  if (strncmp(request_line, client->recv_buffer, strlen(request_line)) != 0) {
+    LOGF(WARNING, "(%s) Invalid HTTP request made", client->thread_id);
+    remove_thread_handle(client->thread_handle, client->thread_handles,
+                         client->exit_request);
+    worker_cleanup(client);
+    return E_ABORT;
+  }
+  
+  char *index = strstr(client->recv_buffer, "Sec-WebSocket-Key:");
+
+  if (index == NULL) {
+    LOGF(WARNING, "(%s) Invalid HTTP request made", client->thread_id);
+    remove_thread_handle(client->thread_handle, client->thread_handles,
+                         client->exit_request);
+    worker_cleanup(client);
+    return E_ABORT;
+  }
+  
+  for (int x = 0,  i = strlen("Sec-WebSocket-Key:"); i < strlen(index); i++) {
+    if (index[i] == 0) 
+      continue;
+    if (index[i] == 32) /* space char */
+      continue;
+    if (index[i] == '\r') {
+      client->req.key[x] = '\0';
+      break;
+    }
+    client->req.key[x] = index[i];
+    x++;
+  }
+
+  unsigned char *resp_key;
+  wchar_t *encoded_key;
+  
+  strcat(client->req.key, guid);
+  
+  LOGF(DEBUG, "Key+GUID is %s", client->req.key);
+  resp_key = hash_secws_key((unsigned char*)client->req.key, strlen(client->req.key));
+  
+  char sha1_str[256];
+  
+  for (int i = 0; i < 20; i++) {
+    sprintf(&sha1_str[i*2], "%02x", resp_key[i]);
+  }
+
+  LOGF(DEBUG, "SHA1: %s", sha1_str);
+  
+  encoded_key = encode_base64((char*)resp_key);
+  LOGF(DEBUG, "base64: %S", encoded_key);
+  
+  char response[512] = {0};
+  wcstombs(response, encoded_key, 512);
+  
+  sprintf(response,
+          "HTTP/1.1 101 Switching Protocols\r\n"
+          "Upgrade: websocket\r\n"
+          "Connection: Upgrade\r\n"
+          "Sec-Websocket-Accept: %S\r\n\r\n", encoded_key);
+  
+  int ret = send(client->socket, response, strlen(response), NULL);
+
+  if (ret == SOCKET_ERROR) {
+    LOGF(WARNING, "(%d) send() failed with error %d",
+         client->thread_id, WSAGetLastError());
+    
+    remove_thread_handle(client->thread_handle, client->thread_handles,
+                         client->exit_request);
+    
+    worker_cleanup(client);
+    return E_ABORT;
+  }
+  
+  free(encoded_key);
+  free(resp_key);
+
+  return EXIT_SUCCESS;
+  
+}
+
 unsigned __stdcall ws_worker(void *p)
 {
   WORKER* client = (WORKER*)p;
   fd_set fdread = {0};
   int ret = 0;
   int recv_ret = 0;
-  char recv_buffer[DATA_BUFSIZE];
+
+  SecureZeroMemory(&client->recv_buffer, DATA_BUFSIZE);
 
   while (true) {
     FD_ZERO(&fdread);
@@ -231,20 +268,19 @@ unsigned __stdcall ws_worker(void *p)
     if (recv_ret) {
       if (FD_ISSET(client->socket, &fdread)) {
         /* read event occured */
-        ret = recv(client->socket, recv_buffer, DATA_BUFSIZE, NULL);
+        ret = recv(client->socket, client->recv_buffer, DATA_BUFSIZE, NULL);
         if (ret > 0) {
           LOGF(DEBUG, "(%d) Bytes Received: %d", client->thread_id, ret);
-          ret = send(client->socket, recv_buffer, ret, NULL);
-          
-          if (ret == SOCKET_ERROR) {
-            LOGF(WARNING, "(%d) send() failed with error %d",
-                 client->thread_id, WSAGetLastError());
-            remove_thread_handle(client->thread_handle, client->thread_handles,
-                                 client->exit_request);
-            worker_cleanup(client);
-            return E_ABORT;
-          }
+
+          if (!client->in_use) {
+            int hs = ws_open_handshake(client);
+            
+            if (hs == E_ABORT) {
+              return E_ABORT;
+            }
+          }          
         }
+        
         /* Peer has disconnected */
         if (ret == -1) {
           LOGF(WARNING, "Peer has disconnected");
@@ -397,7 +433,7 @@ unsigned __stdcall ws_start_daemon(void *p)
       thread->socket = accept_socket;
       thread->exit_request = exit_event;
       thread->thread_handles = thread_handles;
-      thread->in_use = true;
+      thread->in_use = false;
       thread->interval.tv_sec = 20;
       thread->interval.tv_usec = 0;
       thread->worker_exit_event = worker_exit_event;

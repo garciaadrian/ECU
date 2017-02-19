@@ -274,6 +274,7 @@ unsigned __stdcall ws_worker(void *p)
 
           if (!client->in_use) {
             int hs = ws_open_handshake(client);
+            SecureZeroMemory(client->recv_buffer, DATA_BUFSIZE);
             
             if (hs == E_ABORT) {
               return E_ABORT;
@@ -282,7 +283,7 @@ unsigned __stdcall ws_worker(void *p)
         }
         
         /* Peer has disconnected */
-        if (ret == -1) {
+        if (ret == -1 || ret == 0) {
           LOGF(WARNING, "Peer has disconnected");
           remove_thread_handle(client->thread_handle, client->thread_handles,
                                client->exit_request);

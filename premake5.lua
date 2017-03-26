@@ -7,6 +7,7 @@ includedirs({
  "src",
  "libs/cef_binary_3.2704.1414.g185cd6c_windows64/",
  "libs/inih",
+ "libs/json",
 })
 
 defines({ "_UNICODE", "UNICODE", "STRICT", "NOMINMAX", })
@@ -39,6 +40,7 @@ filter("configurations:Release")
         "libs/g3logger/src",
         "libs/libmicrohttpd/x86_64/VS2015/Release-static/",
         "libs/sqlite/",
+        "libs/json",
         "libs",
   })
   libdirs({
@@ -58,7 +60,6 @@ filter("configurations:Release")
     "psapi",
     "libcef_dll_wrapper",
     "libcef",
-    "cef_sandbox",
     "Winmm",
     "comctl32",
     "rpcrt4",
@@ -94,6 +95,7 @@ filter("configurations:Debug")
         "libs/g3logger/src",
         "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
         "libs/sqlite/",
+        "libs/json",
         "libs",
    })
   libdirs({

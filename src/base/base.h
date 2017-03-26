@@ -25,8 +25,11 @@ typedef struct
   sqlite3 *db;
   bool configured = false;
   HANDLE dw_change_handle;
+  
+  /* CONFIG.INI */
   const char *ip;
   bool ibt_sorting = false;
+  bool headless = false;
 } configuration;
 
 

@@ -26,6 +26,10 @@ int config_ini_handler(void *user, const char *section, const char *name,
   if (MATCH("core", "ibt_sorting")) {
     config->ibt_sorting = atoi(value);
   }
+
+  if (MATCH("core", "headless")) {
+    config->headless = atoi(value);
+  }
   
   if (MATCH("network", "ip")) {
     config->ip = value;
@@ -39,6 +43,7 @@ int config_ini_handler(void *user, const char *section, const char *name,
 
 configuration *ecu_init()
 {
+  
   configuration *config = (configuration *)malloc(sizeof(configuration));
   
   config->ibt_sorting = false;
@@ -79,7 +84,8 @@ configuration *ecu_init()
     } 
 
     const char ini_text[] = "[core]\r\n"
-                            "ibt_sorting = false\r\n"
+                            "ibt_sorting = 0\r\n"
+                            "headless = 0\r\n"
                             "[network]\r\n"
                             "ip = 192.168.29.29\r\n";
     DWORD bytes_written;

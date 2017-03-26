@@ -18,3 +18,7 @@
 	path = libs/g3logger
 	url = https://github.com/ECU-IR/g3log.git
         ignore = dirty
+[submodule "libs/json"]
+	path = libs/json
+	url = https://github.com/ECU-IR/json.git
+        ignore = dirty        

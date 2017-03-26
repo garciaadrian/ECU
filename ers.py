@@ -44,47 +44,32 @@ def cli(ctx, debug):
         sys.exit(1)
 
 @cli.command()
-@click.option('--configuration', type=click.Choice(['release', 'debug'])
-              , default='release')
 @click.pass_context
-def client(ctx, configuration):
+def client(ctx):
+
+    base_dir = ctx.obj['self_path'] + '\\frontends\\reactjs\\'
     
-    client_dir = ctx.obj['self_path'] + '\\client\\'
+    os.chdir(base_dir)
     
-    os.chdir(client_dir)
-    
-    if not os.path.exists(client_dir + '\\node_modules\\'):
+    if not os.path.exists(base_dir + '\\node_modules\\'):
         result = subprocess.call(['npm', 'install'], shell=True)
         if result != 0:
             click.echo('ERROR: "npm install" failed with one or more errors.')
             return result
         
-        result = subprocess.call(['npm',
-                                  'install',
-                                  '-g',
-                                  'webpack'], shell=True)
-        if result != 0:
-            click.echo('ERROR: "npm install -g webpack" failed with one or more errors.')
-            return result
-
-
-    result = subprocess.call(['webpack'], shell=True)
-
+    result = subprocess.call(['npm', 'run', 'build'], shell=True)
     if result != 0:
-        click.echo('ERROR: webpack failed with one or more errors.')
+        click.echo('ERROR: "npm run build" failed with one or more errors.')
         return result
 
-    with open(client_dir + 'index.html') as index:
-        index_content = index.read()
+    # Destination directory must not already exist
+    for config in ['Debug', 'Release']:
+        dest_path = ctx.obj['self_path'] + '\\build\\bin\\{0}\\reactjs'.format(config)
         
-    with open(client_dir + 'bundle.js') as bundle:
-        bundle_content = bundle.read()
-
-    with open(client_dir + 'client.html', 'w') as client:
-        client.write(index_content)
-        client.write('<script>')
-        client.write(bundle_content)
-        client.write('</script>')
+        if os.path.exists(dest_path):
+            shutil.rmtree(dest_path)
+    
+        shutil.copytree(base_dir + 'build', dest_path)
         
 @cli.command()
 @click.pass_context

@@ -93,9 +93,9 @@ void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   }
 
   if (browser_list_.empty()) {
-    // All browser windows have closed. Quit the application message loop.
-    CefQuitMessageLoop();
+    /* All browser windows have closed. Quit the application message loop. */
     PostThreadMessage(main_thread, WM_CLOSE, 0, 0);
+    CefQuitMessageLoop();
   }
 }
 

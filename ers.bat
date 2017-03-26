@@ -1,8 +1,5 @@
 @echo off
 
-REM move this to python script
-
-
 SET DIR=%~dp0
 
 SET FOUND_PYTHON_EXE=""
@@ -72,6 +69,8 @@ IF NOT EXIST "%DIR%" (
 git submodule init
 git submodule update
 
+CALL venv\Scripts\activate.bat
+
 python ers.py cef
 
 CALL venv\Scripts\deactivate.bat
@@ -120,13 +119,13 @@ msbuild /p:Configuration=Debug /p:Platform="x64" /nologo /m /v:m cef.sln
 popd
 popd
 
-pushd libs\g3logger
-mkdir build && pushd build
-cmake .. -G "Visual Studio 14 Win64"
-msbuild /p:Configuration=Debug g3log.sln
-msbuild /p:Configuration=Release g3log.sln
-popd
-popd
+rem pushd libs\g3logger
+rem mkdir build && pushd build
+rem cmake .. -G "Visual Studio 14 Win64"
+rem msbuild /p:Configuration=Debug g3log.sln
+rem msbuild /p:Configuration=Release g3log.sln
+rem popd
+rem popd
 
 tools\build\premake5.exe vs2015
 

@@ -25,6 +25,7 @@
 #include <process.h>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
+#include <json.hpp>
 
 #include "graphics/app.h"
 #include "include/cef_sandbox_win.h"
@@ -77,6 +78,53 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
   return Result;
 }
 
+struct CustomSink {
+  void ReceiveLogMessage(g3::LogMessageMover logEntry) {
+    WORKER *list = get_active_sockets();
+
+    for (int i = 0; i < THREAD_POOL_SIZE; i++) {
+      if (list[i].socket != INVALID_SOCKET && list[i].in_use) {
+
+        wchar_t buffer[65536] = {0};
+        int num_chars = 0;
+
+        using json = nlohmann::json;
+        
+        json j2 = {
+          {"file_path", logEntry._move_only._file_path},
+          {"file", logEntry._move_only._file},
+          {"line", logEntry._move_only._line},
+          {"function", logEntry._move_only._function},
+          {"level", logEntry._move_only.level()},
+          {"message", logEntry._move_only._message},
+          {"expression", logEntry._move_only._expression},
+        };
+
+        std::string msg = j2.dump();
+
+        /* message_wide does not preserve underlying UTF-8 encoding! */
+        std::wstring message_wide = std::wstring(logEntry._move_only._message.begin(),
+                                                 logEntry._move_only._message.end());
+        
+        message_wide = std::wstring(msg.begin(), msg.end());
+        
+        /* num_chars = swprintf(buffer, sizeof(buffer), */
+        /*                      L"{ \"message\": \"%s\"}", message_wide.c_str()); */
+        
+        num_chars = swprintf(buffer, sizeof(buffer),
+                             L"%s", message_wide.c_str());
+        
+        send_frame(&list[i], buffer, num_chars);  /* num_chars is not size of the message!! */
+        message_queue.push_back(logEntry);
+      }
+    }
+
+    free(list);
+  }
+
+  std::vector<g3::LogMessageMover> message_queue;
+};
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      LPSTR lpCmdLine, int nCmdShow) {
   static TCHAR szWindowClass[] = _T("iracingECU");
@@ -95,8 +143,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   window.lpszMenuName = NULL;
   window.lpszClassName = szWindowClass;
   window.hIconSm = 0;
-   
-  if (1) {
+  
+  if (1) { // !config->headless
     CefEnableHighDPISupport();
 
     void* sandbox_info = NULL;
@@ -128,15 +176,22 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   auto worker = g3::LogWorker::createLogWorker();
+  auto sinkHandle = worker->addSink(std2::make_unique<CustomSink>(),
+                                    &CustomSink::ReceiveLogMessage);
   auto handle = worker->addDefaultLogger("log", "./");
   g3::initializeLogging(worker.get());
 
-  // ws_daemon *ws = (ws_daemon*)malloc(sizeof(ws_daemon));
-  // ws_start_daemon(ws);
+  configuration *config = ecu_init();
+  
+  while (!config->configured) {
+    LOGF(INFO, "Waiting for iRacing...");
+    setup_weekend(config);
+  }
 
   struct MHD_Daemon* daemon;
   daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &answer_to_connection, NULL, MHD_OPTION_END);
+
   
   if (NULL == daemon) {
     DEXIT_PROCESS(L"Failed to start http server", GetLastError());
@@ -145,6 +200,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!RegisterClassEx(&window)) {
     return __LINE__;
   }
+
+ 
 
   HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE, szWindowClass, szTitle,
                              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -156,13 +213,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   /* ShowWindow(hWnd, nCmdShow); */
   /* UpdateWindow(hWnd); */
-
-  configuration *config = ecu_init();
-  
-  while (!config->configured) {
-    LOGF(INFO, "Waiting for iRacing...");
-    setup_weekend(config);
-  }
 
   g_Running = true;
 
@@ -179,7 +229,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                                            (void*)exit_event, 0, &tid);
   SetThreadName("Websocket Thread Manager", tid);
 
-
+  
   
   // if (wait_handles[1] != NULL) {
   //   CloseHandle(wait_handles[1]);
@@ -207,6 +257,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           // free(ws);
           g_Running = false;
           CefShutdown();
+          /* CefQuitMessageLoop(); */
           return 0;
         }
         TranslateMessage(&msg);

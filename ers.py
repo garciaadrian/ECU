@@ -147,14 +147,17 @@ def cef(ctx):
         os.remove('libs/{file}'.format(file=cef_dist_name[:-4]))
     else:
         print("Library cef OK")
+        
 @cli.command()
 @click.option('--configuration', '-c', type=click.Choice(['release', 'debug']),
               default='release')
 @click.pass_context
 def dist(ctx, configuration):
+    # TODO: Run ers client and ers build before distributing
+    
     if not os.path.exists('dist'):
         os.makedirs('dist')
-    release_directory = 'build/Release/'
+    release_directory = 'build/bin/Release/'
     release_directory_files = ['ECU.exe',
                                'libcef.dll',
                                'd3dcompiler_47.dll',
@@ -167,8 +170,7 @@ def dist(ctx, configuration):
                                'snapshot_blob.bin',
                                'cef_100_percent.pak',
                                'cef_200_percent.pak',
-                               'cef_extensions.pak',
-                               'client.html']
+                               'cef_extensions.pak']
     
     shutil.copy('LICENSE', 'dist')
     if configuration == 'debug':
@@ -177,7 +179,13 @@ def dist(ctx, configuration):
         shutil.copytree('build/bin/Release/locales', 'dist/locales')
     except FileExistsError:
         pass
-    
+
+    try:
+        shutil.copytree('build/bin/Release/reactjs', 'dist/reactjs')
+    except FileExistsError:
+        print("wtf happended")
+        pass
+        
     for resource in release_directory_files:
         shutil.copy(release_directory + resource, 'dist')
         

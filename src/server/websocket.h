@@ -32,24 +32,11 @@
 #define MAX_FRAMES 5
 
 typedef struct {
-  SOCKET listen;
-  addrinfo *result, *ptr, hints;
-} ws_daemon;
-
-typedef struct {
-  bool in_use;
-  SOCKET client_socket;
-  /* Sockaddr_In client_addr; */
-  DWORD thread_id;
-  HANDLE thread_handle;
-} CLIENTS;
-
-typedef struct {
   CRITICAL_SECTION cs;
   bool initialized = false;
 } CRITICAL_SECTION_WRAPPER;
 
-/* use stdints for guaranteed sizes */
+/* TODO: use stdints for guaranteed sizes */
 typedef struct {
   bool in_use = 0;
   unsigned char opcode;         /* 4 bits */
@@ -77,8 +64,6 @@ typedef struct _WORKER {
   FRAME frames[MAX_FRAMES];
 } WORKER;
 
-char *encode_base64();
-void ws_poll(ws_daemon *ws);
 WORKER *get_active_sockets();
 void send_frame(WORKER *client, wchar_t *text, int length);
 unsigned __stdcall ws_start_daemon(void *p);

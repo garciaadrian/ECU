@@ -285,48 +285,8 @@ void sort_ibt_directory(wchar_t *directory)
 
 }
 
-void watch_ibt_directory(wchar_t *directory, HANDLE dw_change_handle)
-{
-  DWORD dw_wait_status;
-  
-  if (dw_change_handle == INVALID_HANDLE_VALUE) {
-    DEXIT_PROCESS(L"Invalid Handle Value", GetLastError());
-  }
-
-  dw_wait_status = WaitForSingleObject(dw_change_handle, 0);
-
-  switch (dw_wait_status)
-  {
-    case WAIT_OBJECT_0:
-      /* A file was created, renamed, or deleted in the directory */
-      sort_ibt_directory(directory);
-      if (FindNextChangeNotification(dw_change_handle) == FALSE) {
-        DEXIT_PROCESS(L"FindNextChangeNotification function failed.", GetLastError());
-      }
-      break;
-      
-    case WAIT_OBJECT_0 + 1:
-      /* A directory was created, renamed, or deleted. */
-      if (FindNextChangeNotification(dw_change_handle) == FALSE) {
-        DEXIT_PROCESS(L"FindNextChangeNotification function failed.", GetLastError());
-      }
-      break;
-      
-    case WAIT_TIMEOUT:
-      return;
-
-    default:
-      return;
-  }
-}
-
 void setup_weekend(configuration *config)
 {
   check_track(config->db);
   config->configured = true;
-}
-    
-void loop(sqlite3 *db, ws_daemon *ws, configuration *config)
-{
-  watch_ibt_directory(config->telemetry_path, config->dw_change_handle);
 }

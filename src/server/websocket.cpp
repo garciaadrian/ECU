@@ -82,24 +82,6 @@ unsigned char *hash_secws_key(unsigned char *key, int size)
   return output;
 }
 
-char lookup_base64(unsigned char value)
-{
-  const char characters[] =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      "abcdefghijklmnopqrstuvwxyz"
-      "0123456789+/";
-  const char pad = '=';
-
-  if (value == 101)
-    return pad;
-  
-  for (int i = 0; i < 64; i++) {
-    if (value == i)
-      return characters[i];
-  }
-  return 100;
-}
-
 wchar_t *encode_base64(char *message)
 {
   DWORD size = 256;
@@ -114,16 +96,9 @@ wchar_t *encode_base64(char *message)
   return output;
 }
 
-
-
 void ws_init_conn()
 {
   
-}
-
-void ws_poll(ws_daemon *ws)
-{
-
 }
 
 void check_peer_connected()
@@ -151,15 +126,6 @@ WORKER *get_active_sockets()
 
   return list;
 }
-
-void create_bitmask(unsigned a, unsigned b)
-{
-  unsigned x = 0;
-  for (unsigned i=a; i <= b; i++) {
-    x |= 1 << 1;
-  }
-}
-
 
 void send_frame(WORKER *client, const unsigned char opcode)
 {
@@ -215,7 +181,7 @@ void send_frame(WORKER *client, wchar_t *text, int length)
   }
 
   if (length >= 65535) {
-    /* add support plz */
+    /* TODO: add support for frames larger than 64k bytes */
   }
 
   int ret = send(client->socket, buffer, buf_size, NULL);
@@ -503,10 +469,7 @@ unsigned __stdcall ws_worker(void *p)
 
     if (recv_ret && client->in_use) {
       if (FD_ISSET(client->socket, &fdwrite)) {
-        /* Sleep(2000); */
-        /* wchar_t buffer[40] = {0}; */
-        /* swprintf(buffer, sizeof(buffer), L"{ \"gear\": %d , \"text\": %d}", rand(), rand()); */
-        /* send_frame(client, buffer, sizeof(buffer)); */
+        /* We can write to socket */
       }
     }
 
@@ -573,13 +536,12 @@ unsigned __stdcall ws_worker(void *p)
 
 unsigned __stdcall ws_start_daemon(void *p)
 {
-  /* Check storage duration of initialized member */
+  /* get_active_sockets might initialize it before this point */
   if (!thread_update.initialized) {
       InitializeCriticalSection(&thread_update.cs);
   }
 
   HANDLE exit_event = (HANDLE)p;
-  CLIENTS clients[MAX_CONNECTIONS] = {0};
   WSADATA wsad;
   int ret;
   
@@ -664,7 +626,7 @@ unsigned __stdcall ws_start_daemon(void *p)
     if (FD_ISSET(listen_socket, &readfds)) {
       
       if (worker_count == THREAD_POOL_SIZE) {
-        /* do something more robust pls */
+        /* TODO: Find a cleaner way to wait for a worker thread */
         FD_ZERO(&readfds);
         FD_SET(listen_socket, &readfds);
         LOGF(WARNING, "Connection attempt failed. Maximum connections reached!");
@@ -680,7 +642,7 @@ unsigned __stdcall ws_start_daemon(void *p)
 
       accept_socket = accept(listen_socket, NULL, NULL);
 
-      /* Check for WSAEWOULDBLOCK? */
+      /* TODO: Check for WSAEWOULDBLOCK? */
       if (accept_socket == INVALID_SOCKET) { 
         LOGF(FATAL, "accept() failed with error %d", GetLastError());
         return E_ABORT;
@@ -712,7 +674,7 @@ unsigned __stdcall ws_start_daemon(void *p)
                                  &thread->thread_id);
       thread_list[worker_count] = thread;
       
-      /* Pause thread so it receives thread handle before starting? */
+      /* TODO: Pause thread so it receives thread handle before starting? */
       thread->thread_handle = thread_handles[worker_count];
       
       SetThreadName("Websocket Worker Thread", thread->thread_id);

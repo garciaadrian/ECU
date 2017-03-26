@@ -175,6 +175,7 @@ def dist(ctx, configuration):
     shutil.copy('LICENSE', 'dist')
     if configuration == 'debug':
         shutil.copy('build/bin/Release/ECU.pdb', 'dist')
+        
     try:
         shutil.copytree('build/bin/Release/locales', 'dist/locales')
     except FileExistsError:
@@ -183,7 +184,6 @@ def dist(ctx, configuration):
     try:
         shutil.copytree('build/bin/Release/reactjs', 'dist/reactjs')
     except FileExistsError:
-        print("wtf happended")
         pass
         
     for resource in release_directory_files:

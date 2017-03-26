@@ -78,7 +78,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
   return Result;
 }
 
-struct CustomSink {
+struct WebsocketSink {
   void ReceiveLogMessage(g3::LogMessageMover logEntry) {
     WORKER *list = get_active_sockets();
 
@@ -103,16 +103,13 @@ struct CustomSink {
         std::string msg = j2.dump();
 
         /* message_wide does not preserve underlying UTF-8 encoding! */
-        std::wstring message_wide = std::wstring(logEntry._move_only._message.begin(),
-                                                 logEntry._move_only._message.end());
-        
-        message_wide = std::wstring(msg.begin(), msg.end());
+        std::wstring msg_wide = std::wstring(msg.begin(), msg.end());
         
         /* num_chars = swprintf(buffer, sizeof(buffer), */
-        /*                      L"{ \"message\": \"%s\"}", message_wide.c_str()); */
+        /*                      L"{ \"message\": \"%s\"}", msg_wide.c_str()); */
         
         num_chars = swprintf(buffer, sizeof(buffer),
-                             L"%s", message_wide.c_str());
+                             L"%s", msg_wide.c_str());
         
         send_frame(&list[i], buffer, num_chars);  /* num_chars is not size of the message!! */
         message_queue.push_back(logEntry);
@@ -176,8 +173,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   auto worker = g3::LogWorker::createLogWorker();
-  auto sinkHandle = worker->addSink(std2::make_unique<CustomSink>(),
-                                    &CustomSink::ReceiveLogMessage);
+  auto sinkHandle = worker->addSink(std2::make_unique<WebsocketSink>(),
+                                    &WebsocketSink::ReceiveLogMessage);
   auto handle = worker->addDefaultLogger("log", "./");
   g3::initializeLogging(worker.get());
 
@@ -191,28 +188,19 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   struct MHD_Daemon* daemon;
   daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
                             &answer_to_connection, NULL, MHD_OPTION_END);
-
   
-  if (NULL == daemon) {
-    DEXIT_PROCESS(L"Failed to start http server", GetLastError());
-  }
+  if (daemon == NULL)
+    LOGF(FATAL, "Failed to start HTTP server");
  
-  if (!RegisterClassEx(&window)) {
-    return __LINE__;
-  }
-
- 
+  if (!RegisterClassEx(&window))
+    LOGF(FATAL, "Failed to register window");
 
   HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE, szWindowClass, szTitle,
                              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
                              500, 100, HWND_MESSAGE, NULL, hInstance, NULL);
-
-  if (!hWnd) {
-    DEXIT_PROCESS(L"Window handle failed to create", GetLastError());
-  }
-
-  /* ShowWindow(hWnd, nCmdShow); */
-  /* UpdateWindow(hWnd); */
+  
+  if (!hWnd)
+    LOGF(FATAL, "Failed to create window handle");
 
   g_Running = true;
 
@@ -228,12 +216,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   wait_handles[1] = (HANDLE)_beginthreadex(NULL, 0, ws_start_daemon,
                                            (void*)exit_event, 0, &tid);
   SetThreadName("Websocket Thread Manager", tid);
-
-  
-  
-  // if (wait_handles[1] != NULL) {
-  //   CloseHandle(wait_handles[1]);
-  // }
   
   while (g_Running) {
     MSG msg;
@@ -243,7 +225,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     rc = MsgWaitForMultipleObjects(wait_count, wait_handles,
                                    FALSE, INFINITE, QS_ALLINPUT);
-
     
     if (rc == WAIT_OBJECT_0 + wait_count) {
       while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -254,7 +235,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           WaitForMultipleObjects(wait_count-1, wait_handles+1, true, INFINITE);
           LOGF(DEBUG, "All threads have closed. Closing ECU!");
           free(config);
-          // free(ws);
           g_Running = false;
           CefShutdown();
           /* CefQuitMessageLoop(); */

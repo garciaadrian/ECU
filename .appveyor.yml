@@ -1,4 +1,4 @@
-version: 1.0.{build}-{branch}
+version: 0.0.{build}-{branch}
 
 os: Visual Studio 2015
 
@@ -29,6 +29,9 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_100_percent.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_200_percent.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_extensions.pak
+  %APPVEYOR_BUILD_FOLDER%\frontends\reactjs\build
+
+  7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
 
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip

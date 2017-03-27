@@ -34,15 +34,39 @@ IF %FOUND_CMAKE_EXE% EQU "" (
   EXIT /b
 )
 
+1>NUL 2>NUL CMD /c where virtualenv
+IF ERRORLEVEL 1 (
+   ECHO ERROR: virtualenv not installed.
+   EXIT /b 1
+)
+
+1>NUL 2>NUL CMD /c where npm
+IF ERRORLEVEL 1 (
+   ECHO ERROR: npm not installed.
+   EXIT /b 1
+)
+
+
 SET "DIR=%DIR%\venv"
 SET "DEACTIVATE=%DIR%\venv\Scripts\deactivate.bat"
 
 IF "%1" == "setup" (
    IF NOT DEFINED DevEnvDir (
+      IF NOT EXIST "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" (
+         ECHO ERROR: could not find vcvarsall.bat
+         ECHO Make sure you installed Visual Studio 2015.
+         EXIT /b 1
+      )
       CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
    )
    GOTO :setup
 ) ELSE (
+       IF NOT EXIST "%DIR%\Scripts\activate.bat" (
+          ECHO venv not found. running "ers setup".
+          ECHO enter the command again after setup is finished.
+          timeout 10
+          GOTO :setup
+       )
        CALL "%DIR%\Scripts\activate.bat"
        python ers.py %*
        CALL "%DIR%\Scripts\deactivate.bat"
@@ -51,18 +75,13 @@ IF "%1" == "setup" (
 )
 
 :setup
-1>NUL 2>NUL CMD /c where virtualenv
-IF ERRORLEVEL 1 (
-   ECHO ERROR: virtualenv not installed.
-   EXIT /b 1
-)
-
-IF NOT EXIST "%DIR%" (
+IF NOT EXIST "%DIR%\venv" (
        virtualenv venv
        PUSHD venv\Scripts
        CALL activate
        pip install click
        pip install wget
+       CALL deactivate
        POPD
 )
 
@@ -119,13 +138,13 @@ msbuild /p:Configuration=Debug /p:Platform="x64" /nologo /m /v:m cef.sln
 popd
 popd
 
-rem pushd libs\g3logger
-rem mkdir build && pushd build
-rem cmake .. -G "Visual Studio 14 Win64"
-rem msbuild /p:Configuration=Debug g3log.sln
-rem msbuild /p:Configuration=Release g3log.sln
-rem popd
-rem popd
+pushd libs\g3logger
+mkdir build && pushd build
+cmake .. -G "Visual Studio 14 Win64"
+msbuild /p:Configuration=Debug g3log.sln
+msbuild /p:Configuration=Release g3log.sln
+popd
+popd
 
 tools\build\premake5.exe vs2015
 

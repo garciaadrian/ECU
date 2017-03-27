@@ -12,9 +12,8 @@ configuration:
 build_script:
   - cmd: ers.bat build --configuration=release
 
-after_build: >-
-  
-  7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE
+after_build:
+  - cmd: 7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\ECU.exe
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libcef.dll
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\d3dcompiler_47.dll
@@ -31,7 +30,7 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_extensions.pak
   %APPVEYOR_BUILD_FOLDER%\frontends\reactjs\build
 
-  7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
+  - cmd: 7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
 
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip

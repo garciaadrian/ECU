@@ -105,9 +105,6 @@ struct WebsocketSink {
         /* message_wide does not preserve underlying UTF-8 encoding! */
         std::wstring msg_wide = std::wstring(msg.begin(), msg.end());
         
-        /* num_chars = swprintf(buffer, sizeof(buffer), */
-        /*                      L"{ \"message\": \"%s\"}", msg_wide.c_str()); */
-        
         num_chars = swprintf(buffer, sizeof(buffer),
                              L"%s", msg_wide.c_str());
         
@@ -141,7 +138,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   window.lpszClassName = szWindowClass;
   window.hIconSm = 0;
   
-  if (1) { // !config->headless
+  if (1) { /* !config->headless */
     CefEnableHighDPISupport();
 
     void* sandbox_info = NULL;
@@ -154,9 +151,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
 
-    if (exit_code >= 0) {
-      return exit_code;
-    }
+    if (exit_code >= 0)
+      LOGF(FATAL, "CEF returned with exit code %d", exit_code);
 
     CefSettings settings;
     settings.remote_debugging_port = 9991;
@@ -265,7 +261,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     else {
-      // something went wrong
+      /* something went wrong */
     }
   }
   return 0;

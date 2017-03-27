@@ -29,8 +29,8 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_200_percent.pak
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_extensions.pak
   %APPVEYOR_BUILD_FOLDER%\frontends\reactjs\build
-
-  - cmd: 7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
+  
+  && 7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
 
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip

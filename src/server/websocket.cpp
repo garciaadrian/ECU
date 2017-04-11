@@ -156,7 +156,7 @@ void send_frame(WORKER *client, wchar_t *text, int length)
   if (length < 126) {
     
     /* 2 is the size of the frame without payload data */
-    buf_size = size + 2;
+    buf_size = length + 2;
     
     buffer = (char*)malloc(buf_size);
     SecureZeroMemory(buffer, buf_size);
@@ -185,6 +185,27 @@ void send_frame(WORKER *client, wchar_t *text, int length)
   }
 
   int ret = send(client->socket, buffer, buf_size, NULL);
+}
+
+int send_json(std::string msg)
+{
+  WORKER *list = get_active_sockets();
+
+  for (int i = 0; i < THREAD_POOL_SIZE; i++) {
+    if (list[i].socket != INVALID_SOCKET && list[i].in_use) {
+      
+      wchar_t buffer[65536] = {0};
+
+      /* message_wide does not preserve underlying UTF-8 encoding! */
+      std::wstring msg_wide = std::wstring(msg.begin(), msg.end());
+
+      int num_chars = swprintf(buffer, sizeof(buffer),
+                               L"%s", msg_wide.c_str());
+      send_frame(&list[i], buffer, num_chars); /* num_chars is not size of the message!! */
+      return num_chars;
+    }
+  }
+  
 }
 
 void ws_close_handshake(WORKER *client)
@@ -494,6 +515,7 @@ unsigned __stdcall ws_worker(void *p)
             int hs = ws_open_handshake(client);
             SecureZeroMemory(client->recv_buffer, DATA_BUFSIZE);
             send_frame(client, OPCODE_PING);
+            SetEvent(client->connection_event);
             
             if (hs == E_ABORT) {
               return E_ABORT;
@@ -537,11 +559,15 @@ unsigned __stdcall ws_worker(void *p)
 unsigned __stdcall ws_start_daemon(void *p)
 {
   /* get_active_sockets might initialize it before this point */
+  /* TODO: Move critical section initialization from get_active_sockets *
+     and here to ecu-core */
   if (!thread_update.initialized) {
       InitializeCriticalSection(&thread_update.cs);
   }
 
-  HANDLE exit_event = (HANDLE)p;
+  ws_event *events = (ws_event*)p;
+  HANDLE exit_event = events->exit_event;
+  HANDLE connection_event = events->connection_event;
   WSADATA wsad;
   int ret;
   
@@ -665,6 +691,7 @@ unsigned __stdcall ws_start_daemon(void *p)
       thread->interval.tv_sec = 0;
       thread->interval.tv_usec = 32000;  /* 32 milliseconds */
       thread->worker_exit_event = worker_exit_event;
+      thread->connection_event = connection_event;
       
       SecureZeroMemory(&thread->frames, sizeof(FRAME) * MAX_FRAMES);
       

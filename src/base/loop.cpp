@@ -16,6 +16,7 @@
 #include <irsdk/irsdk_client.h>
 #include <irsdk/irsdk_defines.h>
 #include <irsdk/yaml_parser.h>
+#include <car/ecu.h>
 #include "ir_helper.h"
 #include <stdlib.h>
 #include <Strsafe.h>

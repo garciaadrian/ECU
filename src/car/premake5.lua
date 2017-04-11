@@ -5,6 +5,8 @@ kind("StaticLib")
 language("C++")
 
 files({
+      "ecu.h",
+      "ecu.cpp",
       "ers.h",
       "ers.cpp",
       "balance.h",

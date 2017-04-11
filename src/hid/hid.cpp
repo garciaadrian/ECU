@@ -56,8 +56,8 @@ void hid_poll(LPARAM lParam)
   GetRawInputDeviceInfo(buffer->header.hDevice, RIDI_DEVICENAME,
                         name, &buffer_size);
   
-  HANDLE hid = CreateFile(name, GENERIC_READ | GENERIC_WRITE,
-                          FILE_SHARE_READ | FILE_SHARE_WRITE,
+  HANDLE hid = CreateFile(name, GENERIC_READ,
+                          FILE_SHARE_READ,
                           NULL, OPEN_EXISTING, NULL, NULL);
   BOOL h = true;
   

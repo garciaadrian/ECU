@@ -11,11 +11,37 @@
 *******************************************************************************
 */
 
-#ifndef ERS_H
-#define ERS_H
+#ifndef ECU_H
+#define ECU_H
 
-#include <car/ecu.h>
+#include <server/websocket.h>
+#include <base/base.h>
+#include <irsdk/irsdk_client.h>
+#include <irsdk/irsdk_defines.h>
+#include <vector>
 
-void ers(ECU *settings);
+typedef struct _ibt {
+  irsdk_header header;
+  irsdk_diskSubHeader disk_subheader;
+  irsdk_varHeader *var_headers;
+  char *var_buf;
+  char *session_string;
+} ibt;
 
-#endif // ERS_H
+typedef struct _ECU {
+  float dcMGUKDeployFixed;
+  float SteeringWheelAngle;
+  float max_angle;
+  bool calibrated = false;
+  ws_event *events = NULL;
+  configuration *config = NULL;
+  ibt *telemetry = NULL;
+  HWND hWnd;
+  std::vector<HANDLE> handles;
+  std::vector<std::wstring> file_paths; 
+} ECU;
+
+unsigned __stdcall start_ecu(void *p);
+void input_send(float steps, int key, ECU *settings);
+
+#endif // ECU_H

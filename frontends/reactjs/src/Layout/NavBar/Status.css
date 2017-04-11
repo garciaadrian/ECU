@@ -1,0 +1,14 @@
+.statusHeader {
+    height: 30px;
+    margin-top: 15px;
+    color: white;
+}
+
+.statusDisconnected {
+    width: 55px;
+    color: red;
+}
+
+.statusConnected {
+    color: green;
+}

@@ -16,6 +16,7 @@
 
 #include <Windows.h>
 
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -30,6 +31,11 @@
 #define APPLICATION_DATA_SIZE 1024
 #define THREAD_POOL_SIZE 5
 #define MAX_FRAMES 5
+
+typedef struct {
+  HANDLE exit_event;
+  HANDLE connection_event;
+} ws_event;
 
 typedef struct {
   CRITICAL_SECTION cs;
@@ -58,6 +64,7 @@ typedef struct _WORKER {
   HANDLE exit_request;
   HANDLE *thread_handles;
   HANDLE worker_exit_event;
+  HANDLE connection_event;
   timeval interval;
   char recv_buffer[DATA_BUFSIZE] = {0};
   REQUEST req;
@@ -67,5 +74,6 @@ typedef struct _WORKER {
 WORKER *get_active_sockets();
 void send_frame(WORKER *client, wchar_t *text, int length);
 unsigned __stdcall ws_start_daemon(void *p);
+int send_json(std::string msg);
 
 #endif /* WEBSOCKET_H */

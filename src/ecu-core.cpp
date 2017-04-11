@@ -26,7 +26,7 @@
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
 #include <json.hpp>
-
+#include <car/ecu.h>
 #include "graphics/app.h"
 #include "include/cef_sandbox_win.h"
 
@@ -91,6 +91,7 @@ struct WebsocketSink {
         using json = nlohmann::json;
         
         json j2 = {
+          {"type", "log"},
           {"file_path", logEntry._move_only._file_path},
           {"file", logEntry._move_only._file},
           {"line", logEntry._move_only._line},
@@ -203,20 +204,36 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   register_devices(hWnd);
   enumerate_devices();
 
-  HANDLE wait_handles[2];
+  HANDLE wait_handles[3];
   wait_handles[0] = config->dw_change_handle;
   
   unsigned int tid = 0;
 
-  HANDLE exit_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  ws_event *events = (ws_event*)malloc(sizeof(ws_event));
+  /* ws_event events; */
+  /* events.exit_event = CreateEvent(NULL, TRUE, FALSE, NULL); */
+  /* events.connection_event = CreateEvent(NULL, TRUE, FALSE, NULL); */
+  
+  events->exit_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  events->connection_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  
   wait_handles[1] = (HANDLE)_beginthreadex(NULL, 0, ws_start_daemon,
-                                           (void*)exit_event, 0, &tid);
+                                           (void*)events, 0, &tid);
   SetThreadName("Websocket Thread Manager", tid);
+
+  _ECU *ecu_prop = (ECU*)malloc(sizeof(_ECU));
+  SecureZeroMemory(ecu_prop, sizeof(_ECU));
+  ecu_prop->events = events;
+  ecu_prop->config = config;
+  
+  wait_handles[2] = (HANDLE)_beginthreadex(NULL, 0, start_ecu,
+                                           (void*)ecu_prop, 0, &tid);
+  SetThreadName("ECU Thread", tid);
   
   while (g_Running) {
     MSG msg;
     int rc;
-    int wait_count = 2; /* dw_change_handle + Websocket Thread Manager*/
+    int wait_count = 3; /* dw_change_handle + Websocket Thread Manager*/
 
 
     rc = MsgWaitForMultipleObjects(wait_count, wait_handles,
@@ -226,7 +243,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_CLOSE) {
           LOGF(DEBUG, "CEF Requested closing. signaling exit event");
-          SetEvent(exit_event);
+          SetEvent(events->exit_event);
           /* Wait for 15 secs incase a thread hangs? */
           WaitForMultipleObjects(wait_count-1, wait_handles+1, true, INFINITE);
           LOGF(DEBUG, "All threads have closed. Closing ECU!");
@@ -244,9 +261,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     else if (rc >= WAIT_OBJECT_0
              && rc < WAIT_OBJECT_0 + wait_count) {
       int index = rc - WAIT_OBJECT_0;
+
+      if (rc == 2) {
+        /* ECU Thread died */
+        /* Remove ECU handle and compress array */
+      }
       
-      if (config->ibt_sorting) {
-        sort_ibt_directory(config->telemetry_path);
+      if (rc == 0) {
+        if (config->ibt_sorting)
+          sort_ibt_directory(config->telemetry_path);          
+        FindNextChangeNotification(wait_handles[0]);
       }
     }
 

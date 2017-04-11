@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import './NavBar.css'
+import Status from './Status';
+import './NavBar.css';
 
 class NavBar extends Component {
     constructor(props) {
@@ -33,7 +34,9 @@ class NavBar extends Component {
             <div>
                  <ul className="menu">
                     <li className="menuItem"><Link to="/debug">Debug</Link></li>
+                    <li className="menuItem"><Link to="/ers">ERS</Link></li>
                     <li className="menuItem"><Link to="/settings">Settings</Link></li>
+                    <Status></Status>
                 </ul>
             </div>
         )

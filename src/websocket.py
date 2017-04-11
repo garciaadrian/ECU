@@ -1,35 +1,24 @@
 import asyncio
 import websockets
+from random import randint
+from json import dumps
+from time import sleep
 
-# def main():
-#     s = socket.socket(
-#         socket.AF_INET, socket.SOCK_STREAM)
-#     server_address = ('localhost', 26162)
-#     print("connecting to {0}".format(server_address))
-#     s.connect(server_address)
-
-#     for x in range(0, 10):
-#         data = s.recv(8192)
-#         if data:
-#             print("received {0} {1}/10".format(data, x))
-#             print("sending message 'goodbye'")
-#             s.send('goodbye'.encode())
-
-# main()
+def generate_angle():
+    return randint(-270, 270)
 
 @asyncio.coroutine
-def hello():
-    websocket = yield from websockets.connect('ws://localhost:26162')
+def hello(websocket, path):
+    name = yield from websocket.recv()
+    print("< {}".format(name))
 
-    try:
-        name = 'What is your name?'
-        yield from websocket.send()
-        print("> {}".format(name))
+    while True:
+        greeting = dumps({"SteeringWheelAngle": generate_angle(),
+                      "type": "telemetry"})
+        yield from websocket.send(greeting)
+        sleep(0.1)
 
-        greeting = yield from websocket.recv()
-        print("< {}".format(greeting))
+start_server = websockets.serve(hello, 'localhost', 26162)
 
-    finally:
-        yield from websocket.close()
-
-asyncio.get_event_loop().run_until_complete(hello())
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()

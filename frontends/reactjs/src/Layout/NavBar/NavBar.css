@@ -8,10 +8,11 @@
 }
 
 .menuItem {
-    width: 5px;
+
     height: 30px;
-    margin-right: 70px;
-    margin-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
 }
 
 .menuItem > a {

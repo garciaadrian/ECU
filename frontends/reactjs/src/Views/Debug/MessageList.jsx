@@ -10,7 +10,7 @@ class MessageList extends Component {
     componentDidMount() {
         this.timerID = setInterval(
             () => this.tick(),
-            1000
+            800
         );
     }
 
@@ -28,7 +28,7 @@ class MessageList extends Component {
         var items = [];
 
         for (var i = 0; i < this.props.messages.length; i++) {
-            items.push(<li key={i} className="message">Message: {i} - {this.props.messages[i]}</li>);
+            items.push(<li key={i} className="message">{this.props.messages[i]}</li>);
         }
 
         return (

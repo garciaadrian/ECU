@@ -7,10 +7,13 @@ iRacing MP4-30 and to automate some systems
 - Visual Studio 2015
 - CMake
 - Python 2.7 and pip
+- npm
 - Windows 7 or newer
 
-
 # Installing
+If you're not interested in developing then click the build button above me.
+Then go to artifacts to get a zip file of the newest build.
+
 Open command prompt and type
 
 ```

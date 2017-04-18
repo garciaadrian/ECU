@@ -13,12 +13,12 @@
 
 #include "sqlite.h"
 
-/* 
- * TODO:
- * function can be refactored so caller does not need
- * to pass return code or step variable. By using
- * sqlite3_errcode() to get the most recent return code
- */
+
+// TODO:
+// function can be refactored so caller does not need
+// to pass return code or step variable. By using
+// sqlite3_errcode() to get the most recent return code
+
 int handle_sql_rc(int rc, char *sql, sqlite3 *db, bool step,
                   bool warning_as_error, bool select)
 {

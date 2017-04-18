@@ -86,8 +86,8 @@ wchar_t *encode_base64(char *message)
 {
   DWORD size = 256;
 
-  /*  CryptBinaryToString((unsigned char*)message, strlen(message),
-      CRYPT_STRING_BASE64, NULL, &size); */
+  //  CryptBinaryToString((unsigned char*)message, strlen(message),
+  //  CRYPT_STRING_BASE64, NULL, &size);
 
   wchar_t *output = (wchar_t*)malloc(256);
 
@@ -129,10 +129,10 @@ WORKER *get_active_sockets()
 
 void send_frame(WORKER *client, const unsigned char opcode)
 {
-  if (opcode >= 0x9) {  /* PING, PONG */
+  if (opcode >= 0x9) {  // Opcodes PING and PONG
     char buffer[10] = {0};
 
-    buffer[0] = 0x80 | opcode;  /* FIN set, OPCODE PING or PONG set */
+    buffer[0] = 0x80 | opcode;  // FIN set, OPCODE PING or PONG set
     int ret = send(client->socket, buffer, 10, NULL);
     LOGF(DEBUG, "(%d) sent %2x to peer", client->thread_id, buffer[0]);
   }
@@ -155,33 +155,33 @@ void send_frame(WORKER *client, wchar_t *text, int length)
   
   if (length < 126) {
     
-    /* 2 is the size of the frame without payload data */
+    // 2 is the size of the frame without payload data
     buf_size = length + 2;
     
     buffer = (char*)malloc(buf_size);
     SecureZeroMemory(buffer, buf_size);
-    buffer[0] = 0x81;  /* FIN set, OPCODE TEXT set */
+    buffer[0] = 0x81;  // FIN set, OPCODE TEXT set
     buffer[1] |= strlen(text_mb);
     memcpy(&buffer[2], text_mb, size);
   }
 
   if (length < 65535 && length > 126) {
     
-    /* 4 is the size of the frame without payload data */
-    /* TODO: use length or size for frame buffers */
+    // 4 is the size of the frame without payload data
+    // TODO: use length or size for frame buffers
     buf_size = length + 4;
     
     buffer = (char*)malloc(buf_size);
     SecureZeroMemory(buffer, buf_size);
-    buffer[0] = 0x81;  /* FIN set, OPCODE TEXT set */
-    buffer[1] = 126;   /* Next 2 bytes are payload size */
+    buffer[0] = 0x81;  // FIN set, OPCODE TEXT set
+    buffer[1] = 126;   // Next 2 bytes are payload size
     buffer[2] = (length >> 8);
     buffer[3] = (length & 0xFF);
     memcpy(&buffer[4], text_mb, length);
   }
 
   if (length >= 65535) {
-    /* TODO: add support for frames larger than 64k bytes */
+    // TODO: add support for frames larger than 64k bytes
   }
 
   int ret = send(client->socket, buffer, buf_size, NULL);
@@ -196,12 +196,12 @@ int send_json(std::string msg)
       
       wchar_t buffer[65536] = {0};
 
-      /* message_wide does not preserve underlying UTF-8 encoding! */
+      // message_wide does not preserve underlying UTF-8 encoding!
       std::wstring msg_wide = std::wstring(msg.begin(), msg.end());
 
       int num_chars = swprintf(buffer, sizeof(buffer),
                                L"%s", msg_wide.c_str());
-      send_frame(&list[i], buffer, num_chars); /* num_chars is not size of the message!! */
+      send_frame(&list[i], buffer, num_chars); // num_chars is not size of the message!!
       return num_chars;
     }
   }
@@ -226,7 +226,7 @@ void handle_payload(unsigned char *buffer)
 
 void parse_frame(WORKER *client)
 {
-  /* Check if frame queue is full */
+  // Check if frame queue is full
   int frame_index = E_ABORT;
   
   for (int i = 0; i < MAX_FRAMES; i++) {
@@ -240,8 +240,8 @@ void parse_frame(WORKER *client)
     LOGF(FATAL, "Maximum websocket frame limit reached");
   }
 
-  /* Check if the frame is a control frame */
-  char opcode = client->recv_buffer[0] & 0xF;  /* Lowest 4 bits */
+  // Check if the frame is a control frame
+  char opcode = client->recv_buffer[0] & 0xF;  // Lowest 4 bits
 
   unsigned char mask_key[4] = {0};
   unsigned __int64 payload_len = client->recv_buffer[1] & 0x7F;
@@ -262,7 +262,7 @@ void parse_frame(WORKER *client)
     }
     case 127: {
       
-      /* payload_len - most significant bit MUST be set to 0, shift by 55? */
+      // payload_len - most significant bit MUST be set to 0, shift by 55?
       payload_len = 0;
       payload_len |= (unsigned char)client->recv_buffer[2] << 56;
       payload_len |= (unsigned char)client->recv_buffer[3] << 48;
@@ -292,14 +292,14 @@ void parse_frame(WORKER *client)
   }
   
 
-  /* if (opcode == OPCODE_CLOSE) */
-  /*   ws_close_handshake(client); */
+  // if (opcode == OPCODE_CLOSE)
+  //   ws_close_handshake(client);
 }
 
 
 void remove_thread_handle(HANDLE handle, HANDLE *handle_array, HANDLE exit)
 {
-  /* if exit is requested we should not remove any handles */
+  // if exit is requested we should not remove any handles
   int ret = WaitForSingleObject(exit, NULL);
 
   if (ret == WAIT_OBJECT_0)
@@ -309,17 +309,17 @@ void remove_thread_handle(HANDLE handle, HANDLE *handle_array, HANDLE exit)
     
   for (int i = 0; i < worker_count; i++) {
     if (handle_array[i] == handle) {
-      /* this can be optimized by checking if we're the last/first thread and
-       * skipping memmove */
+      // this can be optimized by checking if we're the last/first thread and
+      // skipping memmove
       CloseHandle(handle_array[i]);
-      /* or memcpy? */
+      // or memcpy?
       memmove(&handle_array[i], &handle_array[worker_count], sizeof(HANDLE));
       SecureZeroMemory(&handle_array[worker_count], sizeof(HANDLE));
       break;
     }
   }
 
-  /* Remove thread structure from global thread_list */
+  // Remove thread structure from global thread_list
 
   for (int i = 0; i < worker_count; i++) {
     if (thread_list[i]->thread_handle == handle) {
@@ -341,22 +341,22 @@ void worker_cleanup(WORKER *client)
   free(client);
   worker_count--;
 
-  /* Compress array so get_active_sockets can proccess active sockets */
+  // Compress array so get_active_sockets can proccess active sockets
   for (int i = 0, x = worker_count; i < x;) {
     
-    /* Valid WORKER object */
+    // Valid WORKER object 
     if (thread_list[x] != 0) {
       while (i < x) {
         if (thread_list[i] == 0) {
           thread_list[i] = thread_list[x];
-          thread_list[x] = 0;  /* or SecureZeroMemory? */
+          thread_list[x] = 0;  // or SecureZeroMemory?
           x--;
         }
        
         i++;
       }
 
-      /* Redundant */
+      // Redundant
       if (i >= x)
         break;
     }
@@ -373,7 +373,7 @@ void worker_cleanup(WORKER *client)
   LeaveCriticalSection(&thread_update.cs);
 }
 
-/* validate_connection? */
+// validate_connection?
 int ws_open_handshake(WORKER *client)
 {
   static const char request_line[] = "GET / HTTP/1.1\r\n";

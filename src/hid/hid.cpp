@@ -43,7 +43,7 @@ void hid_poll(LPARAM lParam)
 
   GUID device_guid;
   HidD_GetHidGuid(&device_guid);
-  
+
   wchar_t product_string[sizeof(wchar_t) * 128] = {0};
   wchar_t manufacturer_string[sizeof(wchar_t) * 128] = {0};
   wchar_t serial_number[sizeof(wchar_t) * 128] = {0};

@@ -11,6 +11,7 @@ files({
 })
 
 files({
+  "resource.h",    
   "main_resources.rc",
 })
 

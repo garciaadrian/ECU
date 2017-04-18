@@ -16,6 +16,18 @@
 #include <Strsafe.h>
 #include <Dbghelp.h>
 #include <ini.h>
+#include <resource.h>
+
+void LoadFileResource(int name, int type, DWORD& size, const char*& data)
+{
+  // TODO: Add error checking
+  HMODULE handle = GetModuleHandle(NULL);
+  HRSRC rc = FindResource(handle, MAKEINTRESOURCE(name),
+                          MAKEINTRESOURCE(type));
+  HGLOBAL rcData = LoadResource(handle, rc);
+  size = SizeofResource(handle, rc);
+  data = static_cast<const char*>(LockResource(rcData));
+}
 
 int config_ini_handler(void *user, const char *section, const char *name,
                        const char *value)
@@ -51,9 +63,8 @@ configuration *ecu_init()
   
   PWSTR telemetry_path = NULL;
 
-  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0) {
-    DEXIT_PROCESS(L"Failed to get Module Filename", GetLastError());
-  }
+  if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0)
+    LOGF(FATAL, "Failed to get Module Filename. GLE: %d", GetLastError());
   
   SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);
   StringCchCopy(config->telemetry_path, MAX_PATH_UNICODE, telemetry_path);
@@ -64,8 +75,7 @@ configuration *ecu_init()
   
   size_t len = wcsnlen_s(config->path, MAX_PATH_UNICODE);
   
-  /* TODO: add support for changing executable name */
-  config->path[len - 7] = '\0'; /* ECU.exe */
+  config->path[len - 7] = '\0'; // ECU.exe
   
   wchar_t temp_path[MAX_PATH_UNICODE];
   wcscpy_s(temp_path, MAX_PATH_UNICODE, config->path);
@@ -79,27 +89,30 @@ configuration *ecu_init()
     config_ini_handle = CreateFile(L"config.ini", GENERIC_WRITE, FILE_SHARE_READ, NULL,
                                    CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     
-    if (config_ini_handle == INVALID_HANDLE_VALUE) {
-      DEXIT_PROCESS(L"Invalid Handle", GetLastError());
-    } 
+    if (config_ini_handle == INVALID_HANDLE_VALUE)
+      LOGF(FATAL, "Invalid Handle. GLE: %d", GetLastError());
 
-    const char ini_text[] = "[core]\r\n"
-                            "ibt_sorting = 0\r\n"
-                            "headless = 0\r\n"
-                            "[network]\r\n"
-                            "ip = 192.168.29.29\r\n";
+    DWORD size = 0;
+    const char *data = NULL;
+    LoadFileResource(CONFIG_TEXTFILE, TEXTFILE, size, data);
+    
+    // The text in the file resource might not be null terminated
+    char *buffer = (char*)malloc(size+1);
+    memcpy(buffer, data, size);
+    buffer[size] = 0;
+
     DWORD bytes_written;
     
-    if (!WriteFile(config_ini_handle, ini_text, sizeof(ini_text)/sizeof(ini_text[0]),
-                   &bytes_written, NULL)) {
-      DEXIT_PROCESS(L"Can't write to config.ini", GetLastError());
+    if (!WriteFile(config_ini_handle, buffer, size, &bytes_written, NULL)) {
+      CloseHandle(config_ini_handle);
+      LOGF(FATAL, "Can't write to config.ini. GLE: %d", GetLastError());
     }
     CloseHandle(config_ini_handle);
+    free(buffer);
   }
   
-  if (ini_parse("config.ini", config_ini_handler, config) < 0) {
-    DEXIT_PROCESS(L"Can't load config.ini", 0);
-  }
+  if (ini_parse("config.ini", config_ini_handler, config) < 0)
+    LOGF(FATAL, "Can't load config.ini. GLE: %d", GetLastError());
 
   if (config->ibt_sorting) {
     sort_ibt_directory(config->telemetry_path);

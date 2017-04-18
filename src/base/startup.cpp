@@ -106,7 +106,7 @@ configuration *ecu_init()
 
     DWORD size = 0;
     const char *data = NULL;
-    LoadFileResource(CONFIG_TEXTFILE, TEXTFILE, size, data);
+    load_file_resource(CONFIG_TEXTFILE, TEXTFILE, size, data);
     
     // The text in the file resource might not be null terminated
     char *buffer = (char*)malloc(size+1);

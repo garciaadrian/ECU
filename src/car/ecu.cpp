@@ -27,35 +27,11 @@
 
 using json = nlohmann::json;
 
-BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam)
-{
-  wchar_t path[MAX_PATH_UNICODE] = {0};
-  int ret = GetWindowModuleFileName(hWnd, path, MAX_PATH_UNICODE);
-  wchar_t *iracing = wcsstr(path, L"iRacing");
-  
-  if (iracing == NULL)
-    return true;
-  else {
-    lParam = (LPARAM)hWnd;
-    return false;
-  }
-}
+#define TIMEOUT 18
 
-HWND find_iracing_handle()
+// TODO: Send keys only when iRacing is the active window
+void input_send(float steps, int key)
 {
-  HWND *iracing = NULL;
-  EnumWindows(EnumWindowsProc, (LPARAM)iracing);
-  return *iracing;
-}
-
-void input_send(float steps, int key, ECU *settings)
-{
-  int ret;
-  /* ret = SendMessage(settings->hWnd, WM_CHAR, VK_MENU, NULL); */
-  /* ret = SendMessage(settings->hWnd, WM_CHAR, 0x43, NULL); */
-
-  /* return; */
-  
   INPUT ip = {0};
   for (int i = 0; i < steps; i++) {
     ip.type = INPUT_KEYBOARD;
@@ -114,12 +90,12 @@ ibt *last_linebuf(intptr_t fd, ECU *settings)
   telemetry->var_headers =
       (irsdk_varHeader*)malloc(telemetry->header.numVars * sizeof(irsdk_varHeader));
   
-  telemetry->var_buf = (char*)malloc(telemetry->header.bufLen); /* TODO: free */
+  telemetry->var_buf = (char*)malloc(telemetry->header.bufLen);
 
   fseek(file, telemetry->header.varHeaderOffset, SEEK_SET);
   len = sizeof(irsdk_varHeader)*telemetry->header.numVars;
 
-  /* TODO: Use the last line buffer for best accurate info. */
+  // TODO: Use the last line buffer for best accurate info.
   ret = fread(telemetry->var_headers, 1, len, file);
   fseek(file, telemetry->header.varBuf[0].bufOffset, SEEK_SET);
 
@@ -145,7 +121,7 @@ intptr_t loop_files(HANDLE search,
 
   do
   {
-    /* Get file extension */
+    // Get file extension
     int len = wcsnlen(files.cFileName, MAX_PATH);
     wcsncpy(extension, files.cFileName + (len - 3), 4);
 
@@ -158,20 +134,20 @@ intptr_t loop_files(HANDLE search,
                                  OPEN_EXISTING,
                                  FILE_FLAG_RANDOM_ACCESS, NULL);
 
-        /* If file is open in another processs */
+        // If file is open in another processs
         if (file == INVALID_HANDLE_VALUE && GetLastError() == 32) {
           LOGF(WARNING, "Unable to get file handle for %S", file_path);
           LOGF(WARNING, "Probably being used by iRacing. restarting telemetry..");
           irsdk_broadcastMsg(irsdk_BroadcastTelemCommand,
                              irsdk_TelemCommand_Stop, 0, 0);
           
-          /* Give iRacing time to release the file handle */
+          // Give iRacing time to release the file handle
           Sleep(200);
           irsdk_broadcastMsg(irsdk_BroadcastTelemCommand,
                              irsdk_TelemCommand_Start, 0, 0);
           
-          /* iRacing starts writing to disk 2.5 seconds after
-           * telemetry is turned on. */
+          // iRacing starts writing to disk 2.5 seconds after
+          // telemetry is turned on.
           Sleep(2500);
           HANDLE file = CreateFile(file_path, GENERIC_READ, NULL, NULL,
                                  OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
@@ -200,7 +176,7 @@ intptr_t loop_files(HANDLE search,
 
   while (FindNextFile(search, &files) != 0);
 
-  /* If iRacing is not writing to a file */
+  // If iRacing is not writing to a file
   return 0;
 }
 
@@ -213,12 +189,12 @@ intptr_t find_latest_file(wchar_t *directory, ECU *settings)
   wchar_t file_path[MAX_PATH_UNICODE];
   wchar_t extension[4];
 
-  /* TODO: add the wildcard to the directory during process startup */
+  // TODO: add the wildcard to the directory during process startup 
   StringCchCopy(telemetry_path, MAX_PATH_UNICODE, directory);
   StringCchCat(telemetry_path, MAX_PATH_UNICODE, L"*");
 
   if (!PathFileExists(directory))
-    /* Path length limit is 248 characters inc. null terminator */
+    // Path length limit is 248 characters inc. null terminator
     SHCreateDirectory(NULL, directory);
 
   search = FindFirstFile(telemetry_path, &files);
@@ -228,12 +204,12 @@ intptr_t find_latest_file(wchar_t *directory, ECU *settings)
   
   fd = loop_files(search, files, directory, settings);
   
-  /* If disk telemetry is not running */
+  // If disk telemetry is not running
   if (fd == 0) {
     irsdk_broadcastMsg(irsdk_BroadcastTelemCommand, irsdk_TelemCommand_Start, 0, 0);
     int timeout = 250;
     
-    /* Give iRacing time to write to file */
+    // Give iRacing time to write to file
     Sleep(timeout);
     search = FindFirstFile(telemetry_path, &files);
     fd = loop_files(search, files, directory, settings);
@@ -246,14 +222,14 @@ intptr_t find_latest_file(wchar_t *directory, ECU *settings)
 
 int calibrate_ecu(ECU *settings)
 {
-  /* Check if telemetry is writing to a file.
-   * If telemetry is off when the car hits the track
-   * then turn it on and off quickly. Then get all your
-   * data then delete the telemetry file and turn on telemetry
-   * for normal use. TODO: measure the time gap of turning
-   * telemetry on and off. */
+  // Check if telemetry is writing to a file.
+  // If telemetry is off when the car hits the track
+  // then turn it on and off quickly. Then get all your
+  // data then delete the telemetry file and turn on telemetry
+  // for normal use. TODO: measure the time gap of turning
+  // telemetry on and off.
 
-  /* Find the newest file and check if it's being used by iRacing */
+  // Find the newest file and check if it's being used by iRacing
   LOGF(WARNING, "Car on track. Calibrating ECU");
   intptr_t newest = find_latest_file(settings->config->telemetry_path, settings);
 
@@ -263,17 +239,40 @@ int calibrate_ecu(ECU *settings)
   else
     LOGF(FATAL, "File descriptor error. exiting");
 
-  int mguk_offset = var_offset(settings->telemetry->var_headers,
-                               "dcMGUKDeployFixed",
-                               settings->telemetry->header.numVars);
-  settings->dcMGUKDeployFixed = *(float*)(settings->telemetry->var_buf + mguk_offset);
-  
   return 1;
 }
 
-auto get_var(ECU *settings)
+// TODO: Change settings to data
+void get_var(ECU *settings, char *variable, char *destination)
 {
+  int offset = irsdk_varNameToOffset(variable);
+  const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(offset);
   
+  *destination = *(char*)(settings->data + offset);
+}
+
+void get_var(ECU *settings, char *variable, int *destination)
+{
+  int offset = irsdk_varNameToOffset(variable);
+  const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(offset);
+  
+  *destination = *(int*)(settings->data + offset);
+}
+
+void get_var(ECU *settings, char *variable, float *destination)
+{
+  int offset = irsdk_varNameToOffset(variable);
+  const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(offset);
+  
+  *destination = *(float*)(settings->data + offset);
+}
+
+void get_var(ECU *settings, char *variable, double *destination)
+{
+  int offset = irsdk_varNameToOffset(variable);
+  const irsdk_varHeader *rec = irsdk_getVarHeaderEntry(offset);
+  
+  *destination = *(double*)(settings->data + offset);
 }
 
 int on_track(char *data, const irsdk_header *header)
@@ -285,7 +284,6 @@ int on_track(char *data, const irsdk_header *header)
 
 void initData(const irsdk_header *header, char *data, int num_data)
 {
-  /* bad performance */
   if (data)
     free(data);
   num_data = header->bufLen;
@@ -296,7 +294,7 @@ void shutdown_ecu(ECU *settings)
 {
   LOGF(WARNING, "Shutting down ECU");
   
-  /* TODO: Readjust ERS deployment? */
+  // TODO: Readjust ERS deployment?
 
   if (settings->telemetry->var_headers != NULL)
     free(settings->telemetry->var_headers);
@@ -318,15 +316,13 @@ unsigned __stdcall start_ecu(void *p)
   bool init = false;
   int missed = 0;
 
-  settings->max_angle = 30.0f;
-
   int ret = WaitForSingleObject(events->connection_event, INFINITE);
 
-  /* Use irsdk_connected() ? */
+  // Use irsdk_connected() ?
   while (!init) {
     if (irsdkClient::instance().waitForData(1000)) {
-      /* Check if we're in replay mode by testing 
-         if the physics is running on some channels */
+      // Check if we're in replay mode by testing 
+      // if the physics is running on some channels
       LOGF(DEBUG, "iRacing is online");
       json j2 = {
         {"status", 1}
@@ -337,20 +333,19 @@ unsigned __stdcall start_ecu(void *p)
     }
   }
 
-  /* Test irsdk connection failures */
+  // Test irsdk connection failures
   int tries = 500;
+  
   while (tries > 0) {
-    if (irsdkClient::instance().waitForData(18)) {
-    
-    }
-    else {
+    if (irsdkClient::instance().waitForData(TIMEOUT)) {}
+    else
       missed++;
-    }
     tries--;
   }
+  
+  LOGF(DEBUG, "irsdk: timeout is %d ms", TIMEOUT);
   LOGF(DEBUG, "irsdk: %d missed connections", missed);
 
-  char *data = NULL;
   int num_data = 0;
   const irsdk_header *header = irsdk_getHeader();
   
@@ -359,16 +354,18 @@ unsigned __stdcall start_ecu(void *p)
     
     if (ret == WAIT_OBJECT_0) {
       shutdown_ecu(settings);
+      if (settings->data)
+        free(settings->data);
       return 1;
     }
     
     if (header) {
-      if (!data || num_data != header->bufLen) {
-        if (data)
-          free(data);
+      if (!settings->data || num_data != header->bufLen) {
+        if (settings->data)
+          free(settings->data);
         num_data = header->bufLen;
-        data = (char*)malloc(num_data);  /* TODO: free this */
-        irsdk_waitForDataReady(16, data);
+        settings->data = (char*)malloc(num_data);
+        irsdk_waitForDataReady(TIMEOUT, settings->data);
       }
       else {
         if (!irsdk_isConnected()) {
@@ -377,35 +374,24 @@ unsigned __stdcall start_ecu(void *p)
           json offline = {
             {"status", 0}
           };
+          
+          if (settings->data)
+            free(settings->data);
+          
           send_json(offline.dump());
           shutdown_ecu(settings);
           break;
         }
-        irsdk_waitForDataReady(17, data);
+        irsdk_waitForDataReady(TIMEOUT, settings->data);
         
-        /* Copy all vars to a buffer? */
-        /* Move calibrated to _ECU?  */
-        if (on_track(data, header)) {
+        // Copy all vars to a buffer?
+        if (on_track(settings->data, header)) {
           if (!settings->calibrated) {
             settings->hWnd = GetForegroundWindow();
             calibrate_ecu(settings);
             settings->calibrated = true;
           }
-          
-          int angle = var_offset(settings->telemetry->var_headers,
-                                 "SteeringWheelAngle",
-                                 settings->telemetry->header.numVars);
-          angle = irsdk_varNameToOffset("SteeringWheelAngle");
-          settings->SteeringWheelAngle = *(float *)(data + angle) * 57.2958;
-          int mguk = irsdk_varNameToOffset("dcMGUKDeployFixed");
-          settings->dcMGUKDeployFixed = *(float *)(data + mguk);
           ers(settings);
-          json j = {
-            {"type", "telemetry"},
-            {"SteeringWheelAngle", settings->SteeringWheelAngle}
-          };
-          send_json(j.dump());
-          /* ers(settings); */
         }
         else {
           if (settings->calibrated)

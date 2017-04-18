@@ -29,19 +29,24 @@ typedef struct _ibt {
 } ibt;
 
 typedef struct _ECU {
-  float dcMGUKDeployFixed;
-  float SteeringWheelAngle;
-  float max_angle;
   bool calibrated = false;
   ws_event *events = NULL;
   configuration *config = NULL;
   ibt *telemetry = NULL;
   HWND hWnd;
+  char *data;
   std::vector<HANDLE> handles;
   std::vector<std::wstring> file_paths; 
 } ECU;
 
+
+
 unsigned __stdcall start_ecu(void *p);
-void input_send(float steps, int key, ECU *settings);
+void input_send(float steps, int key);
+
+void get_var(ECU *settings, char *variable, char *destination);
+void get_var(ECU *settings, char *variable, int *destination);
+void get_var(ECU *settings, char *variable, float *destination);
+void get_var(ECU *settings, char *variable, double *destination);
 
 #endif // ECU_H

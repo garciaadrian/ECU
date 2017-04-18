@@ -30,6 +30,10 @@ typedef struct
   const char *ip;
   bool ibt_sorting = false;
   bool headless = false;
+
+  float angle = 0.0;
+  float derate_fixed = 0.0;
+  float normrate_fixed = 0.0;
 } configuration;
 
 

@@ -18,7 +18,7 @@
 #include <ini.h>
 #include <resource.h>
 
-void LoadFileResource(int name, int type, DWORD& size, const char*& data)
+void load_file_resource(int name, int type, DWORD& size, const char*& data)
 {
   // TODO: Add error checking
   HMODULE handle = GetModuleHandle(NULL);
@@ -45,6 +45,18 @@ int config_ini_handler(void *user, const char *section, const char *name,
   
   if (MATCH("network", "ip")) {
     config->ip = value;
+  }
+
+  if (MATCH("deployment", "angle")) {
+    config->angle = atoi(value);
+  }
+
+  if (MATCH("deployment", "derateFixed")) {
+    config->derate_fixed = atoi(value);
+  }
+
+  if (MATCH("deployment", "normRateFixed")) {
+    config->normrate_fixed = atoi(value);
   }
   
   else {

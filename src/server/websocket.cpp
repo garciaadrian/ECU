@@ -110,6 +110,7 @@ WORKER *get_active_sockets()
 {
   if (!thread_update.initialized) {
     InitializeCriticalSection(&thread_update.cs);
+    thread_update.initialized = true;
   }
   
   EnterCriticalSection(&thread_update.cs);
@@ -185,6 +186,7 @@ void send_frame(WORKER *client, wchar_t *text, int length)
   }
 
   int ret = send(client->socket, buffer, buf_size, NULL);
+  free(text_mb);
 }
 
 int send_json(std::string msg)
@@ -202,9 +204,11 @@ int send_json(std::string msg)
       int num_chars = swprintf(buffer, sizeof(buffer),
                                L"%s", msg_wide.c_str());
       send_frame(&list[i], buffer, num_chars); // num_chars is not size of the message!!
-      return num_chars;
+      free(list);
+      return num_chars;  // Only 1 connection will receive the data..
     }
   }
+
   
 }
 
@@ -291,7 +295,7 @@ void parse_frame(WORKER *client)
     payload[i] = client->recv_buffer[payload_index] ^ mask_key[i % 4];
   }
   
-
+  free(payload);
   // if (opcode == OPCODE_CLOSE)
   //   ws_close_handshake(client);
 }

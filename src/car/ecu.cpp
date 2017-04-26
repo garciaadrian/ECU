@@ -102,7 +102,7 @@ ibt *last_linebuf(intptr_t fd, ECU *settings)
   len = telemetry->header.bufLen;
   ret = fread(telemetry->var_buf, 1, len, file);
 
-x  del_telemetry(settings);
+  del_telemetry(settings);
   return telemetry;
 }
 

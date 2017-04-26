@@ -102,12 +102,7 @@ ibt *last_linebuf(intptr_t fd, ECU *settings)
   len = telemetry->header.bufLen;
   ret = fread(telemetry->var_buf, 1, len, file);
 
-  int mguk_offset = var_offset(telemetry->var_headers,
-                               "dcMGUKDeployFixed",
-                               telemetry->header.numVars);
-  
-  int mguk = *(float*)(telemetry->var_buf + mguk_offset);
-  del_telemetry(settings);
+x  del_telemetry(settings);
   return telemetry;
 }
 
@@ -316,7 +311,7 @@ unsigned __stdcall start_ecu(void *p)
   bool init = false;
   int missed = 0;
 
-  int ret = WaitForSingleObject(events->connection_event, INFINITE);
+  // int ret = WaitForSingleObject(events->connection_event, INFINITE);
 
   // Use irsdk_connected() ?
   while (!init) {

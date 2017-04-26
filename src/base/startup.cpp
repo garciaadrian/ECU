@@ -76,7 +76,7 @@ configuration *ecu_init()
   PWSTR telemetry_path = NULL;
 
   if (GetModuleFileName(NULL, config->path, MAX_PATH_UNICODE) == 0)
-    LOGF(FATAL, "Failed to get Module Filename. GLE: %d", GetLastError());
+    return nullptr;
   
   SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &telemetry_path);
   StringCchCopy(config->telemetry_path, MAX_PATH_UNICODE, telemetry_path);
@@ -102,7 +102,7 @@ configuration *ecu_init()
                                    CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     
     if (config_ini_handle == INVALID_HANDLE_VALUE)
-      LOGF(FATAL, "Invalid Handle. GLE: %d", GetLastError());
+      return nullptr;
 
     DWORD size = 0;
     const char *data = NULL;
@@ -117,22 +117,17 @@ configuration *ecu_init()
     
     if (!WriteFile(config_ini_handle, buffer, size, &bytes_written, NULL)) {
       CloseHandle(config_ini_handle);
-      LOGF(FATAL, "Can't write to config.ini. GLE: %d", GetLastError());
+      return nullptr;
     }
-    CloseHandle(config_ini_handle);
+    if (config_ini_handle != INVALID_HANDLE_VALUE) {
+      CloseHandle(config_ini_handle);
+    }
     free(buffer);
   }
   
   if (ini_parse("config.ini", config_ini_handler, config) < 0)
-    LOGF(FATAL, "Can't load config.ini. GLE: %d", GetLastError());
-
-  if (config->ibt_sorting) {
-    sort_ibt_directory(config->telemetry_path);
-  }
-
+    return nullptr;
   
-  /* Don't execute anything until iRacing is running */
-  LOGF(DEBUG, "Init ECU");
   init_db(config);
   return config;
 }

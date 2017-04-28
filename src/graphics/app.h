@@ -8,16 +8,17 @@
 #include "include/cef_app.h"
 
 // Implement application-level callbacks for the browser process.
-class SimpleApp : public CefApp,
-                  public CefBrowserProcessHandler {
+class SimpleApp : public CefApp, public CefBrowserProcessHandler {
  public:
   int main_thread;
-  
+
   SimpleApp(int main_thread);
 
   // CefApp methods:
   virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
-      OVERRIDE { return this; }
+      OVERRIDE {
+    return this;
+  }
 
   // CefBrowserProcessHandler methods:
   virtual void OnContextInitialized() OVERRIDE;

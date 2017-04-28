@@ -115,6 +115,14 @@ def build(ctx, no_premake, configuration):
         return result
     else:
         click.echo('Success!')
+        
+@cli.command()
+@click.pass_context
+def lint(ctx):
+    for file_ in get_src_files():
+        print(file_)
+        shell_call([os.path.join('tools', 'build', 'clang-format.exe'),
+                    '-style=file', '-i', file_])
                     
 @cli.command()
 @click.pass_context
@@ -201,6 +209,13 @@ def premake(ctx):
 cli.add_command(cef)
 cli.add_command(clean)
 cli.add_command(dist)
+
+def get_src_files():
+    for dir_, _, files in os.walk('src'):
+        for file_ in files:
+            if file_.endswith(('.cc', '.h')):
+                filepath = dir_ + '\\' + file_
+                yield filepath.replace('\\', '/')
 
 def import_vs_environment():
     """Finds the installed Visual Studio version and imports

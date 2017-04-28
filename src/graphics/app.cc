@@ -20,8 +20,7 @@ namespace {
 class SimpleWindowDelegate : public CefWindowDelegate {
  public:
   explicit SimpleWindowDelegate(CefRefPtr<CefBrowserView> browser_view)
-      : browser_view_(browser_view) {
-  }
+      : browser_view_(browser_view) {}
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) OVERRIDE {
     // Add the browser view and show the window.
@@ -39,8 +38,7 @@ class SimpleWindowDelegate : public CefWindowDelegate {
   bool CanClose(CefRefPtr<CefWindow> window) OVERRIDE {
     // Allow the window to close if the browser says it's OK.
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-    if (browser)
-      return browser->GetHost()->TryCloseBrowser();
+    if (browser) return browser->GetHost()->TryCloseBrowser();
     return true;
   }
 
@@ -53,9 +51,7 @@ class SimpleWindowDelegate : public CefWindowDelegate {
 
 }  // namespace
 
-SimpleApp::SimpleApp(int main_thread)
-    : main_thread(main_thread){
-}
+SimpleApp::SimpleApp(int main_thread) : main_thread(main_thread) {}
 
 void SimpleApp::OnContextInitialized() {
   CEF_REQUIRE_UI_THREAD();
@@ -84,15 +80,13 @@ void SimpleApp::OnContextInitialized() {
   // Check if a "--url=" value was provided via the command-line. If so, use
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
-  
+
 #ifdef _DEBUG
-  if (url.empty())
-    url = "http://localhost:3000";
+  if (url.empty()) url = "http://localhost:3000";
 #else
-  if (url.empty())
-    url = "http://localhost:9008";
+  if (url.empty()) url = "http://localhost:9008";
 #endif
-  
+
   if (use_views) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(

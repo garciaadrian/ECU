@@ -8,6 +8,7 @@ includedirs({
  "libs/cef_binary_3.2704.1414.g185cd6c_windows64/",
  "libs/inih",
  "libs/json",
+ "libs/gflags/src",
 })
 
 defines({ "_UNICODE", "UNICODE", "STRICT", "NOMINMAX", })
@@ -50,6 +51,7 @@ filter("configurations:Release")
     "libs/libmicrohttpd/x86_64/VS2015/Release-static/"
   })
   links({
+    "gflags",
     "comctl32",
     "rpcrt4",
     "shlwapi",
@@ -105,6 +107,7 @@ filter("configurations:Debug")
     "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
     })
   links({
+    "gflags",
     "Winmm",
     "comctl32",
     "rpcrt4",
@@ -130,6 +133,7 @@ filter("configurations:Debug")
     "USING_CEF_SHARED",
     "CEF_USE_SANDBOX",
     "ws2_32",
+    "_CRT_SECURE_NO_WARNINGS",
   })
 
 solution("ECU")
@@ -140,14 +144,11 @@ solution("ECU")
   end
   configurations({"Debug", "Release"})
 
+  -- Include third party libs first
+  include("libs/gflags.lua")
   include("libs/inih")
   include("libs/sqlite3")
   include("libs/irsdk")
+  
   include("src/")
-  include("src/sound")
-  include("src/hid")
-  include("src/base")
-  include("src/db")
   include("src/graphics")
-  include("src/server")
-  include("src/car")

@@ -7,8 +7,8 @@
 
 #include "include/cef_client.h"
 
-#include <list>
 #include <WTypesbase.h>
+#include <list>
 
 class SimpleHandler : public CefClient,
                       public CefDisplayHandler,
@@ -16,7 +16,7 @@ class SimpleHandler : public CefClient,
                       public CefLoadHandler {
  public:
   int main_thread;
-  
+
   explicit SimpleHandler(bool use_views, int main_thread);
   ~SimpleHandler();
 
@@ -30,9 +30,7 @@ class SimpleHandler : public CefClient,
   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
     return this;
   }
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE {
-    return this;
-  }
+  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
 
   // CefDisplayHandler methods:
   virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -45,8 +43,7 @@ class SimpleHandler : public CefClient,
 
   // CefLoadHandler methods:
   virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           ErrorCode errorCode,
+                           CefRefPtr<CefFrame> frame, ErrorCode errorCode,
                            const CefString& errorText,
                            const CefString& failedUrl) OVERRIDE;
 
@@ -68,8 +65,6 @@ class SimpleHandler : public CefClient,
   BrowserList browser_list_;
 
   bool is_closing_;
-
-  
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(SimpleHandler);

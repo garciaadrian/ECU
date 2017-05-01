@@ -151,4 +151,5 @@ solution("ECU")
   include("libs/irsdk")
   
   include("src/")
+  include("src/hid")
   include("src/graphics")

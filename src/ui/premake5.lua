@@ -1,0 +1,9 @@
+group("src")
+project("ECU-ui")
+  uuid("2dad4414-2ece-11e7-93ae-92361f002671")
+  kind("StaticLib")
+  language("C++")
+  files({
+    "window.h",
+    "window.cc",
+    })

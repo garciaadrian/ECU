@@ -5,5 +5,7 @@ project("ECU-hid")
   language("C++")
   files({
     "input_system.h",
+    "input_system.cc",
     "input_driver.h",
+    "input_driver.cc",
   })

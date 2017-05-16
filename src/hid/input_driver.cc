@@ -9,34 +9,14 @@
 *******************************************************************************
 */
 
-#ifndef UI_WINDOW_H_
-#define UI_WINDOW_H_
-
-#include <Windows.h>
-#include <string>
+#include "hid/input_driver.h"
 
 namespace ecu {
-namespace ui {
+namespace hid {
 
-class Window {
- public:
-  Window(std::wstring title);
-  ~Window();
+InputDriver::InputDriver(ecu::ui::Window* window) : window_(window) {}
 
-  bool Initialize();
-  HWND hwnd() const { return hwnd_; }
-  bool set_title(const std::wstring& title);
-  static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-                                  LPARAM lParam);
+InputDriver::~InputDriver() = default;
 
- private:
-  HWND hwnd_ = nullptr;
-  HICON icon_ = nullptr;
-  HCURSOR cursor_ = nullptr;
-  std::wstring title_;
-};
-
-}  // namespace ui
+}  // namespace hid
 }  // namespace ecu
-
-#endif  // UI_WINDOW_H_

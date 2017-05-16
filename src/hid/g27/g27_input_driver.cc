@@ -9,34 +9,33 @@
 *******************************************************************************
 */
 
-#ifndef UI_WINDOW_H_
-#define UI_WINDOW_H_
+#include "hid/g27/g27_input_driver.h"
 
 #include <Windows.h>
-#include <string>
 
 namespace ecu {
-namespace ui {
+namespace hid {
+namespace g27 {
 
-class Window {
- public:
-  Window(std::wstring title);
-  ~Window();
+G27InputDriver::G27InputDriver(ecu::ui::Window* window) : InputDriver(window) {
+  bool ret = Register(window->hwnd());
+}
 
-  bool Initialize();
-  HWND hwnd() const { return hwnd_; }
-  bool set_title(const std::wstring& title);
-  static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-                                  LPARAM lParam);
+G27InputDriver::~G27InputDriver() { RAWINPUTDEVICE wheel_input = {0}; }
 
- private:
-  HWND hwnd_ = nullptr;
-  HICON icon_ = nullptr;
-  HCURSOR cursor_ = nullptr;
-  std::wstring title_;
-};
+bool G27InputDriver::Register(HWND window) {
+  RAWINPUTDEVICE wheel_input = {0};
+  wheel_input.usUsagePage = 1;
+  wheel_input.usUsage = 4;
+  wheel_input.dwFlags = RIDEV_INPUTSINK;
+  wheel_input.hwndTarget = window;
 
-}  // namespace ui
+  if (!RegisterRawInputDevices(&wheel_input, 1, sizeof(RAWINPUTDEVICE))) {
+    return false;
+  }
+  return true;
+}
+
+}  // namespace g27
+}  // namespace hid
 }  // namespace ecu
-
-#endif  // UI_WINDOW_H_

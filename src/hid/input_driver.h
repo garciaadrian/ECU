@@ -14,13 +14,20 @@
 
 #include <Windows.h>
 
+#include "ui/window.h"
+
 namespace ecu {
 namespace hid {
 
 class InputDriver {
  public:
-  bool Register(HWND window);
+  InputDriver(ecu::ui::Window* window);
+  virtual ~InputDriver();
+
+  virtual bool Register(HWND window) = 0;
+
  private:
+  ecu::ui::Window* window_ = nullptr;
 };
 
 }  // namespace hid

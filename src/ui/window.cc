@@ -14,22 +14,18 @@
 namespace ecu {
 namespace ui {
 
-Window::Window(std::wstring title) : title_(title) {
-  
-}
+Window::Window(std::wstring title) : title_(title) {}
 
-Window::~Window() {
-  CloseHandle(hwnd_);
-}
+Window::~Window() { CloseHandle(hwnd_); }
 
-LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message,
-                                 WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam,
+                                 LPARAM lParam) {
   return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 bool Window::Initialize() {
   HINSTANCE hInstance = GetModuleHandle(nullptr);
-  
+
   static bool has_registered_class = false;
   if (!has_registered_class) {
     WNDCLASSEX wcex;
@@ -45,9 +41,8 @@ bool Window::Initialize() {
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
     wcex.lpszClassName = L"ECUWindowClass";
-    
-    if (!RegisterClassEx(&wcex))
-      return false;
+
+    if (!RegisterClassEx(&wcex)) return false;
     has_registered_class = true;
   }
 
@@ -55,16 +50,15 @@ bool Window::Initialize() {
   DWORD window_ex_style = WS_EX_APPWINDOW | WS_EX_CONTROLPARENT;
 
   hwnd_ = CreateWindowEx(window_ex_style, L"ECUWindowClass", title_.c_str(),
-                         window_style, CW_USEDEFAULT, CW_USEDEFAULT,
-                         500, 500, nullptr, nullptr, hInstance, this);
+                         window_style, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500,
+                         nullptr, nullptr, hInstance, this);
   if (!hwnd_) {
     return false;
   }
 
   ShowWindow(hwnd_, SW_SHOWNORMAL);
   UpdateWindow(hwnd_);
-  
 }
 
-} // namespace ui
-} // namespace ecu
+}  // namespace ui
+}  // namespace ecu

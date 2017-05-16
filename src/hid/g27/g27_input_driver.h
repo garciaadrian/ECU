@@ -9,34 +9,26 @@
 *******************************************************************************
 */
 
-#ifndef UI_WINDOW_H_
-#define UI_WINDOW_H_
+#ifndef HID_G27_G27_INPUT_DRIVER_H_
+#define HID_G27_G27_INPUT_DRIVER_H_
 
 #include <Windows.h>
-#include <string>
+
+#include "hid/input_driver.h"
 
 namespace ecu {
-namespace ui {
+namespace hid {
+namespace g27 {
 
-class Window {
+class G27InputDriver : public InputDriver {
  public:
-  Window(std::wstring title);
-  ~Window();
-
-  bool Initialize();
-  HWND hwnd() const { return hwnd_; }
-  bool set_title(const std::wstring& title);
-  static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-                                  LPARAM lParam);
-
- private:
-  HWND hwnd_ = nullptr;
-  HICON icon_ = nullptr;
-  HCURSOR cursor_ = nullptr;
-  std::wstring title_;
+  explicit G27InputDriver(ecu::ui::Window* window);
+  ~G27InputDriver();
+  bool Register(HWND window) override;
 };
 
-}  // namespace ui
+}  // namespace g27
+}  // namespace hid
 }  // namespace ecu
 
-#endif  // UI_WINDOW_H_
+#endif  // HID_G27_G27_INPUT_DRIVER_H_

@@ -19,42 +19,27 @@
 #include "g3log/g3log.hpp"
 #include "g3log/logworker.hpp"
 #include "json.hpp"
-#include "graphics/app.h"
-#include "include/cef_sandbox_win.h"
+
+#include "ui/window.h"
+#include "hid/input_system.h"
+#include "hid/input_driver.h"
+#include "hid/g27/g27_hid.h"
 
 DEFINE_bool(cef, false, "Toggles GUI");
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
-  LRESULT Result = 0;
-
-  switch (Msg) {
-    case WM_INPUT: {
-    }
-
-    default: { Result = DefWindowProc(hWnd, Msg, wParam, lParam); }
-  }
-
-  return Result;
-}
-
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      LPSTR lpCmdLine, int nCmdShow) {
-  static TCHAR szWindowClass[] = _T("iracingECU");
-  static TCHAR szTitle[] = _T("iRacing ECU");
+  auto worker = g3::LogWorker::createLogWorker();
+  auto handle = worker->addDefaultLogger("log", "./");
+  g3::initializeLogging(worker.get());
 
-  WNDCLASSEX window;
-  window.cbSize = sizeof(WNDCLASSEX);
-  window.style = CS_HREDRAW | CS_VREDRAW;
-  window.lpfnWndProc = WndProc;
-  window.cbClsExtra = 0;
-  window.cbWndExtra = 0;
-  window.hInstance = hInstance;
-  window.hIcon = 0;
-  window.hCursor = LoadCursor(NULL, IDC_ARROW);
-  window.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-  window.lpszMenuName = NULL;
-  window.lpszClassName = szWindowClass;
-  window.hIconSm = 0;
+  ecu::ui::Window debug_window(std::wstring(L"ECU Debug"));
+
+  if (!debug_window.Initialize()) {
+    LOGF(DEBUG, "Failed to create debug window");
+  }
+
+  auto drivers = ecu::hid::CreateInputDrivers(&debug_window);
 
   auto command_line = GetCommandLineW();
   int argc;
@@ -75,46 +60,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   google::ParseCommandLineFlags(&argc, &argva, true);
 
-  if (FLAGS_cef) {
-    CefEnableHighDPISupport();
-
-    void* sandbox_info = NULL;
-#ifdef CEF_USE_SANDBOX
-    CefScopedSandboxInfo scoped_sandbox;
-    sandbox_info = scoped_sandbox.sandbox_info();
-#endif
-
-    CefMainArgs main_args(hInstance);
-
-    int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
-
-    if (exit_code >= 0)
-      LOGF(FATAL, "CEF returned with exit code %d", exit_code);
-
-    CefSettings settings;
-    settings.remote_debugging_port = 9991;
-    settings.log_severity = LOGSEVERITY_WARNING;
-    settings.multi_threaded_message_loop = true;
-
-#ifndef CEF_USE_SANDBOX
-    settings.no_sandbox = true;
-#endif
-    CefRefPtr<SimpleApp> app(new SimpleApp(GetCurrentThreadId()));
-
-    CefInitialize(main_args, settings, app.get(), sandbox_info);
-  }
-
-  auto worker = g3::LogWorker::createLogWorker();
-  auto handle = worker->addDefaultLogger("log", "./");
-  g3::initializeLogging(worker.get());
-
-  if (!RegisterClassEx(&window)) LOGF(FATAL, "Failed to register main window");
-
-  HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE, szWindowClass, szTitle,
-                             WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                             500, 100, HWND_MESSAGE, NULL, hInstance, NULL);
-
-  if (!hWnd) LOGF(FATAL, "Failed to create window handle");
+  AllocConsole();
+  HANDLE myConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+  DWORD cCharsWritten;
+  DWORD cCharsRead;
+  char* str = "enter game command";
+  WriteConsole(myConsoleHandle, str, strlen(str), &cCharsWritten, NULL);
+  char* command = (char*)malloc(100);
+  int charsRead = 0;
 
   return 0;
 }

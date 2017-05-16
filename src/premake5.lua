@@ -17,10 +17,9 @@ files({
 
 links({
   "inih",
-  "libcef",
-  "libcef_dll_wrapper",
-  "ECU-graphics",
-  "dxguid",
+  "ECU-hid",
+  "ECU-hid-g27",
+  "ECU-ui",
   "Hid",
   "Crypt32",
 })

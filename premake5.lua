@@ -1,3 +1,6 @@
+include("tools/build/export-compile-commands/export-compile-commands")
+
+
 location("build")
 targetdir("build/bin")
 objdir("build/obj")
@@ -5,7 +8,6 @@ objdir("build/obj")
 includedirs({
  ".",
  "src",
- "libs/cef_binary_3.2704.1414.g185cd6c_windows64/",
  "libs/inih",
  "libs/json",
  "libs/gflags/src",
@@ -46,8 +48,6 @@ filter("configurations:Release")
   })
   libdirs({
     "libs/g3logger/build/Release",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/Release",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/build/libcef_dll_wrapper/Release/",
     "libs/libmicrohttpd/x86_64/VS2015/Release-static/"
   })
   links({
@@ -60,8 +60,6 @@ filter("configurations:Release")
     "Dbghelp",
     "kernel32",
     "psapi",
-    "libcef_dll_wrapper",
-    "libcef",
     "Winmm",
     "comctl32",
     "rpcrt4",
@@ -71,14 +69,12 @@ filter("configurations:Release")
     "Dbghelp",
     "kernel32",
     "psapi",
-    "cef_sandbox",
     "libmicrohttpd",
     "Bcrypt",
     "g3logger",
   })
   linkoptions({
     "/ignore:4099",
-    "/LTCG",
   })
   flags({
     "Optimize",
@@ -102,8 +98,6 @@ filter("configurations:Debug")
    })
   libdirs({
     "libs/g3logger/build/Debug",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/Debug",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/build/libcef_dll_wrapper/Debug/",
     "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
     })
   links({
@@ -117,14 +111,12 @@ filter("configurations:Debug")
     "Dbghelp",
     "kernel32",
     "psapi",
-    "cef_sandbox",
     "libmicrohttpd_d",
     "Bcrypt",
     "g3logger",
   })
   linkoptions({
     "/ignore:4099",
-    "/LTCG"    
   })
   runtime("Debug")
   defines({
@@ -152,4 +144,5 @@ solution("ECU")
   
   include("src/")
   include("src/hid")
-  include("src/graphics")
+  include("src/hid/g27")
+  include("src/ui")

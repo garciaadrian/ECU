@@ -9,34 +9,31 @@
 *******************************************************************************
 */
 
-#ifndef HID_INPUT_DRIVER_H_
-#define HID_INPUT_DRIVER_H_
+#ifndef BASE_CONSOLE_SINK_H_
+#define BASE_CONSOLE_SINK_H_
 
+#include <string>
+#include <iostream>
 #include <Windows.h>
 
-#include "ui/window.h"
+#include "g3log/logmessage.hpp"
 
 namespace ecu {
-namespace hid {
+namespace log {
 
-class InputDriver {
+class ConsoleSink {
  public:
-  InputDriver(ecu::ui::Window* window);
-  virtual ~InputDriver();
+  ConsoleSink(std::wstring title);
+  ~ConsoleSink();
 
-  virtual bool Register(HWND window) = 0;
-  virtual int GetState() = 0;
+  void ReceiveLogMessage(g3::LogMessageMover logEntry);
 
  private:
-  ecu::ui::Window* window_ = nullptr;
+  std::wstring title_;
+  HANDLE std_out_;
 };
 
-enum MP430_INPUT_BUTTON {
-  MP430_INPUT_BRAKE_BALANCE_UP = 0x001,
-  MP430_INPUT_BRAKE_BALANCE_DOWN = 0x002,
-};
-
-}  // namespace hid
+}  // namespace log
 }  // namespace ecu
 
 #endif

@@ -20,8 +20,11 @@ links({
   "ECU-hid",
   "ECU-hid-g27",
   "ECU-ui",
+  "ECU-base",
   "Hid",
   "Crypt32",
+  "Setupapi",
+  "Winusb",
 })
 
 filter("configurations:Debug")

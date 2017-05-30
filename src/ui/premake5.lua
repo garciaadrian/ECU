@@ -6,4 +6,6 @@ project("ECU-ui")
   files({
     "window.h",
     "window.cc",
+    "loop.h",
+    "loop.cc",
     })

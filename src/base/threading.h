@@ -9,34 +9,43 @@
 *******************************************************************************
 */
 
-#ifndef HID_INPUT_DRIVER_H_
-#define HID_INPUT_DRIVER_H_
+#ifndef BASE_THREADING_H_
+#define BASE_THREADING_H_
 
-#include <Windows.h>
-
-#include "ui/window.h"
+#include <string>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 namespace ecu {
-namespace hid {
+namespace threading {
 
-class InputDriver {
+class Fence {
  public:
-  InputDriver(ecu::ui::Window* window);
-  virtual ~InputDriver();
+  Fence() : signaled_(false) {}
+  void Signal() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    signaled_.store(true);
+    cond_.notify_all();
+  }
 
-  virtual bool Register(HWND window) = 0;
-  virtual int GetState() = 0;
+  void Wait() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    while (!signaled_.load()) {
+      cond_.wait(lock);
+    }
+    signaled_.store(false);
+  }
 
  private:
-  ecu::ui::Window* window_ = nullptr;
+  std::mutex mutex_;
+  std::condition_variable cond_;
+  std::atomic<bool> signaled_;
 };
 
-enum MP430_INPUT_BUTTON {
-  MP430_INPUT_BRAKE_BALANCE_UP = 0x001,
-  MP430_INPUT_BRAKE_BALANCE_DOWN = 0x002,
-};
+void set_name(const std::string& name);
 
-}  // namespace hid
+}  // namespace threading
 }  // namespace ecu
 
 #endif

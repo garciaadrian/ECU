@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import Deployment from './Deployment';
 
 class ERS extends Component {
@@ -8,7 +8,9 @@ class ERS extends Component {
 
     render() {
         return (
-            <Deployment />
+            <div>
+                <Deployment />
+            </div>
         )
     }
 }

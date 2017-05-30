@@ -1,0 +1,11 @@
+group("src")
+project("ECU-base")
+  uuid("f02380ec-39ed-11e7-a919-92ebcb67fe33")
+  kind("StaticLib")
+  language("C++")
+  files({
+    "console_sink.h",
+    "console_sink.cc",
+    "threading.h",
+    "threading.cc"
+    })

@@ -21,25 +21,31 @@
 #include "json.hpp"
 
 #include "ui/window.h"
+#include "base/console_sink.h"
 #include "hid/input_system.h"
 #include "hid/input_driver.h"
 #include "hid/g27/g27_hid.h"
-
-DEFINE_bool(cef, false, "Toggles GUI");
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      LPSTR lpCmdLine, int nCmdShow) {
   auto worker = g3::LogWorker::createLogWorker();
   auto handle = worker->addDefaultLogger("log", "./");
+
+  auto console_sink = worker->addSink(
+      std2::make_unique<ecu::log::ConsoleSink>(std::wstring(L"ECU Log")),
+      &ecu::log::ConsoleSink::ReceiveLogMessage);
+
   g3::initializeLogging(worker.get());
 
   ecu::ui::Window debug_window(std::wstring(L"ECU Debug"));
+  LOGF(DEBUG, "Created window");
 
   if (!debug_window.Initialize()) {
     LOGF(DEBUG, "Failed to create debug window");
   }
 
   auto drivers = ecu::hid::CreateInputDrivers(&debug_window);
+  int result = 0;
 
   auto command_line = GetCommandLineW();
   int argc;
@@ -59,15 +65,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   google::ParseCommandLineFlags(&argc, &argva, true);
-
-  AllocConsole();
-  HANDLE myConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-  DWORD cCharsWritten;
-  DWORD cCharsRead;
-  char* str = "enter game command";
-  WriteConsole(myConsoleHandle, str, strlen(str), &cCharsWritten, NULL);
-  char* command = (char*)malloc(100);
-  int charsRead = 0;
-
+  google::ShutDownCommandLineFlags();
+  LocalFree(argv);
   return 0;
 }

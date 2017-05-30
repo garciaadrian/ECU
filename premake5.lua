@@ -143,6 +143,7 @@ solution("ECU")
   include("libs/irsdk")
   
   include("src/")
+  include("src/base")
   include("src/hid")
   include("src/hid/g27")
   include("src/ui")

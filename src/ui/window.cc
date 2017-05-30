@@ -16,7 +16,7 @@ namespace ui {
 
 Window::Window(std::wstring title) : title_(title) {}
 
-Window::~Window() { CloseHandle(hwnd_); }
+Window::~Window() { PostMessage(hwnd_, WM_SYSCOMMAND, SC_CLOSE, 0); }
 
 LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam,
                                  LPARAM lParam) {
@@ -56,8 +56,8 @@ bool Window::Initialize() {
     return false;
   }
 
-  ShowWindow(hwnd_, SW_SHOWNORMAL);
-  UpdateWindow(hwnd_);
+  // ShowWindow(hwnd_, SW_SHOWNORMAL);
+  // UpdateWindow(hwnd_);
 }
 
 }  // namespace ui

@@ -1,3 +1,6 @@
+include("tools/build/export-compile-commands/export-compile-commands")
+
+
 location("build")
 targetdir("build/bin")
 objdir("build/obj")
@@ -5,9 +8,9 @@ objdir("build/obj")
 includedirs({
  ".",
  "src",
- "libs/cef_binary_3.2704.1414.g185cd6c_windows64/",
  "libs/inih",
  "libs/json",
+ "libs/gflags/src",
 })
 
 defines({ "_UNICODE", "UNICODE", "STRICT", "NOMINMAX", })
@@ -45,11 +48,10 @@ filter("configurations:Release")
   })
   libdirs({
     "libs/g3logger/build/Release",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/Release",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/build/libcef_dll_wrapper/Release/",
     "libs/libmicrohttpd/x86_64/VS2015/Release-static/"
   })
   links({
+    "gflags",
     "comctl32",
     "rpcrt4",
     "shlwapi",
@@ -58,8 +60,6 @@ filter("configurations:Release")
     "Dbghelp",
     "kernel32",
     "psapi",
-    "libcef_dll_wrapper",
-    "libcef",
     "Winmm",
     "comctl32",
     "rpcrt4",
@@ -69,14 +69,12 @@ filter("configurations:Release")
     "Dbghelp",
     "kernel32",
     "psapi",
-    "cef_sandbox",
     "libmicrohttpd",
     "Bcrypt",
     "g3logger",
   })
   linkoptions({
     "/ignore:4099",
-    "/LTCG",
   })
   flags({
     "Optimize",
@@ -100,11 +98,10 @@ filter("configurations:Debug")
    })
   libdirs({
     "libs/g3logger/build/Debug",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/Debug",
-    "libs/cef_binary_3.2704.1414.g185cd6c_windows64/build/libcef_dll_wrapper/Debug/",
     "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
     })
   links({
+    "gflags",
     "Winmm",
     "comctl32",
     "rpcrt4",
@@ -114,14 +111,12 @@ filter("configurations:Debug")
     "Dbghelp",
     "kernel32",
     "psapi",
-    "cef_sandbox",
     "libmicrohttpd_d",
     "Bcrypt",
     "g3logger",
   })
   linkoptions({
     "/ignore:4099",
-    "/LTCG"    
   })
   runtime("Debug")
   defines({
@@ -130,6 +125,7 @@ filter("configurations:Debug")
     "USING_CEF_SHARED",
     "CEF_USE_SANDBOX",
     "ws2_32",
+    "_CRT_SECURE_NO_WARNINGS",
   })
 
 solution("ECU")
@@ -140,14 +136,14 @@ solution("ECU")
   end
   configurations({"Debug", "Release"})
 
+  -- Include third party libs first
+  include("libs/gflags.lua")
   include("libs/inih")
   include("libs/sqlite3")
   include("libs/irsdk")
+  
   include("src/")
-  include("src/sound")
-  include("src/hid")
   include("src/base")
-  include("src/db")
-  include("src/graphics")
-  include("src/server")
-  include("src/car")
+  include("src/hid")
+  include("src/hid/g27")
+  include("src/ui")

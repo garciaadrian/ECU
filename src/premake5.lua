@@ -6,7 +6,7 @@ targetname("ECU")
 language("C++")
 
 files({
-  "ecu-core.cpp",
+  "ecu-core.cc",
   "ecu-core.h",
 })
 
@@ -16,21 +16,22 @@ files({
 })
 
 links({
-  "sqlite",
-  "irsdk",
   "inih",
-  "libcef",
-  "libcef_dll_wrapper",
-  "dxguid",
-  "Hid",
+  "ECU-hid",
+  "ECU-hid-g27",
+  "ECU-ui",
   "ECU-base",
-  "ECU-server",
+  "Hid",
   "Crypt32",
+  "Setupapi",
+  "Winusb",
 })
+
 filter("configurations:Debug")
   linkoptions({
     "/ENTRY:WinMainCRTStartup",
 })
+
 filter("configurations:Release")
   linkoptions({
     "/RELEASE",

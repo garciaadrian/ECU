@@ -1,0 +1,16 @@
+group("src")
+project("ECU-hid-g27")
+  uuid("fff4627e-30e8-11e7-93ae-92361f002671")
+  kind("StaticLib")
+  language("C++")
+  links({
+    "ECU-hid",
+    "Setupapi",
+    "Hid",
+  })
+  files({
+    "g27_input_driver.h",
+    "g27_input_driver.cc",
+    "g27_hid.h",
+    "g27_hid.cc",
+    })

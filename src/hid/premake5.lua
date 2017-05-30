@@ -4,9 +4,8 @@ project("ECU-hid")
   kind("StaticLib")
   language("C++")
   files({
-    "hid.cpp",
-    "hid.h",
-  })
-  links({
-    "Hid",
+    "input_system.h",
+    "input_system.cc",
+    "input_driver.h",
+    "input_driver.cc",
   })

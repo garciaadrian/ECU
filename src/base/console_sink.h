@@ -9,7 +9,31 @@
 *******************************************************************************
 */
 
-#ifndef ECUCORE_H
-#define ECUCORE_H
+#ifndef BASE_CONSOLE_SINK_H_
+#define BASE_CONSOLE_SINK_H_
+
+#include <string>
+#include <iostream>
+#include <Windows.h>
+
+#include "g3log/logmessage.hpp"
+
+namespace ecu {
+namespace log {
+
+class ConsoleSink {
+ public:
+  ConsoleSink(std::wstring title);
+  ~ConsoleSink();
+
+  void ReceiveLogMessage(g3::LogMessageMover logEntry);
+
+ private:
+  std::wstring title_;
+  HANDLE std_out_;
+};
+
+}  // namespace log
+}  // namespace ecu
 
 #endif

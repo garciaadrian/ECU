@@ -8,9 +8,7 @@ import shutil
 import re
 import subprocess
 import sys
-
-cef_url = 'http://opensource.spotify.com/cefbuilds/cef_binary_3.2704.1414.g185cd6c_windows64.tar.bz2'
-cef_dist_name = 'cef_binary_3.2704.1414.g185cd6c_windows64.tar.bz2'
+from time import perf_counter
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
@@ -101,6 +99,7 @@ def build(ctx, no_premake, configuration):
         
     generate_version_h()
     
+    start = perf_counter()
     result = subprocess.call([
         'msbuild',
         'build/ECU.sln',
@@ -109,45 +108,30 @@ def build(ctx, no_premake, configuration):
         '/v:m',
         '/p:Configuration=' + configuration,
         '/p:Platform=Windows'], shell=False)
+    end = perf_counter()
+    elapsed = end - start
 
     if result != 0:
-        click.echo('ERROR: build failed with one or more errors.')
+        click.echo(click.style('ERROR: build failed with one or more errors',
+                               fg='white', bg='red'), err=True)
         return result
     else:
-        click.echo('Success!')
-                    
+        click.echo(click.style('SUCCESS: {0} build finished in {1} seconds'
+                               .format(configuration, elapsed),
+                               fg='white', bg='green'))
+    shell_call([
+        os.path.join('tools', 'build', 'premake5.exe'),
+        'export-compile-commands'])
+
+    
 @cli.command()
 @click.pass_context
-def cef(ctx):
-    if not os.path.exists('libs/' + cef_dist_name[:-8]):
-        click.echo('CEF lib not found. Downloading...')
-        r = wget.download('http://opensource.spotify.com/cefbuilds/cef_binary_3.2704.1414.g185cd6c_windows64.tar.bz2')
-        shutil.move(cef_dist_name, 'libs/' + cef_dist_name)
-        
-        new_file_path = 'libs/{dist}'.format(dist=cef_dist_name)[:-4]
-        cef_new = open(new_file_path, 'wb')
-        cef_decompressed = bz2.BZ2Decompressor()
-        with open('libs/' + cef_dist_name, 'rb') as f:
-            while True:
-                b = f.read(8096)
-                if not b:
-                    break
-                cef_new.write(bz2.BZ2Decompressor.decompress(cef_decompressed, b))
-        cef_new.close()
-        
-        print('Untar cef')
-        print('Opening {file}'.format(file=new_file_path))
-        tar = tarfile.open(new_file_path)
-        tar.extractall('libs/')
-        tar.close()
-        
-        print('Removing {file}'.format(file=cef_dist_name))
-        os.remove('libs/{file}'.format(file=cef_dist_name))
-        print('Removing {file}'.format(file=cef_dist_name[:-4]))
-        os.remove('libs/{file}'.format(file=cef_dist_name[:-4]))
-    else:
-        print("Library cef OK")
-        
+def lint(ctx):
+    for file_ in get_src_files():
+        print(file_)
+        shell_call([os.path.join('tools', 'build', 'clang-format.exe'),
+                    '-style=file', '-i', file_])
+                    
 @cli.command()
 @click.option('--configuration', '-c', type=click.Choice(['release', 'debug']),
               default='release')
@@ -159,18 +143,7 @@ def dist(ctx, configuration):
         os.makedirs('dist')
     release_directory = 'build/bin/Release/'
     release_directory_files = ['ECU.exe',
-                               'libcef.dll',
-                               'd3dcompiler_47.dll',
-                               'icudtl.dat',
-                               'libEGL.dll',
-                               'libGLESv2.dll',
-                               'cef.pak',
-                               'devtools_resources.pak',
-                               'natives_blob.bin',
-                               'snapshot_blob.bin',
-                               'cef_100_percent.pak',
-                               'cef_200_percent.pak',
-                               'cef_extensions.pak']
+                               'ECU.pdb']
     
     shutil.copy('LICENSE', 'dist')
     if configuration == 'debug':
@@ -196,11 +169,20 @@ def premake(ctx):
     shell_call([
         os.path.join('tools', 'build', 'premake5.exe'),
         'vs2015'])
+    shell_call([
+        os.path.join('tools', 'build', 'premake5.exe'),
+        'export-compile-commands'])
     generate_version_h()
 
-cli.add_command(cef)
 cli.add_command(clean)
 cli.add_command(dist)
+
+def get_src_files():
+    for dir_, _, files in os.walk('src'):
+        for file_ in files:
+            if file_.endswith(('.cc', '.h')):
+                filepath = dir_ + '\\' + file_
+                yield filepath.replace('\\', '/')
 
 def import_vs_environment():
     """Finds the installed Visual Studio version and imports

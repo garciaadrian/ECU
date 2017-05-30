@@ -9,7 +9,14 @@
 *******************************************************************************
 */
 
-#ifndef ECUCORE_H
-#define ECUCORE_H
+#include "hid/input_driver.h"
 
-#endif
+namespace ecu {
+namespace hid {
+
+InputDriver::InputDriver(ecu::ui::Window* window) : window_(window) {}
+
+InputDriver::~InputDriver() = default;
+
+}  // namespace hid
+}  // namespace ecu

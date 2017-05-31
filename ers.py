@@ -8,8 +8,6 @@ import shutil
 import re
 import subprocess
 import sys
-from time import perf_counter
-from time import clock
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
@@ -231,6 +229,11 @@ def import_vs_environment():
     return version
 
 def timer():
+    try:
+        from time import perf_counter
+    except ImportError:
+        from time import clock
+        
     if (sys.version_info >= (3, 3)):
         return perf_counter()
     else:

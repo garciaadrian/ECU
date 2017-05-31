@@ -15,19 +15,7 @@ build_script:
 after_build: >-
   7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\ECU.exe
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libcef.dll
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\d3dcompiler_47.dll
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\icudtl.dat
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libEGL.dll
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\libGLESv2.dll
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef.pak
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\devtools_resources.pak
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\natives_blob.bin
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\snapshot_blob.bin
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\locales
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_100_percent.pak
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_200_percent.pak
-  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\cef_extensions.pak
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\ECU.pdb
   %APPVEYOR_BUILD_FOLDER%\frontends\reactjs\build
   
   && 7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs

@@ -291,9 +291,6 @@ paket-files/
 *.out
 *.app
 
-libs/cef_binary_3.2704.1414.g185cd6c_windows64/
-libs/gflags/
-
 frontends/reactjs/node_modules
 venv/
 dist/

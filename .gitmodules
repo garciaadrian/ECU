@@ -24,3 +24,6 @@
 [submodule "tools/build/export-compile-commands"]
 	path = tools/build/export-compile-commands
 	url = https://github.com/tarruda/premake-export-compile-commands.git
+[submodule "libs/gflags"]
+	path = libs/gflags
+	url = https://github.com/benvanik/gflags.git

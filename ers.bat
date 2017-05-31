@@ -64,7 +64,7 @@ IF "%1" == "setup" (
        IF NOT EXIST "%DIR%\Scripts\activate.bat" (
           ECHO venv not found. running "ers setup".
           ECHO enter the command again after setup is finished.
-          timeout 10
+          ping 127.0.0.1 -n1 -w 10000 >NUL
           GOTO :setup
        )
        CALL "%DIR%\Scripts\activate.bat"

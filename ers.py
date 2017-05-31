@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 from time import perf_counter
+from time import clock
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
@@ -98,8 +99,8 @@ def build(ctx, no_premake, configuration):
             'vs2015'])
         
     generate_version_h()
-    
-    start = perf_counter()
+
+    start = timer()
     result = subprocess.call([
         'msbuild',
         'build/ECU.sln',
@@ -108,7 +109,7 @@ def build(ctx, no_premake, configuration):
         '/v:m',
         '/p:Configuration=' + configuration,
         '/p:Platform=Windows'], shell=False)
-    end = perf_counter()
+    end = timer()
     elapsed = end - start
 
     if result != 0:
@@ -228,6 +229,12 @@ def import_vs_environment():
                 break
     os.environ['VSVERSION'] = str(version)
     return version
+
+def timer():
+    if (sys.version_info >= (3, 3)):
+        return perf_counter()
+    else:
+        return clock()
 
 def get_bin(bin):
     """Checks whether the given binary is present and returns the path.

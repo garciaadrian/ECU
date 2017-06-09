@@ -10,10 +10,7 @@ iRacing MP4-30 and to automate some systems
 - npm
 - Windows 7 or newer
 
-# Installing
-If you're not interested in developing then click the build button above me.
-Then go to artifacts to get a zip file of the newest build.
-
+# Building from source
 Open command prompt and type
 
 ```

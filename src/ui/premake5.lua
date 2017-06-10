@@ -6,6 +6,10 @@ project("ECU-ui")
   files({
     "window.h",
     "window.cc",
+    "ui_event.h",
+    "menu_item.h",
+    "menu_item.cc",
     "loop.h",
     "loop.cc",
+    "window_listener.h",
     })

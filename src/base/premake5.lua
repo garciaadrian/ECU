@@ -7,5 +7,6 @@ project("ECU-base")
     "console_sink.h",
     "console_sink.cc",
     "threading.h",
-    "threading.cc"
+    "threading.cc",
+    "delegate.h",
     })

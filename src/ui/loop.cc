@@ -53,9 +53,7 @@ Loop::~Loop() {
   }
 }
 
-bool Loop::is_on_loop_thread() {
-  return thread_id_ == GetCurrentThreadId();
-}
+bool Loop::is_on_loop_thread() { return thread_id_ == GetCurrentThreadId(); }
 
 void Loop::PostSynchronous(std::function<void()> fn) {
   if (is_on_loop_thread()) {
@@ -66,9 +64,9 @@ void Loop::PostSynchronous(std::function<void()> fn) {
 
   ecu::threading::Fence fence;
   Post([&fn, &fence]() {
-      fn();
-      fence.Signal();
-    });
+    fn();
+    fence.Signal();
+  });
   fence.Wait();
 }
 

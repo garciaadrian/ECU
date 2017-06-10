@@ -118,8 +118,7 @@ LRESULT CALLBACK Window::WndProcThunk(HWND hwnd, UINT message, WPARAM wParam,
     window = reinterpret_cast<Window*>(create_struct->lpCreateParams);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, (__int3264)(LONG_PTR)window);
   } else {
-    window =
-        reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
   }
   if (window) {
     return window->WndProc(hwnd, message, wParam, lParam);
@@ -131,7 +130,7 @@ LRESULT CALLBACK Window::WndProcThunk(HWND hwnd, UINT message, WPARAM wParam,
 LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam,
                                  LPARAM lParam) {
   if (hwnd != hwnd_) {
-    return DefWindowProc(hwnd, message, wParam, lParam);    
+    return DefWindowProc(hwnd, message, wParam, lParam);
   }
 
   switch (message) {
@@ -277,8 +276,7 @@ void Window::Resize(int32_t width, int32_t height) {
              TRUE);
 }
 
-void Window::Resize(int32_t left, int32_t top, int32_t right,
-                    int32_t bottom) {
+void Window::Resize(int32_t left, int32_t top, int32_t right, int32_t bottom) {
   RECT rc = {left, top, right, bottom};
   bool has_menu = !is_fullscreen() && (main_menu_ ? true : false);
   AdjustWindowRect(&rc, GetWindowLong(hwnd_, GWL_STYLE), has_menu);
@@ -287,9 +285,9 @@ void Window::Resize(int32_t left, int32_t top, int32_t right,
 }
 
 std::unique_ptr<ui::MenuItem> MenuItem::Create(Type type,
-                                              const std::wstring& text,
-                                              const std::wstring& hotkey,
-                                              std::function<void()> callback) {
+                                               const std::wstring& text,
+                                               const std::wstring& hotkey,
+                                               std::function<void()> callback) {
   return std::make_unique<Win32MenuItem>(type, text, hotkey, callback);
 }
 
@@ -329,7 +327,7 @@ void Win32MenuItem::OnChildAdded(MenuItem* generic_child_item) {
 
   switch (child_item->type()) {
     case MenuItem::Type::kNormal:
-      
+
       break;
     case MenuItem::Type::kPopup:
       AppendMenuW(handle_, MF_POPUP,

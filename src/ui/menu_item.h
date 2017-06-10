@@ -72,4 +72,4 @@ class MenuItem {
 }  // namespace ui
 }  // namespace ecu
 
-#endif // UI_MENU_ITEM_H_
+#endif  // UI_MENU_ITEM_H_

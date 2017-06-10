@@ -25,7 +25,7 @@ class UIEvent {
   virtual ~UIEvent() = default;
 
   Window* target() const { return target_; }
-  
+
  private:
   Window* target_ = nullptr;
 };
@@ -67,7 +67,7 @@ class KeyEvent : public UIEvent {
   bool prev_state_ = false;  // Key previously down(true) or up(false)
 };
 
-class MouseEvent: public UIEvent {
+class MouseEvent : public UIEvent {
  public:
   enum class Button {
     kNone = 0,
@@ -107,4 +107,4 @@ class MouseEvent: public UIEvent {
 }  // namespace ui
 }  // namespace ecu
 
-#endif // UI_UI_EVENT_H_
+#endif  // UI_UI_EVENT_H_

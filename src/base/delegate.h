@@ -76,4 +76,4 @@ class Delegate<void> {
 
 }  // namespace ecu
 
-#endif // BASE_DELEGATE_H_
+#endif  // BASE_DELEGATE_H_

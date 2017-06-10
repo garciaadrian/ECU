@@ -29,7 +29,7 @@ class Loop {
  public:
   Loop();
   ~Loop();
-  
+
   std::unique_ptr<Loop> Create();
   bool is_on_loop_thread();
 
@@ -68,7 +68,7 @@ class Loop {
 
   std::mutex pending_timers_mutex_;
   std::list<PendingTimer*> pending_timers_;
-  
+
   std::recursive_mutex posted_functions_mutex_;
   std::list<PostedFn> posted_functions_;
 };

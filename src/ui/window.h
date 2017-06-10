@@ -36,14 +36,13 @@ class Window {
   void Close();
 
   void Resize(int32_t width, int32_t height);
-  void Resize(int32_t left, int32_t top, int32_t right,
-              int32_t bottom);
+  void Resize(int32_t left, int32_t top, int32_t right, int32_t bottom);
 
   void set_main_menu(std::unique_ptr<MenuItem> main_menu) {
     main_menu_ = std::move(main_menu);
     OnMainMenuChange();
   }
-  
+
   static LRESULT CALLBACK WndProcThunk(HWND hWnd, UINT message, WPARAM wParam,
                                        LPARAM lParam);
   virtual LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam,
@@ -53,12 +52,12 @@ class Window {
   void DetachListener(WindowListener* listener);
 
   void Invalidate();
-  
+
  public:
   Delegate<UIEvent*> on_closing;
   Delegate<UIEvent*> on_closed;
   Delegate<UIEvent*> on_quit;
-  
+
  protected:
   void ForEachListener(std::function<void(WindowListener*)> fn);
   void TryForEachListener(std::function<bool(WindowListener*)> fn);
@@ -72,7 +71,7 @@ class Window {
   void OnMainMenuChange();
   void OnCloseDelegates();
   void OnClose();
-  
+
  private:
   HWND hwnd_ = nullptr;
   HICON icon_ = nullptr;
@@ -85,7 +84,7 @@ class Window {
   int32_t height_ = 0;
   bool has_focus_ = true;
   bool is_cursor_visible_ = false;
-  
+
   std::unique_ptr<MenuItem> main_menu_;
   std::wstring title_;
 };

@@ -54,4 +54,4 @@ class WindowListener {
 }  // namespace ui
 }  // namespace ecu
 
-#endif // WINDOW_LISTENER_H_
+#endif  // WINDOW_LISTENER_H_

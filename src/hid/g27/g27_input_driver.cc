@@ -17,6 +17,8 @@
 #include <usbiodef.h>
 #include <Winusb.h>
 
+#include <stdlib.h>
+
 namespace ecu {
 namespace hid {
 namespace g27 {
@@ -46,7 +48,79 @@ bool G27InputDriver::Register(HWND window) {
   return true;
 }
 
-int G27InputDriver::GetState() {
+std::pair<int, int> G27InputDriver::GetIdPair() {
+  return std::make_pair(this->kVendor_id_, this->kProduct_id_);
+}
+
+int G27InputDriver::GetState(ecu::ui::RawInputEvent* e) {
+  // Get required size for RAWINPUT structure
+  unsigned int buffer_size = 0;
+  GetRawInputData((HRAWINPUT)e->lparam(), RID_INPUT, nullptr, &buffer_size,
+                  sizeof(RAWINPUTHEADER));
+  RAWINPUT* buffer = new RAWINPUT[buffer_size];
+
+  GetRawInputData((HRAWINPUT)e->lparam(), RID_INPUT, buffer, &buffer_size,
+                  sizeof(RAWINPUTHEADER));
+
+  // Get required size for PHIDP_PREPARSED_DATA structure
+  GetRawInputDeviceInfo(buffer->header.hDevice, RIDI_PREPARSEDDATA, nullptr,
+                        &buffer_size);
+  PHIDP_PREPARSED_DATA preparsed_data =
+      static_cast<PHIDP_PREPARSED_DATA>(std::malloc(buffer_size));
+  GetRawInputDeviceInfo(buffer->header.hDevice, RIDI_PREPARSEDDATA,
+                        preparsed_data, &buffer_size);
+
+  PHIDP_CAPS capabilities = new HIDP_CAPS[sizeof(HIDP_CAPS)];
+  HidP_GetCaps(preparsed_data, capabilities);
+
+  GUID device_guid;
+  HidD_GetHidGuid(&device_guid);
+
+  GetRawInputDeviceInfo(buffer->header.hDevice, RIDI_DEVICENAME, NULL,
+                        &buffer_size);
+
+  wchar_t* name = new wchar_t[buffer_size + 1];
+  GetRawInputDeviceInfo(buffer->header.hDevice, RIDI_DEVICENAME, name,
+                        &buffer_size);
+  HANDLE hid_handle =
+      CreateFile(name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                 nullptr, OPEN_ALWAYS, NULL, nullptr);
+  unsigned short capabilities_length = capabilities->NumberInputButtonCaps;
+
+  PHIDP_BUTTON_CAPS button_capabilities =
+      new HIDP_BUTTON_CAPS[capabilities_length];
+  HidP_GetButtonCaps(HidP_Input, button_capabilities, &capabilities_length,
+                     preparsed_data);
+
+  uint8_t num_buttons = button_capabilities->Range.UsageMax -
+                        button_capabilities->Range.UsageMin + 1;
+
+  PHIDP_VALUE_CAPS value_capabilities =
+      new HIDP_VALUE_CAPS[capabilities->NumberInputValueCaps];
+
+  // Input value capabilities
+  capabilities_length = capabilities->NumberInputValueCaps;
+  HidP_GetValueCaps(HidP_Input, value_capabilities, &capabilities_length,
+                    preparsed_data);
+
+  unsigned long usage_length = num_buttons;
+  PUSAGE usage = new USAGE[usage_length];
+  long ret = HidP_GetUsages(HidP_Input, button_capabilities->UsagePage, 0,
+                            usage, &usage_length, preparsed_data,
+                            reinterpret_cast<PCHAR>(buffer->data.hid.bRawData),
+                            buffer->data.hid.dwSizeHid);
+
+  delete[] usage;
+  delete[] value_capabilities;
+  delete[] button_capabilities;
+  delete[] name;
+  std::free(preparsed_data);
+  delete[] capabilities;
+  delete[] buffer;
+  return 1;
+}
+
+int G27InputDriver::PollState() {
   // If device is connected, obtain handle to device
 
   GUID usb_class_guid = GUID_DEVINTERFACE_USB_DEVICE;

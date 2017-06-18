@@ -13,6 +13,7 @@
 #define UI_UI_EVENT_H_
 
 #include <stdint.h>
+#include <windows.h>
 
 namespace ecu {
 namespace ui {
@@ -102,6 +103,20 @@ class MouseEvent : public UIEvent {
   int32_t z_ = 0;
   int32_t dx_ = 0;
   int32_t dy_ = 0;
+};
+
+class RawInputEvent : public UIEvent {
+ public:
+  RawInputEvent(Window* target, LPARAM lParam)
+      : UIEvent(target), lParam_(lParam) {}
+  ~RawInputEvent() override = default;
+
+  LPARAM lparam() const { return lParam_; }
+  RAWINPUT rawinput() const { return raw_input_; }
+
+ private:
+  RAWINPUT raw_input_ = {0};
+  LPARAM lParam_ = 0;
 };
 
 }  // namespace ui

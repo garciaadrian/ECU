@@ -49,6 +49,8 @@ class WindowListener {
   virtual void OnMouseMove(MouseEvent* e) {}
   virtual void OnMouseUp(MouseEvent* e) {}
   virtual void OnMouseWheel(MouseEvent* e) {}
+
+  virtual void OnRawInput(UIEvent* e) {}
 };
 
 }  // namespace ui

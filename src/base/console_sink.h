@@ -21,6 +21,8 @@
 namespace ecu {
 namespace log {
 
+void clear(HANDLE console);
+
 class ConsoleSink {
  public:
   ConsoleSink(std::wstring title);

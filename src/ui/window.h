@@ -57,6 +57,7 @@ class Window {
   Delegate<UIEvent*> on_closing;
   Delegate<UIEvent*> on_closed;
   Delegate<UIEvent*> on_quit;
+  Delegate<RawInputEvent*> on_raw_input;
 
  protected:
   void ForEachListener(std::function<void(WindowListener*)> fn);
@@ -70,6 +71,7 @@ class Window {
 
   void OnMainMenuChange();
   void OnCloseDelegates();
+  void OnRawInput(LPARAM lParam);
   void OnClose();
 
  private:

@@ -9,4 +9,5 @@ project("ECU-base")
     "threading.h",
     "threading.cc",
     "delegate.h",
+    "command.h",
     })

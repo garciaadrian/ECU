@@ -98,6 +98,12 @@ void Window::OnMainMenuChange() {
   }
 }
 
+void Window::OnRawInput(LPARAM lParam) {
+  RawInputEvent e(this, lParam);
+  ForEachListener([&e](auto listener) { listener->OnRawInput(&e); });
+  on_raw_input(&e);
+}
+
 void Window::Invalidate() {}
 
 void Window::Close() {
@@ -155,6 +161,10 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam,
     case WM_SIZE: {
       // TODO(garciaadrian): call listeners
       break;
+    }
+    case WM_INPUT: {
+      OnRawInput(lParam);
+      return 0;  // must return 0 if we're handling input ourselves
     }
     case WM_PAINT: {
       ValidateRect(hwnd_, nullptr);

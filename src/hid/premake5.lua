@@ -8,4 +8,6 @@ project("ECU-hid")
     "input_system.cc",
     "input_driver.h",
     "input_driver.cc",
+    "input_command.h",
+    "input_command.cc",
   })

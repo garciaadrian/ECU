@@ -9,22 +9,23 @@
 *******************************************************************************
 */
 
-#ifndef HID_G27_G27_HID_H_
-#define HID_G27_G27_HID_H_
-
-#include <memory>
-#include <stdint.h>
-
-#include "hid/input_system.h"
+#ifndef BASE_COMMAND_H_
+#define BASE_COMMAND_H_
 
 namespace ecu {
-namespace hid {
-namespace g27 {
+namespace base {
 
-std::unique_ptr<InputDriver> Create(ecu::ui::Window* window);
+class Command {
+ public:
+  virtual ~Command() {}
+  virtual void execute() = 0;
+};
 
-}  // namespace g27
-}  // namespace hid
+class NullCommand : Command {
+  void execute() override {}
+};
+
+}  // namespace base
 }  // namespace ecu
 
-#endif  // HID_G27_G27_HID_H_
+#endif  // BASE_COMMAND_H_

@@ -15,6 +15,7 @@
 #include <Windows.h>
 
 #include "ui/window.h"
+#include "ui/ui_event.h"
 
 namespace ecu {
 namespace hid {
@@ -25,15 +26,11 @@ class InputDriver {
   virtual ~InputDriver();
 
   virtual bool Register(HWND window) = 0;
-  virtual int GetState() = 0;
+  virtual int GetState(ecu::ui::RawInputEvent* e) = 0;
+  virtual std::pair<int, int> GetIdPair() = 0;
 
  private:
   ecu::ui::Window* window_ = nullptr;
-};
-
-enum MP430_INPUT_BUTTON {
-  MP430_INPUT_BRAKE_BALANCE_UP = 0x001,
-  MP430_INPUT_BRAKE_BALANCE_DOWN = 0x002,
 };
 
 }  // namespace hid

@@ -26,11 +26,15 @@ class G27InputDriver : public InputDriver {
   ~G27InputDriver();
 
   bool Register(HWND window) override;
-  int GetState() override;
+
+  int PollState();
+  int GetState(ecu::ui::RawInputEvent* e) override;
+
+  std::pair<int, int> GetIdPair() override;
 
  private:
-  unsigned short vendor_id_ = 0x46d;
-  unsigned short product_id_ = 0xc29b;
+  const unsigned short kVendor_id_ = 0x46d;
+  const unsigned short kProduct_id_ = 0xc29b;
   std::string device_path;
 };
 

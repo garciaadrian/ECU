@@ -11,6 +11,7 @@ includedirs({
  "libs/inih",
  "libs/json",
  "libs/gflags/src",
+ "libs/cereal/include",
 })
 
 defines({ "_UNICODE", "UNICODE", "STRICT", "NOMINMAX", })
@@ -48,7 +49,8 @@ filter("configurations:Release")
   })
   libdirs({
     "libs/g3logger/build/Release",
-    "libs/libmicrohttpd/x86_64/VS2015/Release-static/"
+    "libs/libmicrohttpd/x86_64/VS2015/Release-static/",
+    "libs/vJoydriver/lib/amd64/",
   })
   links({
     "gflags",
@@ -72,6 +74,7 @@ filter("configurations:Release")
     "libmicrohttpd",
     "Bcrypt",
     "g3logger",
+    "vJoyInterface",
   })
   linkoptions({
     "/ignore:4099",
@@ -99,6 +102,7 @@ filter("configurations:Debug")
   libdirs({
     "libs/g3logger/build/Debug",
     "libs/libmicrohttpd/x86_64/VS2015/Debug-static/",
+    "libs/vJoydriver/lib/amd64/",
     })
   links({
     "gflags",
@@ -114,6 +118,7 @@ filter("configurations:Debug")
     "libmicrohttpd_d",
     "Bcrypt",
     "g3logger",
+    "vJoyInterface",
   })
   linkoptions({
     "/ignore:4099",
@@ -138,12 +143,16 @@ solution("ECU")
 
   -- Include third party libs first
   include("libs/gflags.lua")
+  include("libs/vJoydriver.lua")
   include("libs/inih")
   include("libs/sqlite3")
   include("libs/irsdk")
   
   include("src/")
   include("src/base")
+  include("src/vjoy-feeder")
+  include("src/libir")
   include("src/hid")
   include("src/hid/g27")
   include("src/ui")
+  include("src/car")

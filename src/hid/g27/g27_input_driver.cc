@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -16,7 +16,7 @@
 #include <SetupAPI.h>
 #include <usbiodef.h>
 #include <Winusb.h>
-
+#include <fstream>
 #include <stdlib.h>
 
 namespace ecu {
@@ -29,8 +29,13 @@ static constexpr GUID GUID_DEVINTERFACE_USB_DEVICE = {
     0x11D2,
     {0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED}};
 
-G27InputDriver::G27InputDriver(ecu::ui::Window* window) : InputDriver(window) {
-  bool ret = Register(window->hwnd());
+G27InputDriver::G27InputDriver(ecu::ui::Window* window)
+    : InputDriver(window) {
+  bool device_registered = Register(window->hwnd());
+  
+  if (!device_registered) {
+    return;
+  }
 }
 
 G27InputDriver::~G27InputDriver() {}
@@ -45,10 +50,11 @@ bool G27InputDriver::Register(HWND window) {
   if (!RegisterRawInputDevices(&wheel_input, 1, sizeof(RAWINPUTDEVICE))) {
     return false;
   }
+
   return true;
 }
 
-std::pair<int, int> G27InputDriver::GetIdPair() {
+std::pair<int, int> G27InputDriver::GetDeviceId() {
   return std::make_pair(this->kVendor_id_, this->kProduct_id_);
 }
 
@@ -109,7 +115,11 @@ int G27InputDriver::GetState(ecu::ui::RawInputEvent* e) {
                             usage, &usage_length, preparsed_data,
                             reinterpret_cast<PCHAR>(buffer->data.hid.bRawData),
                             buffer->data.hid.dwSizeHid);
+  if (usage) {
+    // commands_.at(0)->execute();
+  }
 
+  CloseHandle(hid_handle);
   delete[] usage;
   delete[] value_capabilities;
   delete[] button_capabilities;

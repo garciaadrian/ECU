@@ -27,3 +27,9 @@
 [submodule "libs/gflags"]
 	path = libs/gflags
 	url = https://github.com/benvanik/gflags.git
+[submodule "libs/libs/vJoydriver"]
+	path = libs/libs/vJoydriver
+	url = https://github.com/ECU-IR/vjoy.git
+[submodule "libs/vJoydriver"]
+	path = libs/vJoydriver
+	url = https://github.com/ECU-IR/vjoy.git

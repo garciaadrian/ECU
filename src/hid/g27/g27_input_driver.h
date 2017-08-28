@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -22,7 +22,7 @@ namespace g27 {
 
 class G27InputDriver : public InputDriver {
  public:
-  explicit G27InputDriver(ecu::ui::Window* window);
+  G27InputDriver(ecu::ui::Window* window);
   ~G27InputDriver();
 
   bool Register(HWND window) override;
@@ -30,12 +30,13 @@ class G27InputDriver : public InputDriver {
   int PollState();
   int GetState(ecu::ui::RawInputEvent* e) override;
 
-  std::pair<int, int> GetIdPair() override;
-
+  std::pair<int, int> GetDeviceId() override;
+  
  private:
   const unsigned short kVendor_id_ = 0x46d;
   const unsigned short kProduct_id_ = 0xc29b;
-  std::string device_path;
+
+  std::string device_path_;
 };
 
 }  // namespace g27

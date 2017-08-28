@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -25,18 +25,32 @@ namespace hid {
 
 class InputCommand : Command {
  public:
-  virtual std::string name() = 0;
+  InputCommand();
+  virtual ~InputCommand();
+  
   virtual void execute() = 0;
-  virtual int serialize(std::ostream&) const = 0;
+
+  std::string name() { return name_; }
+
+ protected:
+  std::string name_;
+  std::string description_;
+
 };
 
-class NullInputCommand : InputCommand {
+class NullInputCommand : public InputCommand {
  public:
-  std::string name() final override { return std::string(""); }
+  NullInputCommand() {
+    name_ = "null";
+    description_ = "placeholder for empty command";
+  }
+  ~NullInputCommand() {}
+  
   void execute() final override {}
 };
 
 std::vector<std::unique_ptr<hid::InputCommand>> CreateInputCommands();
+
 
 }  // namespace hid
 }  // namespace ecu

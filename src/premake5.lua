@@ -7,7 +7,6 @@ language("C++")
 
 files({
   "ecu-core.cc",
-  "ecu-core.h",
 })
 
 files({
@@ -21,6 +20,8 @@ links({
   "ECU-hid-g27",
   "ECU-ui",
   "ECU-base",
+  "ECU-libir",
+  "ECU-car",
   "Hid",
   "Crypt32",
   "Setupapi",

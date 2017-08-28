@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -17,8 +17,6 @@
 namespace ecu {
 namespace ui {
 
-// TODO(garciaadrian): There isn't any polymorphism going on so we don't
-// need a Create function like xenia does
 std::unique_ptr<Loop> Loop::Create() { return std::make_unique<Loop>(); }
 
 Loop::Loop() : thread_id_(0) {

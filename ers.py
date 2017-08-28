@@ -142,17 +142,13 @@ def dist(ctx, configuration):
         os.makedirs('dist')
     release_directory = 'build/bin/Release/'
     release_directory_files = ['ECU.exe',
-                               'ECU.pdb']
+                               'ECU.pdb',
+                               'vJoyInterface.dll']
     
-    shutil.copy('LICENSE', 'dist')
+    shutil.copy('LICENSE.txt', 'dist')
     if configuration == 'debug':
         shutil.copy('build/bin/Release/ECU.pdb', 'dist')
         
-    try:
-        shutil.copytree('build/bin/Release/locales', 'dist/locales')
-    except FileExistsError:
-        pass
-
     try:
         shutil.copytree('build/bin/Release/reactjs', 'dist/reactjs')
     except FileExistsError:

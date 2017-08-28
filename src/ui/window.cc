@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -171,7 +171,8 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam,
       static bool in_paint = false;
       if (!in_paint) {
         in_paint = true;
-        // TODO(garciaadrian): call listeners
+        auto e = UIEvent(this);
+        // OnPaint(&e);
         in_paint = false;
       }
       return 0;
@@ -207,6 +208,8 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd, UINT message, WPARAM wParam,
       auto child_item =
           reinterpret_cast<Win32MenuItem*>(parent_item->child(wParam));
       _ASSERT(child_item != nullptr);
+      UIEvent e(this);
+      child_item->OnSelected(&e);
       break;
     }
   }
@@ -257,9 +260,10 @@ bool Window::Initialize() {
   arrow_cursor_ = LoadCursor(nullptr, IDC_ARROW);
 
   // Initial state.
-  if (!is_cursor_visible_) {
-    ShowCursor(false);
-  }
+  // if (!is_cursor_visible_) {
+  //   ShowCursor(false);
+  // }
+  
   if (has_focus_) {
     SetFocus(hwnd_);
   }

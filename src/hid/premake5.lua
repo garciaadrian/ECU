@@ -10,4 +10,5 @@ project("ECU-hid")
     "input_driver.cc",
     "input_command.h",
     "input_command.cc",
+    "console_commands.h",
   })

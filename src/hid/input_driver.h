@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -13,12 +13,16 @@
 #define HID_INPUT_DRIVER_H_
 
 #include <Windows.h>
+#include <map>
 
 #include "ui/window.h"
 #include "ui/ui_event.h"
+#include "hid/input_command.h"
 
 namespace ecu {
 namespace hid {
+
+class InputSystem;
 
 class InputDriver {
  public:
@@ -27,10 +31,10 @@ class InputDriver {
 
   virtual bool Register(HWND window) = 0;
   virtual int GetState(ecu::ui::RawInputEvent* e) = 0;
-  virtual std::pair<int, int> GetIdPair() = 0;
+  virtual std::pair<int, int> GetDeviceId() = 0;
 
  private:
-  ecu::ui::Window* window_ = nullptr;
+  ecu::ui::Window* window_ = nullptr;  
 };
 
 }  // namespace hid

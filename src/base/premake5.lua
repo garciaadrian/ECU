@@ -10,4 +10,11 @@ project("ECU-base")
     "threading.cc",
     "delegate.h",
     "command.h",
+    "clock.h",
+    "cvars.h",
+    "cvars.cc",
+    "console_command.h",
+    "console_command.cc",
+    "console_system.h",
+    "console_system.cc",
     })

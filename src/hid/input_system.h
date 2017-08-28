@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -14,7 +14,10 @@
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
+#include "base/console_command.h"
+#include "base/console_system.h"
 #include "hid/input_command.h"
 #include "hid/input_driver.h"
 #include "ui/ui_event.h"
@@ -22,13 +25,11 @@
 namespace ecu {
 namespace hid {
 
-std::vector<std::unique_ptr<hid::InputDriver>> CreateInputDrivers(
-    ui::Window* window);
-
 class InputSystem {
  public:
-  explicit InputSystem(ecu::ui::Window* window);
+  explicit InputSystem(ecu::ConsoleSystem* console_system);
   ~InputSystem();
+  
   void AddDriver(std::unique_ptr<InputDriver> driver);
   void AddCommand(std::unique_ptr<InputCommand> command);
 
@@ -36,12 +37,27 @@ class InputSystem {
 
   std::pair<int, int> GetPacketId(HANDLE device);
 
- private:
-  ecu::ui::Window* window_;
+  void Bind(uint16_t key, const std::string& command_name);
+  
+  std::vector<std::unique_ptr<ConCommand>> CreateConsoleCommands();
 
+ private:
+  ecu::ui::Window* window_ = nullptr;
+  ecu::ConsoleSystem* console_system_ = nullptr;
   std::vector<std::unique_ptr<InputDriver>> drivers_;
   std::vector<std::unique_ptr<InputCommand>> commands_;
+  std::unordered_map<uint16_t, InputCommand*> bind_map_;
+
 };
+
+std::vector<std::unique_ptr<hid::InputDriver>> CreateInputDrivers(
+    ui::Window* window);
+
+void MoveInputCommands(std::vector<std::unique_ptr<ecu::hid::InputCommand>> to,
+                       std::vector<std::unique_ptr<ecu::hid::InputCommand>> from);
+
+void MoveInputCommands(ecu::hid::InputSystem* input_system,
+                       std::vector<std::unique_ptr<ecu::hid::InputCommand>>& commands);
 
 }  // namespace hid
 }  // namespace ecu

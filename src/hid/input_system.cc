@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -10,6 +10,12 @@
 */
 
 #include "hid/input_system.h"
+
+#include <fstream>
+
+#include "g3log/g3log.hpp"
+
+#include "hid/console_commands.h"
 #include "hid/g27/g27_hid.h"
 
 namespace ecu {
@@ -23,16 +29,27 @@ std::vector<std::unique_ptr<hid::InputDriver>> CreateInputDrivers(
   return drivers;
 }
 
-InputSystem::InputSystem(ecu::ui::Window* window) : window_(window) {}
+InputSystem::InputSystem(ecu::ConsoleSystem* console_system)
+    : console_system_(console_system) {}
 
-InputSystem::~InputSystem() {}
+InputSystem::~InputSystem() {
+
+}
 
 void InputSystem::AddDriver(std::unique_ptr<hid::InputDriver> driver) {
   drivers_.push_back(std::move(driver));
 }
 
-void InputSystem::AddCommand(std::unique_ptr<InputCommand> command) {
+void InputSystem::AddCommand(std::unique_ptr<hid::InputCommand> command) {
   commands_.push_back(std::move(command));
+}
+
+void InputSystem::Bind(uint16_t key, const std::string& command_name) {
+  for (auto& input_command : commands_) {
+    if (input_command->name() == command_name) {
+      bind_map_.emplace(key, input_command.get());
+    }
+  }
 }
 
 std::pair<int, int> InputSystem::GetPacketId(HANDLE device) {
@@ -66,13 +83,35 @@ int InputSystem::GetState(ecu::ui::RawInputEvent* e) {
   }
 
   for (auto& driver : drivers_) {
-    if (packet_id == driver->GetIdPair()) {
+    if (packet_id == driver->GetDeviceId()) {
       driver->GetState(e);
     }
   }
 
   return 1;
 };
+
+std::vector<std::unique_ptr<ConCommand>> InputSystem::CreateConsoleCommands() {
+  std::vector<std::unique_ptr<ConCommand>> commands;
+  commands.push_back(std::make_unique<BindCommand>(this));
+
+  return commands;
+}
+
+void MoveInputCommands(std::vector<std::unique_ptr<ecu::hid::InputCommand>> to,
+                       std::vector<std::unique_ptr<ecu::hid::InputCommand>> from) {
+  for (auto& command : from) {
+    to.push_back(std::move(command));
+  }
+}
+
+void MoveInputCommands(ecu::hid::InputSystem* input_system,
+                       std::vector<std::unique_ptr<ecu::hid::InputCommand>>& commands) {
+  for (auto& command : commands) {
+    input_system->AddCommand(std::move(command));
+  }
+}
+
 
 }  // namespace hid
 }  // namespace ecu

@@ -1,7 +1,7 @@
 /**
 *******************************************************************************
 *                                                                             *
-* ECU: iRacing MP4-30 Performance Analysis Project                            *
+* ECU: iRacing Extensions Collection Project                                  *
 *                                                                             *
 *******************************************************************************
 * Copyright 2016 Adrian Garcia Cruz. All rights reserved.                     *
@@ -14,7 +14,10 @@
 namespace ecu {
 namespace hid {
 
-InputDriver::InputDriver(ecu::ui::Window* window) : window_(window) {}
+class InputSystem;
+
+InputDriver::InputDriver(ecu::ui::Window* window)
+    : window_(window) {}
 
 InputDriver::~InputDriver() = default;
 

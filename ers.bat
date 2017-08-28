@@ -109,7 +109,7 @@ IF NOT EXIST "build\bin\Release" (
 
 pushd libs\g3logger
 mkdir build && pushd build
-cmake .. -G "Visual Studio 14 Win64"
+cmake .. -G "Visual Studio 14 Win64" -DADD_FATAL_EXAMPLE=OFF -DADD_G3LOG_BENCH_PERFORMANCE=OFF -DADD_G3LOG_UNIT_TEST=OFF
 msbuild /p:Configuration=Debug g3log.sln
 msbuild /p:Configuration=Release g3log.sln
 popd

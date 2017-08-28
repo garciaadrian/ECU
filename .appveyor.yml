@@ -18,6 +18,7 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\ECU.exe
   %APPVEYOR_BUILD_FOLDER%\build\bin\Release\ECU.pdb
   %APPVEYOR_BUILD_FOLDER%\frontends\reactjs\build
+  %APPVEYOR_BUILD_FOLDER%\build\bin\Release\vJoyInterface.dll
   
   && 7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
 

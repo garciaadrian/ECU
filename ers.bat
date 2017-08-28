@@ -115,8 +115,8 @@ msbuild /p:Configuration=Release g3log.sln
 popd
 popd
 
-COPY libs\vJoydriver\libs\amd64\vJoyInterface.dll build/bin/Debug
-COPY libs\vJoydriver\libs\amd64\vJoyInterface.dll build/bin/Release
+COPY libs\vJoydriver\lib\amd64\vJoyInterface.dll build\bin\Debug
+COPY libs\vJoydriver\lib\amd64\vJoyInterface.dll build\bin\Release
 
 tools\build\premake5.exe vs2015
 

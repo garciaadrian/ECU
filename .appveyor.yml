@@ -11,7 +11,7 @@ configuration:
   - Release
 
 build_script:
-  - cmd: ers.bat build --config release
+  - cmd: ers.bat build --config Release
 
 after_build: >-
   7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE.txt

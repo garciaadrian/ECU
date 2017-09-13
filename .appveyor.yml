@@ -17,12 +17,9 @@ after_build: >-
   7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE.txt
   %APPVEYOR_BUILD_FOLDER%\build\Release\ECU.exe
   %APPVEYOR_BUILD_FOLDER%\build\Release\ECU.pdb
-  %APPVEYOR_BUILD_FOLDER%\frontends\reactjs\build
   %APPVEYOR_BUILD_FOLDER%\build\Release\vJoyInterface.dll
   %APPVEYOR_BUILD_FOLDER%\build\Release\atlas.dll
   
-  && 7z rn ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip build reactjs
-
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip
     

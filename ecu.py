@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # Copyright 2015 Ben Vanik. All Rights Reserved.
 # Copyright 2017 Adrian Garcia Cruz.
@@ -464,7 +464,7 @@ def discover_commands(subparsers):
         'lint': LintCommand(subparsers),
         'format': FormatCommand(subparsers),
         'style': StyleCommand(subparsers),
-        'tidy': TidyCommand(subparsers),
+        # 'tidy': TidyCommand(subparsers),
     }
     if sys.platform == 'win32':
         commands['devenv'] = DevenvCommand(subparsers)
@@ -1198,7 +1198,7 @@ class LintCommand(Command):
                 os.remove(difftemp)
             ret = shell_call([
                 'python',
-                'third_party/clang-format/git-clang-format',
+                'extern/clang-format/git-clang-format',
                 '--binary=%s' % (clang_format_binary),
                 '--commit=%s' % (
                     'origin/develop' if args['origin'] else 'HEAD'),
@@ -1216,7 +1216,7 @@ class LintCommand(Command):
                 print('')
                 shell_call([
                     'python',
-                    'third_party/clang-format/git-clang-format',
+                    'extern/clang-format/git-clang-format',
                     '--binary=%s' % (clang_format_binary),
                     '--commit=%s' % (
                         'origin/develop' if args['origin'] else 'HEAD'),
@@ -1273,7 +1273,7 @@ class FormatCommand(Command):
             print('- git-clang-format')
             shell_call([
                 'python',
-                'third_party/clang-format/git-clang-format',
+                'extern/clang-format/git-clang-format',
                 '--binary=%s' % (clang_format_binary),
                 '--commit=%s' % (
                     'origin/develop' if args['origin'] else 'HEAD'),
@@ -1300,9 +1300,9 @@ class StyleCommand(Command):
         print('- cpplint [%d files]' % (len(all_files)))
         ret = shell_call([
             'python',
-            'third_party/google-styleguide/cpplint/cpplint.py',
+            'extern/google-styleguide/cpplint/cpplint.py',
             '--output=vs7',
-            '--linelength=80',
+            '--linelength=90',
             '--filter=-build/c++11,+build/include_alpha',
             '--root=src',
         ] + all_files, throw_on_error=False)
@@ -1325,7 +1325,7 @@ class TidyCommand(Command):
         super(TidyCommand, self).__init__(
             subparsers,
             name='tidy',
-            help_short='Runs the clang-tiday checker on all code.',
+            help_short='Runs the clang-tidy checker on all code.',
             *args, **kwargs)
         self.parser.add_argument(
             '--fix', action='store_true',
@@ -1397,7 +1397,7 @@ class DevenvCommand(Command):
         print('')
 
         print('- running cmake...')
-        run_platform_premake()
+        run_platform_cmake()
         print('')
 
         print('- launching devenv...')

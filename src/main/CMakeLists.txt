@@ -44,11 +44,15 @@ add_executable(${META_PROJECT_NAME}::${target} ALIAS ${target})
 #
 # Project options
 #
-
 set_target_properties(${target}
   PROPERTIES
   ${DEFAULT_PROJECT_OPTIONS}
   FOLDER "${IDE_FOLDER}"
+
+  LINK_FLAGS_RELEASE
+  /DEBUG                        # Create PDB
+  /OPT:REF                      # Prevent assembly copies
+  /OPT:ICF
   )
 
 #
@@ -93,12 +97,10 @@ target_compile_definitions(${target}
 #
 # Linker options
 #
-
 target_link_libraries(${target}
   PRIVATE
   ${DEFAULT_LINKER_OPTIONS}
   )
-
 
 #
 # Target Health

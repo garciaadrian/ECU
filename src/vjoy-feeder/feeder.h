@@ -24,7 +24,7 @@
 #include "vJoydriver/inc/vjoyinterface.h"
 
 #include "vjoy-feeder/joy_consumer.h"
-#include "car/iracing_input.h"
+#include "libir/iracing_input.h"
 
 
 namespace ecu {
@@ -36,7 +36,7 @@ class Feeder {
   ~Feeder();
 
   bool Acquired();
-  bool AcquireDevice(uint8_t device_number = 0);
+  bool AcquireDevice(uint8_t device_number);
   void SetButtonInput(const uint8_t button, const iracing::iRacingInput input);
   void Reset();
   void ExecInput(const iracing::iRacingInput input);

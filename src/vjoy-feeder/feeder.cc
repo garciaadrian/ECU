@@ -35,43 +35,45 @@ static const uint8_t kMaxDevices = 16;
    @param[in] device_number Device to acquire. Optional
   */
 bool Feeder::AcquireDevice(uint8_t device_number) {
-  if (!vJoyEnabled()) {
-    LOGF(g3::FATAL, "vJoy is not installed/enabled. Failed to create feeder");
-  }
-
-  unsigned short ver_dll, ver_drv = 0;
-  if (!DriverMatch(&ver_dll, &ver_drv)) {
-    LOGF(g3::FATAL, "vJoy Driver (version %04x) does not match "      \
-         "vJoyInterface DLL (version %04x)\n", ver_drv, ver_dll);
-  }
-
-  if (device_number != 0) {
-    VjdStat status = GetVJDStatus(device_number);
   
-    if ((status == VJD_STAT_OWN) ||
-        ((status == VJD_STAT_FREE) && (!AcquireVJD(device_number)))) {
-      LOGF(g3::WARNING, "Failed to acquire vJoy device number %d.\n", device_number);
-      return false;
-    }
-    else {
-      LOGF(g3::DEBUG, "Acquired vJoy device number %d.\n", device_number);
-      return true;
-    }
-  }
-
   // TODO:(garciaadrian): irFFB uses device 1 so don't try acquiring it
-  for (auto i = 2; i < kMaxDevices; ++i) {
-    VjdStat status = GetVJDStatus(i);
-  
-    if ((status == VJD_STAT_OWN) ||
-        ((status == VJD_STAT_FREE) && (!AcquireVJD(i)))) {
-      LOGF(g3::WARNING, "Failed to acquire vJoy device number %d.\n", i);
+  VjdStat status = GetVJDStatus(device_number);
+
+  switch (status) {
+    case VJD_STAT_OWN: {
+      LOGF(g3::WARNING, "ECU already owns device %d.\n", device_number);
+      break;
     }
-    else {
-      LOGF(g3::DEBUG, "Acquired vJoy device number %d.\n", i);
-      device_number_ = i;
-      return true;
+    case VJD_STAT_FREE: {
+      AcquireVJD(device_number);
+      status = GetVJDStatus(device_number);
+      if (status == VJD_STAT_OWN) {
+        LOGF(g3::DEBUG, "Acquired vJoy device number %d.\n", device_number);
+        device_number_ = device_number;
+        return true;
+      }
+      else {
+        LOGF(g3::WARNING, "Failed to acquire vJoy device number %d.\n", device_number);
+      }
+      break;
     }
+    case VJD_STAT_BUSY: {
+      LOGF(g3::WARNING, "vJoy device %d is owned by another application.\n", device_number);
+      break;
+    }
+    case VJD_STAT_MISS: {
+      LOGF(g3::WARNING,
+           "vJoy device %d does not exist. Add device using the"
+           " vJoyconf tool.\n", device_number);
+      break;
+    }
+    case VJD_STAT_UNKN: {
+      LOGF(g3::WARNING,
+           "Status for vJoy device %d is UNKNOWN. Failed to acquire.", device_number);
+      break;
+    }
+    default:
+      break;
   }
 
   return false;
@@ -84,10 +86,26 @@ bool Feeder::AcquireDevice(uint8_t device_number) {
    @param[in] filename feeder json configuration file
  */
 Feeder::Feeder(const std::string& filename) {
+  if (!vJoyEnabled()) {
+    LOGF(g3::FATAL, "vJoy is not installed/enabled. Failed to create feeder");
+  }
+
+  unsigned short ver_dll, ver_drv = 0;
+  if (!DriverMatch(&ver_dll, &ver_drv)) {
+    LOGF(g3::FATAL, "vJoy Driver (version %04x) does not match "      \
+         "vJoyInterface DLL (version %04x)\n", ver_drv, ver_dll);
+  }
+
   std::ifstream joy(filename, std::ios::binary | std::ios::in);
 
   if (!joy) {
     LOGF(g3::DEBUG, "vJoy configuration %s not found.\n", filename.c_str());
+    for (int i = 2; i < kMaxDevices; i++) {
+      bool acquired = AcquireDevice(i);
+      
+      if (acquired)
+        break;
+    }
   }
   
   else {
@@ -107,7 +125,8 @@ Feeder::Feeder(const std::string& filename) {
       }
     
       device_number_ = j["device_number_"];
-      assert(device_number_ < kMaxDevices);
+      assert(device_number_ < kMaxDevices &&
+             device_number_ > 1);
       
       if (!AcquireDevice(device_number_)) {
         LOGF(g3::FATAL, "vJoy device %d is disabled or owned by another program.\n",
@@ -120,11 +139,10 @@ Feeder::Feeder(const std::string& filename) {
   }
   
   if (!Acquired()) {
-    AcquireDevice();    
+    
   }
 
-  ResetVJD(device_number_);
-  ResetButtons(device_number_);  
+  Reset();  
 }
 
 Feeder::~Feeder() {
@@ -145,7 +163,7 @@ void Feeder::Serialize(const std::string& filename) {
   json j;
   j["device_number_"] = device_number_;
   j["input_map_"] = input_map_;
-  auto string = j.dump();
+  auto string = j.dump(4);
   joy.write(string.c_str(), string.length());
   
 }

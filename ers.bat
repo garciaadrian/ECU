@@ -49,6 +49,7 @@ IF ERRORLEVEL 1 (
 
 SET "DIR=%DIR%\venv"
 SET "DEACTIVATE=%DIR%\venv\Scripts\deactivate.bat"
+SET "PYTHON=%DIR%\ers.py"
 
 IF "%1" == "setup" (
    IF NOT DEFINED DevEnvDir (

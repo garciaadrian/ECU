@@ -3,7 +3,7 @@
 	url = https://github.com/ECU-IR/sqlite3.git
         ignore = dirty
 [submodule "libs/irsdk"]
-	path = libs/irsdk
+	path = extern/irsdk
 	url = https://github.com/ECU-IR/irsdk.git
         ignore = dirty
 [submodule "libs/libmicrohttpd"]
@@ -15,18 +15,18 @@
 	url = https://github.com/ECU-IR/inih.git
         ignore = dirty
 [submodule "libs/g3logger"]
-	path = libs/g3logger
+	path = extern/g3logger
 	url = https://github.com/ECU-IR/g3log.git
         ignore = dirty
 [submodule "libs/json"]
-	path = libs/json
+	path = extern/json
 	url = https://github.com/ECU-IR/json.git
 [submodule "tools/build/export-compile-commands"]
 	path = tools/build/export-compile-commands
 	url = https://github.com/tarruda/premake-export-compile-commands.git
-[submodule "libs/gflags"]
-	path = libs/gflags
-	url = https://github.com/benvanik/gflags.git
 [submodule "libs/vJoydriver"]
-	path = libs/vJoydriver
+	path = extern/vJoydriver
 	url = https://github.com/ECU-IR/vjoy.git
+[submodule "extern/gflags"]
+	path = extern/gflags
+	url = https://github.com/gflags/gflags.git

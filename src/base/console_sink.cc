@@ -16,7 +16,7 @@ namespace log {
 
 ConsoleSink::ConsoleSink(std::wstring title) {
   AllocConsole();
-  SetConsoleTitle(title.c_str());
+  SetConsoleTitleW(title.c_str());
   std_out_ = GetStdHandle(STD_OUTPUT_HANDLE);
 }
 

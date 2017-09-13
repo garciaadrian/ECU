@@ -45,7 +45,9 @@ class Window {
 
   static LRESULT CALLBACK WndProcThunk(HWND hWnd, UINT message, WPARAM wParam,
                                        LPARAM lParam);
-  virtual LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam,
+
+  // Fucking CMake!
+  virtual LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam,
                           LPARAM lParam);
 
   void AttachListener(WindowListener* listener);

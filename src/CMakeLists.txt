@@ -26,6 +26,8 @@ add_subdirectory(hid)
 add_subdirectory(hid/g27)
 add_subdirectory(vjoy-feeder)
 add_subdirectory(ui)
+add_subdirectory(scripting)
+add_subdirectory(server)
 
 
 # Main executable

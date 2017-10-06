@@ -33,12 +33,20 @@ def main():
         os.path.abspath(os.path.join('tools', 'build')),
     ])
 
+    # Check 7z exists.
+    if not has_bin('7z'):
+        print('ERROR: 7z must be installed and on PATH.')
+        sys.exit(1)
+        return
+
+
     # Check git exists.
     if not has_bin('git'):
         print('ERROR: git must be installed and on PATH.')
         sys.exit(1)
         return
 
+    # Check cmkae exists.
     if not has_bin('cmake'):
         print('ERROR: cmake must be installed and on PATH.')
         sys.exit(1)
@@ -327,6 +335,26 @@ def get_clang_format_binary():
     sys.exit(1)
 
 
+def platform_luajit_compile():
+    """ Compiles luajit.
+    """
+    luajit_dir = os.path.join(self_path, "extern", "luajit-2.0")
+    
+    if sys.platform == 'win32':
+        ret = subprocess.call(os.path.join(luajit_dir, "src", "msvcbuild.bat"),
+                              cwd=os.path.join(luajit_dir, "src"),
+                              shell=False)
+
+def platform_openssl_extract():
+    """ Extracts openssl.7z
+    """
+    openssl_dir = os.path.join(self_path, "extern", "openssl")
+    
+    if sys.platform == 'win32':
+        ret = subprocess.call(['7z', 'x', 'openssl-1.1.0e-vs2017.7z'],
+                              cwd=openssl_dir,
+                              shell=False)
+
 def run_cmake(generator):
     """Runs cmake on the main project with given generator
     """
@@ -525,6 +553,10 @@ class SetupCommand(Command):
         # Setup submodules.
         print('- git submodule init / update...')
         git_submodule_update()
+        print('- extracing openssl...')
+        platform_openssl_extract()
+        print('- precompiling luajit...')
+        platform_luajit_compile()
         print('')
 
         print('- running cmake...')

@@ -56,6 +56,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         _UNICODE
         UNICODE
         NOMINMAX                 # Silence warning C4003
+        WIN32_LEAN_AND_MEAN      # Prevent Windows.h from including Winsock.h
     )
 endif ()
 

@@ -18,6 +18,7 @@
 
 #include "base/threading.h"
 #include "base/console_command.h"
+#include "server/websocket.h"
 #include "vjoy-feeder/feeder.h"
 #include "libir/iracing.h"
 
@@ -50,6 +51,10 @@ void ControlUnit::ThreadMain() {
 
   device.SetButtonInput(1, iracing::BRAKE_BIAS_INC);
   device.SetButtonInput(2, iracing::BRAKE_BIAS_DEC);
+
+  ecu::websocket::WebsocketServer server;
+
+  server.Run();
 
   auto tick = conn.GetTick();
 

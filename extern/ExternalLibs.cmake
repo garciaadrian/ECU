@@ -11,4 +11,7 @@ include(${extern_dir}/gflags.cmake)
 include(${extern_dir}/irsdk.cmake)
 include(${extern_dir}/json.cmake)
 include(${extern_dir}/g3logger.cmake)
-
+include(${extern_dir}/libmicrohttpd.cmake)
+include(${extern_dir}/websocketpp.cmake)
+include(${extern_dir}/openssl.cmake)
+include(${extern_dir}/asio.cmake)

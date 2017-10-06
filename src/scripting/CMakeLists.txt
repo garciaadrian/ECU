@@ -10,7 +10,7 @@
 #
 
 # Target name
-set(target car)
+set(target scripting)
 
 # Exit here if required dependencies are not met
 message(STATUS "Lib ${target}")
@@ -35,15 +35,7 @@ set(headers
   )
 
 set(sources
-  ${source_path}/cvars.h
-  ${source_path}/ecu.cc
-  ${source_path}/ecu.h
-  ${source_path}/iracing_input.cc
-  ${source_path}/iracing_input.h
-  ${source_path}/brakes/brakes.cc
-  ${source_path}/brakes/brakes.h
-  ${source_path}/brakes/console_commands.h
-  ${source_path}/brakes/input_commands.h
+  ${source_path}/main.cc
   )
 
 # Group source files
@@ -95,8 +87,11 @@ set_target_properties(${target}
 # Include directories
 #
 
-# target_include_directories(${target}
-
+target_include_directories(${target}
+  PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${extern_dir}/luajit-2.0/src/
+  )
 
 #
 # Libraries
@@ -105,15 +100,6 @@ set_target_properties(${target}
 target_link_libraries(${target}
   PRIVATE
   ${DEFAULT_LIBRARIES}
-  ${META_PROJECT_NAME}::baselib
-  ${META_PROJECT_NAME}::libir
-  ${META_PROJECT_NAME}::vjoy-feeder
-  ${META_PROJECT_NAME}::server
-
-  websocketpp
-  irsdk
-  g3logger
-  json
   )
 
 #

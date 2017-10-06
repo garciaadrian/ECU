@@ -4,32 +4,16 @@
 - Visual Studio 2015/2017
 - CMake
 - Python 2.7 and pip
-- npm
+- 7z
 
 # Building from source
 Open command prompt and type
 
 ```
+ers pull
 ers setup
-```
-
-Open the generated .sln in the build folder and compile from visual studio or to build from the command line type
-
-```
 ers build
 ```
 
-The generated solution has an odd problem where the working directory is set to 'ECU/build' directory.
-The working directory should be 'ECU/build/bin/{Configuration}'
 
-To fix this open the solution generated in the build directory and change the configuration to Debug. Right-click ECU-core and choose properties. Click the Debugging section and copy the following section into 'Working Directory'
 
-```
-$(ProjectDir)bin\Debug
-```
-
-Now change the configuration to Release and copy the follow into 'Working Directory'
-
-```
-$(ProjectDir)bin\Release
-```

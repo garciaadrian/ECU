@@ -49,6 +49,9 @@ set_target_properties(${target}
   ${DEFAULT_PROJECT_OPTIONS}
   FOLDER "${IDE_FOLDER}"
 
+  VS_DEBUGGER_WORKING_DIRECTORY
+  $(TargetPath)/..
+
   LINK_FLAGS_RELEASE
   /DEBUG                        # Create PDB
   /OPT:REF                      # Prevent assembly copies

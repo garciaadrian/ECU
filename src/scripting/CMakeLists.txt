@@ -35,7 +35,8 @@ set(headers
   )
 
 set(sources
-  ${source_path}/main.cc
+  ${source_path}/vm.h
+  ${source_path}/vm.cc
   )
 
 # Group source files
@@ -89,8 +90,8 @@ set_target_properties(${target}
 
 target_include_directories(${target}
   PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}
   ${extern_dir}/luajit-2.0/src/
+  ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
 #
@@ -98,7 +99,11 @@ target_include_directories(${target}
 #
 
 target_link_libraries(${target}
-  PRIVATE
+  PUBLIC
+  ${extern_dir}/luajit-2.0/src/lua51.lib
+  ${extern_dir}/luajit-2.0/src/luajit.lib
+  g3logger
+  
   ${DEFAULT_LIBRARIES}
   )
 
@@ -126,3 +131,15 @@ target_compile_definitions(${target}
 #   ${headers}
 #   )
   
+# Copy prebuilt shared library lua51 to bin folder
+set(LUA51_DLL ${extern_dir}/luajit-2.0/src/lua51.dll)
+
+install(FILES ${LUA51_DLL} DESTINATION
+  ${INSTALL_ROOT} COMPONENT runtime
+  )
+
+add_custom_command(TARGET ${target} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+  "${LUA51_DLL}"
+  $<TARGET_FILE_DIR:${target}>
+  )

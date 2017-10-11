@@ -77,6 +77,7 @@ target_link_libraries(${target}
   ${META_PROJECT_NAME}::hid-g27 
   ${META_PROJECT_NAME}::ui
   ${META_PROJECT_NAME}::car
+  ${META_PROJECT_NAME}::scripting
   gflags
   irsdk
   json
@@ -120,4 +121,11 @@ target_link_libraries(${target}
 install(TARGETS ${target}
   RUNTIME DESTINATION ${INSTALL_BIN} COMPONENT runtime
   BUNDLE DESTINATION ${INSTALL_BIN} COMPONENT runtime
+  )
+
+
+add_custom_command(TARGET ${target} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  "${PROJECT_SOURCE_DIR}/assets"
+  $<TARGET_FILE_DIR:${target}>
   )

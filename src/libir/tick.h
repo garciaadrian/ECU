@@ -21,7 +21,6 @@ namespace iracing {
 class IracingTick {
  public:
   IracingTick(char* data, int length);
-  ~IracingTick();
 
   std::vector<char> GetData() { return data_; }
 

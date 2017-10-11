@@ -9,22 +9,22 @@
 *******************************************************************************
 */
 
+#ifndef SCRIPTING_VM_H_
+#define SCRIPTING_VM_H_
+
+#include <string>
+
 #include "lua.hpp"
 
-namespace ecu {
-namespace scripting {
+class LuaVM {
+ public:
+  LuaVM();
+  ~LuaVM();
 
-int main() {
-  lua_State* state = luaL_newstate();
-  luaL_openlibs(state);
+  void LoadFile(const std::string& file);
 
-  int result = 0;
+ private:
+  lua_State* state_;
+};
 
-  
-  lua_close(state);
-  
-  return 1;
-}
-
-}  // namespace scripting
-}  // namespace ecu
+#endif // SCRIPTING_VM_H_

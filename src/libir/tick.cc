@@ -17,8 +17,6 @@ IracingTick::IracingTick(char* data, int length) {
   data_.assign(data, data + length);
 }
 
-IracingTick::~IracingTick() {}
-
 bool IracingTick::IsValid() {
   if (data_.size() == 0) {
     return false;

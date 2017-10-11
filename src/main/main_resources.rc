@@ -1,4 +1,1 @@
 #include "resource.h"
-
-101 ICON "..\\assets\\icons\\Electronic-Control-Units.ico"
-CONFIG_TEXTFILE TEXTFILE "..\\assets\\config.ini"

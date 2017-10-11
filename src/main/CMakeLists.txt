@@ -50,7 +50,7 @@ set_target_properties(${target}
   FOLDER "${IDE_FOLDER}"
 
   VS_DEBUGGER_WORKING_DIRECTORY
-  $(TargetPath)/..
+  $(TargetPath)\..
 
   LINK_FLAGS_RELEASE
   /DEBUG                        # Create PDB

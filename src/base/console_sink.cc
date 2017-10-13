@@ -27,7 +27,7 @@ void ConsoleSink::ReceiveLogMessage(g3::LogMessageMover logEntry) {
   DWORD char_written = 0;
   std::stringstream message;
   message << logEntry.get().timestamp() << " " << logEntry.get().level() << ": "
-          << logEntry.get().message();
+          << logEntry.get().message() << "\n";
 
   // TODO(garciaadrian): Unicode version not printing to console
   // GetLastError: 998

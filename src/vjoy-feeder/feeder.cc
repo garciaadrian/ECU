@@ -41,30 +41,30 @@ bool Feeder::AcquireDevice(uint8_t device_number) {
 
   switch (status) {
     case VJD_STAT_OWN: {
-      LOGF(g3::WARNING, "ECU already owns device %d.\n", device_number);
+      LOGF(g3::WARNING, "ECU already owns device %d.", device_number);
       break;
     }
     case VJD_STAT_FREE: {
       AcquireVJD(device_number);
       status = GetVJDStatus(device_number);
       if (status == VJD_STAT_OWN) {
-        LOGF(g3::DEBUG, "Acquired vJoy device number %d.\n", device_number);
+        LOGF(g3::DEBUG, "Acquired vJoy device number %d.", device_number);
         device_number_ = device_number;
         return true;
       }
       else {
-        LOGF(g3::WARNING, "Failed to acquire vJoy device number %d.\n", device_number);
+        LOGF(g3::WARNING, "Failed to acquire vJoy device number %d.", device_number);
       }
       break;
     }
     case VJD_STAT_BUSY: {
-      LOGF(g3::WARNING, "vJoy device %d is owned by another application.\n", device_number);
+      LOGF(g3::WARNING, "vJoy device %d is owned by another application.", device_number);
       break;
     }
     case VJD_STAT_MISS: {
       LOGF(g3::WARNING,
            "vJoy device %d does not exist. Add device using the"
-           " vJoyconf tool.\n", device_number);
+           " vJoyconf tool.", device_number);
       break;
     }
     case VJD_STAT_UNKN: {

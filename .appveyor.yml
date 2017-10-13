@@ -19,6 +19,7 @@ after_build: >-
   %APPVEYOR_BUILD_FOLDER%\build\Release\ECU.pdb
   %APPVEYOR_BUILD_FOLDER%\build\Release\vJoyInterface.dll
   %APPVEYOR_BUILD_FOLDER%\build\Release\atlas.dll
+  %APPVEYOR_BUILD_FOLDER%\build\Release\lua51.dll
   
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip

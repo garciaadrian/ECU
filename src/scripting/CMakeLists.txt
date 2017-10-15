@@ -37,6 +37,8 @@ set(headers
 set(sources
   ${source_path}/vm.h
   ${source_path}/vm.cc
+  ${source_path}/callbacks.h
+  ${source_path}/callbacks.cc
   )
 
 # Group source files

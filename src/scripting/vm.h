@@ -16,15 +16,24 @@
 
 #include "lua.hpp"
 
-class LuaVM {
- public:
-  LuaVM();
-  ~LuaVM();
+namespace ecu {
+namespace vm {
 
-  void LoadFile(const std::string& file);
+  class LuaVM {
+  public:
+    LuaVM();
+    ~LuaVM();
 
- private:
-  lua_State* state_;
-};
+    void LoadFile(const std::string& file);
+    void StackDump();
+
+    int GetGlobalInt(const std::string& var);
+  
+  private:
+    lua_State* state_;
+  };
+  
+} // namespace vm
+} // namespace ecu
 
 #endif // SCRIPTING_VM_H_

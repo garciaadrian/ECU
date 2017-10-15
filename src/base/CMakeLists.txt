@@ -46,6 +46,8 @@ set(sources
   ${source_path}/cvars.cc
   ${source_path}/cvars.h
   ${source_path}/delegate.h
+  ${source_path}/file_watcher.h
+  ${source_path}/file_watcher.cc
   ${source_path}/threading.h
   ${source_path}/threading.cc
   )

@@ -18,9 +18,11 @@
 
 #include "base/threading.h"
 #include "base/console_command.h"
+#include "base/file_watcher.h"
 #include "server/websocket.h"
 #include "vjoy-feeder/feeder.h"
 #include "libir/iracing.h"
+#include "scripting/vm.h"
 
 namespace ecu {
 namespace car {
@@ -56,11 +58,23 @@ void ControlUnit::ThreadMain() {
 
   server.Run();
 
+  ecu::vm::LuaVM jit;
+  jit.LoadFile("data/default.lua");
+
+  FileTime default_lua;
+  bool reload = CreateFileWatch(L"data/default.lua", default_lua);
+  if (reload == false) {
+    LOGF(g3::WARNING, "Unable to live reload default.lua");
+  }
+
   auto tick = conn.GetTick();
 
   auto session_string = conn.GetSessionInfo();
   
   while (!should_exit_) {
+    if (reload && HasWritten(default_lua)) {
+      jit.LoadFile("data/default.lua");
+    }
     tick = conn.GetTick();
     if (!tick.IsValid()) {
       continue;
@@ -100,9 +114,6 @@ std::vector<std::unique_ptr<hid::InputCommand>> CreateInputCommands() {
 
   return input_commands;
 }
-
-
-
 
 }  // namespace car
 }  // namespace ecu

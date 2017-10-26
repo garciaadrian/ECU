@@ -80,6 +80,8 @@ target_link_libraries(${target}
   ${META_PROJECT_NAME}::hid-g27 
   ${META_PROJECT_NAME}::ui
   ${META_PROJECT_NAME}::car
+  ${META_PROJECT_NAME}::scripting
+  ${META_PROJECT_NAME}::server
   gflags
   irsdk
   json

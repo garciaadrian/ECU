@@ -29,10 +29,14 @@ void from_json(const nlohmann::json& j, iRacingInput& input);
 static const int kBrakeBiasInc = 1;
 static const int kBrakeBiasDec = 2;
 static const int kERSModeToggle = 3;
+static const int kERSIncrease = 4;
+static const int kERSDecrease = 5;
 
 const iRacingInput BRAKE_BIAS_INC {kBrakeBiasInc, "Brake Bias Inc"};
 const iRacingInput BRAKE_BIAS_DEC {kBrakeBiasDec, "Brake Bias Dec"};
 const iRacingInput ERS_MODE_TOGGLE {kERSModeToggle, "ERS Mode Toggle"};
+const iRacingInput ERS_INCREASE {kERSIncrease, "ERS Increase"};
+const iRacingInput ERS_DECREASE {kERSDecrease, "ERS Decrease"};
 
 }  // namespace iracing
 

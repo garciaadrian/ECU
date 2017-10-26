@@ -29,6 +29,7 @@ namespace car {
 
 ControlUnit::ControlUnit(ConsoleSystem* console_system)
     : console_(console_system) {
+  device_.LoadConfiguration("joy.json");
   thread_ = std::thread(&ControlUnit::ThreadMain, this);
 }
 
@@ -48,43 +49,22 @@ void ControlUnit::ThreadMain() {
   LOGF(g3::DEBUG, "Starting Control Unit thread %d\n", GetCurrentThreadId());
   ecu::threading::set_name("Control Unit Thread");
 
-  ::iracing::Iracing conn;
-  vjoy::Feeder device("joy.json");
+  vjoy::SetDefaultDeviceButtons(device_);
+  
+  auto tick = iracing_conn_.GetTick();
 
-  device.SetButtonInput(1, iracing::BRAKE_BIAS_INC);
-  device.SetButtonInput(2, iracing::BRAKE_BIAS_DEC);
-
-  ecu::websocket::WebsocketServer server;
-
-  server.Run();
-
-  ecu::vm::LuaVM jit;
-  jit.LoadFile("data/default.lua");
-
-  FileTime default_lua;
-  bool reload = CreateFileWatch(L"data/default.lua", default_lua);
-  if (reload == false) {
-    LOGF(g3::WARNING, "Unable to live reload default.lua");
-  }
-
-  auto tick = conn.GetTick();
-
-  auto session_string = conn.GetSessionInfo();
+  auto session_string = iracing_conn_.GetSessionInfo();
   
   while (!should_exit_) {
-    if (reload && HasWritten(default_lua)) {
-      jit.LoadFile("data/default.lua");
-    }
-    tick = conn.GetTick();
+    tick = iracing_conn_.GetTick();
     if (!tick.IsValid()) {
       continue;
     }
-    brakes_.GetState(tick, device, session_string);
+    brakes_.GetState(tick, device_, session_string);
   }
   quit_fence_.Signal();
   LOGF(g3::DEBUG, "Stopping Control Unit thread\n");
 }
-
 
 std::vector<std::unique_ptr<ecu::ConCommand>> ControlUnit::CreateConsoleCommands() {
   std::vector<std::unique_ptr<ecu::ConCommand>> con_commands;

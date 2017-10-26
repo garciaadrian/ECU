@@ -20,6 +20,9 @@
 #include "hid/input_command.h"
 #include "car/brakes/brakes.h"
 #include "vjoy-feeder/joy_consumer.h"
+#include "scripting/vm.h"
+#include "libir/iracing.h"
+#include "server/websocket.h"
 
 namespace ecu {
 namespace car {
@@ -41,9 +44,16 @@ class ControlUnit {
   ConsoleSystem* console_;
   BrakeSystem brakes_;
 
+  ecu::vm::LuaVM jit_;
+  ::iracing::Iracing iracing_conn_;
+  vjoy::Feeder device_;
+  ecu::websocket::WebsocketServer server_;
+
   std::atomic<bool> should_exit_ = false;
   ecu::threading::Fence quit_fence_;
   std::thread thread_;
+
+  void LoadVMCallbacks();
 };
 
 std::vector<std::unique_ptr<hid::InputCommand>> CreateInputCommands();

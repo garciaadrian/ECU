@@ -85,7 +85,7 @@ bool Feeder::AcquireDevice(uint8_t device_number) {
    
    @param[in] filename feeder json configuration file
  */
-Feeder::Feeder(const std::string& filename) {
+void Feeder::LoadConfiguration(const std::string& filename) {
   if (!vJoyEnabled()) {
     LOGF(g3::FATAL, "vJoy is not installed/enabled. Failed to create feeder");
   }
@@ -142,8 +142,14 @@ Feeder::Feeder(const std::string& filename) {
     
   }
 
-  Reset();  
+  Reset();
 }
+
+Feeder::Feeder(const std::string& filename) {
+  LoadConfiguration(filename);
+}
+
+Feeder::Feeder() {}
 
 Feeder::~Feeder() {
   if (Acquired()) {
@@ -227,6 +233,16 @@ void Feeder::SetButtonInput(const uint8_t button, const iracing::iRacingInput in
   input_map_[button] = input;
 }
 
+/**
+   Sets the button map of device to the default.
+  */
+void SetDefaultDeviceButtons(Feeder& device) {
+  device.SetButtonInput(1, iracing::BRAKE_BIAS_INC);
+  device.SetButtonInput(2, iracing::BRAKE_BIAS_DEC);
+  device.SetButtonInput(3, iracing::ERS_MODE_TOGGLE);
+  device.SetButtonInput(4, iracing::ERS_INCREASE);
+  device.SetButtonInput(5, iracing::ERS_DECREASE);
+}
 
 }  // namespace vjoy
 }  // namespace ecu

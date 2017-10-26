@@ -32,6 +32,7 @@ namespace vjoy {
 
 class Feeder {
  public:
+  Feeder();
   Feeder(const std::string& filename);
   ~Feeder();
 
@@ -40,7 +41,7 @@ class Feeder {
   void SetButtonInput(const uint8_t button, const iracing::iRacingInput input);
   void Reset();
   void ExecInput(const iracing::iRacingInput input);
-  
+  void LoadConfiguration(const std::string& filename);
   void Serialize(const std::string& filename);
 
  private:
@@ -49,6 +50,8 @@ class Feeder {
   JoyConsumer consumer_;
 
 };
+
+void SetDefaultDeviceButtons(Feeder& device);
 
 }  // namespace vjoy
 }  // namespace ecu

@@ -38,8 +38,6 @@ set(sources
   ${source_path}/cvars.h
   ${source_path}/ecu.cc
   ${source_path}/ecu.h
-  ${source_path}/iracing_input.cc
-  ${source_path}/iracing_input.h
   ${source_path}/brakes/brakes.cc
   ${source_path}/brakes/brakes.h
   ${source_path}/brakes/console_commands.h

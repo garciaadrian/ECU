@@ -19,19 +19,25 @@
 namespace ecu {
 namespace vm {
 
-  class LuaVM {
-  public:
-    LuaVM();
-    ~LuaVM();
+class LuaVM {
+ public:
+  LuaVM();
+  ~LuaVM();
 
-    void LoadFile(const std::string& file);
-    void StackDump();
-
-    int GetGlobalInt(const std::string& var);
+  void LoadFile(const std::string& file);
+  void StackDump();
   
-  private:
-    lua_State* state_;
-  };
+  int GetGlobalInt(const std::string& var);
+
+  void RegisterGlobal(int (*func)(lua_State* L), const std::string& func_name);
+  
+  lua_State* get_state() const { return state_; }
+  
+ private:
+  lua_State* state_;
+
+  void RegisterGlobals();
+};
   
 } // namespace vm
 } // namespace ecu

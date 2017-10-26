@@ -10,16 +10,19 @@
 */
 
 #include "scripting/vm.h"
+#include "scripting/callbacks.h"
+
 #include "g3log/g3log.hpp"
+
 #include <fstream>
 
 namespace ecu {
 namespace vm {
 
-
 LuaVM::LuaVM() {
   state_ = luaL_newstate();
   luaL_openlibs(state_);
+  RegisterGlobals();
 }
 
 LuaVM::~LuaVM() {
@@ -48,7 +51,8 @@ void LuaVM::LoadFile(const std::string& file) {
   StackDump();
   
   if (error) {
-    LOGF(g3::WARNING, "%s\n", lua_tostring(state_, -1));
+    LOGF(g3::WARNING, "Unable to load 'default.lua'");
+    LOGF(g3::FATAL, "%s\n", lua_tostring(state_, -1));
     lua_pop(state_, 1);
   }
 
@@ -71,8 +75,18 @@ void LuaVM::LoadFile(const std::string& file) {
   lua_pop(state_, 1);
 }
 
+void LuaVM::RegisterGlobal(int (*func)(lua_State* L), const std::string& func_name) {
+  lua_pushcfunction(state_, func);
+  lua_setglobal(state_, func_name.c_str());
+}
+
+void LuaVM::RegisterGlobals() {
+  lua_pushcfunction(state_, SetERSLevel);
+  lua_setglobal(state_, "SetERSLevel");
+}
+
 void LuaVM::StackDump() {
-  LOGF(g3::DEBUG, "Begin Lua Stackdump:");
+  LOGF(g3::DEBUG, " --- Begin Lua Stackdump --- ");
   int top = lua_gettop(state_);
   for (int i = 1; i <= top; i++) {
     int type = lua_type(state_, i);
@@ -96,7 +110,7 @@ void LuaVM::StackDump() {
     }
     }
   }
-  LOGF(g3::DEBUG, "End Lua Stackdump:");
+  LOGF(g3::DEBUG, " --- End Lua Stackdump: --- ");
 }
 
 int LuaVM::GetGlobalInt(const std::string& var) {

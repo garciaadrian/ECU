@@ -12,10 +12,15 @@
 #ifndef SCRIPTING_CALLBACKS_H_
 #define SCRIPTING_CALLBACKS_H_
 
+#include "lua.hpp"
+
 namespace ecu {
 namespace vm {
 
-static char* GetDriverNameIdx(int idx);
+static int GetDriverIdx(lua_State* L);
+
+int SetERSLevel(lua_State* L);
+
 
 } // namespace vm
 } // namespace ecu

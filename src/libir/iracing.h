@@ -26,9 +26,6 @@ enum class Event {
 };
 
 template<class T>
-T GetChannel();
-
-template<class T>
 using Pimpl =  std::unique_ptr<T>;
 
 std::string ParseSessionInfo(const std::string& session_info,

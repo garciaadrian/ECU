@@ -108,7 +108,6 @@ target_link_libraries(${target}
   ${META_PROJECT_NAME}::vjoy-feeder
   ${META_PROJECT_NAME}::server
   ${META_PROJECT_NAME}::scripting
-
   websocketpp
   irsdk
   g3logger

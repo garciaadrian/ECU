@@ -52,8 +52,10 @@ void ControlUnit::ThreadMain() {
   vjoy::SetDefaultDeviceButtons(device_);
   
   auto tick = iracing_conn_.GetTick();
-
   auto session_string = iracing_conn_.GetSessionInfo();
+
+  ecu::vm::LuaVM jit;
+  ecu::websocket::WebsocketServer server;
   
   while (!should_exit_) {
     tick = iracing_conn_.GetTick();

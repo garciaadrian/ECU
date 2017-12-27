@@ -2,7 +2,7 @@
 #
 #
 
-cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 
 # Register general cmake commands
 include(cmake/Custom.cmake)
@@ -156,6 +156,12 @@ endif()
 #
 
 set(third_party_dir ${CMAKE_CURRENT_SOURCE_DIR}/extern)
+
+#
+# VisualStudio settings
+#
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ECU)
 
 
 #

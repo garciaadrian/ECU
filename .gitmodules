@@ -45,3 +45,6 @@
 [submodule "extern/asio"]
 	path = extern/asio
 	url = https://github.com/chriskohlhoff/asio.git
+[submodule "src/tests/googletest"]
+	path = src/tests/googletest
+	url = https://github.com/google/googletest.git

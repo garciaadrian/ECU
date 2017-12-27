@@ -24,7 +24,6 @@ message(STATUS "Executable ${target}")
 set(sources
   ecu-core.cc
   resource.h
-  main_resources.rc
   )
 
 
@@ -36,6 +35,7 @@ set(sources
 add_executable(${target}
   WIN32
   ${sources}
+  main_resources.rc
   )
 
 # Create namespaced alias
@@ -73,13 +73,9 @@ target_include_directories(${target}
 
 target_link_libraries(${target}
   PRIVATE
+  Qt5::Widgets
   ${DEFAULT_LIBRARIES}
-  ${META_PROJECT_NAME}::baselib
-  ${META_PROJECT_NAME}::libir
-  ${META_PROJECT_NAME}::hid
-  ${META_PROJECT_NAME}::hid-g27 
   ${META_PROJECT_NAME}::ui
-  ${META_PROJECT_NAME}::car
   gflags
   irsdk
   json
@@ -93,9 +89,18 @@ target_link_libraries(${target}
 
 target_compile_definitions(${target}
   PRIVATE
-  ${DEFAULT_COMPILE_OPTIONS}
+  ${DEFAULT_COMPILE_DEFINITIONS}
   )
 
+
+#
+# Compile options
+#
+
+target_compile_options(${target}
+  PRIVATE
+  ${DEFAULT_COMPILE_OPTIONS}
+  )
 
 #
 # Linker options
@@ -123,11 +128,4 @@ target_link_libraries(${target}
 install(TARGETS ${target}
   RUNTIME DESTINATION ${INSTALL_BIN} COMPONENT runtime
   BUNDLE DESTINATION ${INSTALL_BIN} COMPONENT runtime
-  )
-
-
-add_custom_command(TARGET ${target} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  "${PROJECT_SOURCE_DIR}/assets"
-  $<TARGET_FILE_DIR:${target}>
   )

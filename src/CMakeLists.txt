@@ -3,10 +3,11 @@
 #
 
 # Generate version-header
-configure_file(version.h.in ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}-version.h)
+configure_file(version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/${META_PROJECT_NAME}/${META_PROJECT_NAME}-version.h)
 
 # Add src/ directory to include paths to conform to Google header styleguide
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 # Enable compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -18,27 +19,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Categorize sub-projects
 set(IDE_FOLDER "src")
 
-add_subdirectory(base)
-add_subdirectory(libir)
-add_subdirectory(atlas)
-add_subdirectory(car)
-add_subdirectory(hid)
-add_subdirectory(hid/g27)
-add_subdirectory(vjoy-feeder)
 add_subdirectory(ui)
-add_subdirectory(scripting)
-add_subdirectory(server)
 
 
 # Main executable
 add_subdirectory(main)
 
 # Tests
-
+if(OPTION_BUILD_TESTS)
+    set(IDE_FOLDER "tests")
+    add_subdirectory(tests)
+endif()
 
 #
 # Deployment
 #
 
 # Deploy generated headers
-# install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/${META_PROJECT_NAME}/ DESTINATION include  COMPONENT dev)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/${META_PROJECT_NAME}/ DESTINATION include  COMPONENT dev)

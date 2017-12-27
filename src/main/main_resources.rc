@@ -1,1 +1,1 @@
-#include "resource.h"
+IDI_ICON1 ICON DISCARDABLE "../../deploy/images/logo.ico"

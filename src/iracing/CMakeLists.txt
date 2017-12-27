@@ -9,7 +9,7 @@
 #
 
 # Target name
-set(target ui)
+set(target iracing)
 
 # Exit here if required dependencies are not met
 message(STATUS "Lib ${target}")
@@ -34,9 +34,6 @@ set(headers
   )
 
 set(sources
-  ${source_path}/mainwindow.h
-  ${source_path}/mainwindow.cc
-  ${source_path}/mainwindow.ui
   )
 
 # Group source files
@@ -97,7 +94,6 @@ set_target_properties(${target}
 
 target_link_libraries(${target}
   PRIVATE
-  Qt5::Widgets
   ${DEFAULT_LIBRARIES}
   )
 

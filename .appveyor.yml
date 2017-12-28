@@ -2,6 +2,9 @@ version: 0.0.{build}-{branch}
 
 os: Visual Studio 2017
 
+environment:
+  QTDIR: C:\Qt\5.9\msvc2017_64
+
 install:
   - cmd: set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
   - cmd: set PATH=C:\Python36-x64;%PATH%
@@ -10,6 +13,9 @@ install:
 configuration:
   - Release
 
+before_build:
+  - set PATH=%PATH%;%QTDIR%
+
 build_script:
   - cmd: ers.bat build --config Release
 
@@ -17,9 +23,6 @@ after_build: >-
   7z a ecu-%appveyor_repo_branch%-%appveyor_repo_commit%.zip LICENSE.txt
   %APPVEYOR_BUILD_FOLDER%\build\Release\ECU.exe
   %APPVEYOR_BUILD_FOLDER%\build\Release\ECU.pdb
-  %APPVEYOR_BUILD_FOLDER%\build\Release\vJoyInterface.dll
-  %APPVEYOR_BUILD_FOLDER%\build\Release\atlas.dll
-  %APPVEYOR_BUILD_FOLDER%\build\Release\lua51.dll
   
 artifacts:
   - path: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit).zip

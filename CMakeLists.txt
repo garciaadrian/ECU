@@ -30,7 +30,7 @@ include(cmake/GenerateTemplateExportHeader.cmake)
 # Get git revision
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 string(SUBSTRING "${GIT_SHA1}" 0 12 GIT_REV)
-if(NOT GIT_SH1)
+if(NOT GIT_SHA1)
   set(GIT_REV "0")
 endif()
 

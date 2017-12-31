@@ -19,6 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Categorize sub-projects
 set(IDE_FOLDER "src")
 
+add_subdirectory(ffb)
 add_subdirectory(ui)
 
 

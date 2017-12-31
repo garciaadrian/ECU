@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QDebug>
 
+#include <ECU/ECU-version.h>
 #include "ui/mainwindow.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -53,6 +54,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   QApplication ecu(argc, argva);
   Mainwindow window;
+  window.setWindowTitle(ECU_NAME_VERSION);
   window.show();
 
   gflags::ShutDownCommandLineFlags();

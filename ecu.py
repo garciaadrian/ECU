@@ -492,6 +492,7 @@ def discover_commands(subparsers):
         'lint': LintCommand(subparsers),
         'format': FormatCommand(subparsers),
         'style': StyleCommand(subparsers),
+        'genauthors' : GenAuthorsCommand(subparsers)
         # 'tidy': TidyCommand(subparsers),
     }
     if sys.platform == 'win32':
@@ -535,6 +536,61 @@ class Command(object):
         """
         return 1
 
+
+class GenAuthorsCommand(Command):
+    """'genauthors' command."""
+
+    def __init__(self, subparsers, *args, **kwargs):
+        super(GenAuthorsCommand, self).__init__(
+            subparsers,
+            name='genauthors',
+            help_short='Generate AUTHORS.txt from commit log.',
+            *args, **kwargs)
+
+    def execute(self, args, pass_args, cwd):
+        if not has_bin('cut'):
+            print('ERROR: cut must be installed and on PATH.')
+            sys.exit(1)
+            return
+        if not has_bin('sort'):
+            print('ERROR: sort must be installed and on PATH.')
+            sys.exit(1)
+            return
+        if not has_bin('uniq'):
+            print('ERROR: uniq must be installed and on PATH.')
+            sys.exit(1)
+            return
+            
+        print('Generating AUTHORS.txt...')
+
+        p1 = subprocess.Popen([
+            'git',
+            'shortlog',
+            '-sne',
+        ], stdout=subprocess.PIPE, shell=True)
+        
+        p2 = subprocess.Popen([
+            'cut',
+            '-f',
+            '2'
+        ], stdin=p1.stdout, stdout=subprocess.PIPE, shell=True)
+
+        p3 = subprocess.Popen([
+            'sort'
+        ], stdin=p2.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+        p4 = subprocess.Popen([
+            'uniq'
+        ], stdin=p3.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        
+
+        with open('AUTHORS.txt', 'w') as f:
+            authors = p4.communicate()[0]
+            f.write('Special thanks for contributing:\n')
+            f.write(authors)
+
+            print(authors)
+        return 0
 
 class SetupCommand(Command):
     """'setup' command."""

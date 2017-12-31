@@ -9,28 +9,9 @@
 *******************************************************************************
 */
 
-#ifndef UI_MAINWINDOW_H_
-#define UI_MAINWINDOW_H_
-
-#include <QMainWindow>
-
-namespace Ui {
-class MainWindow;
-}
-
-class Mainwindow : public QMainWindow {
-  Q_OBJECT
-
- public:
-  explicit Mainwindow(QWidget* parent = nullptr);
-  ~Mainwindow() override;
-
- private slots:
-  void on_actionAbout_triggered();
-
- private:
-  Ui::MainWindow* ui;
-};
+#ifndef FFB_FEEDER_H_
+#define FFB_FEEDER_H_
 
 
-#endif // UI_MAINWINDOW_H_
+
+#endif // FFB_FEEDER_H_

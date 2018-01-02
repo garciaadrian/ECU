@@ -24,27 +24,36 @@
 [submodule "tools/build/export-compile-commands"]
 	path = tools/build/export-compile-commands
 	url = https://github.com/tarruda/premake-export-compile-commands.git
+        ignore = dirty
 [submodule "libs/vJoydriver"]
 	path = extern/vJoydriver
 	url = https://github.com/ECU-IR/vjoy.git
+        ignore = dirty
 [submodule "extern/gflags"]
 	path = extern/gflags
 	url = https://github.com/gflags/gflags.git
+        ignore = dirty
 [submodule "extern/luajit-2.0"]
 	path = extern/luajit-2.0
 	url = http://luajit.org/git/luajit-2.0.git
+        ignore = dirty
 [submodule "extern/libmicrohttpd"]
 	path = extern/libmicrohttpd
 	url = https://github.com/ECU-IR/libmicrohttpd
+        ignore = dirty
 [submodule "extern/websocketpp"]
 	path = extern/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
+        ignore = dirty
 [submodule "extern/openssl"]
 	path = extern/openssl
 	url = https://github.com/ECU-IR/openssl.git
+        ignore = dirty
 [submodule "extern/asio"]
 	path = extern/asio
 	url = https://github.com/chriskohlhoff/asio.git
+        ignore = dirty
 [submodule "src/tests/googletest"]
 	path = src/tests/googletest
 	url = https://github.com/google/googletest.git
+        ignore = dirty

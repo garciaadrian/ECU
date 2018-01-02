@@ -20,14 +20,14 @@ build_script:
   - cmd: python ecu.py pack
 
 artifacts:
-  - path: $(APPVEYOR_BUILD_FOLDER)/build/ecu-$(ECU_META_VERSION).zip
-  - path: $(APPVEYOR_BUILD_FOLDER)/build/ecu-$(ECU_META_VERSION).exe
+  - path: build/ecu-$(ECU_META_VERSION).zip
+  - path: build/ecu-$(ECU_META_VERSION).exe
     
 deploy:
   - provider: Environment
     name: production
     release: ecu-$(appveyor_repo_branch)-$(appveyor_repo_commit)-v$(appveyor_build_version)
-    artifact: $(APPVEYOR_BUILD_FOLDER)/build/ecu-$(ECU_META_VERSION).exe
+    artifact: build/ecu-$(ECU_META_VERSION).exe
     on:
       branch: master
       appveyor_repo_tag: true

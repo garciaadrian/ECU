@@ -20,8 +20,8 @@ build_script:
   - cmd: python ecu.py pack
 
 artifacts:
-  - path: build/ecu-$(ECU_META_VERSION).zip
-  - path: build/ecu-$(ECU_META_VERSION).exe
+  - path: build/ecu-%ECU_META_VERSION%.zip
+  - path: build/ecu-%ECU_META_VERSION%.exe
     
 deploy:
   - provider: Environment

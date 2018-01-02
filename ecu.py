@@ -483,6 +483,7 @@ def discover_commands(subparsers):
         'pull': PullCommand(subparsers),
         'cmake': CmakeCommand(subparsers),
         'build': BuildCommand(subparsers),
+        'pack': PackCommand(subparsers),
         # 'genspirv': GenSpirvCommand(subparsers),
         # 'gentests': GenTestsCommand(subparsers),
         # 'test': TestCommand(subparsers),
@@ -693,6 +694,30 @@ class CmakeCommand(Command):
         return 0
 
 
+class PackCommand(Command):
+    def __init__(self, subparsers, *args, **kwargs):
+        super(PackCommand, self).__init__(
+            subparsers,
+            name='pack',
+            help_short='Runs CPack in release config',
+            *args, **kwargs)
+
+    def execute(self, args, pass_args, cwd):
+        ret = subprocess.call([
+            'cmake',
+            
+            '--build',
+            os.path.join(self_path, "build"),
+            
+            '--config',
+            'release',
+            
+            '--target',
+            'pack'
+        ], shell=False)
+
+        return ret
+    
 class BaseBuildCommand(Command):
     """Base command for things that require building."""
 

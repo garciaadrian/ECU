@@ -47,6 +47,9 @@ set(META_VERSION              "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${MET
 set(META_NAME_VERSION         "${META_PROJECT_NAME} v${META_VERSION} (${META_VERSION_REVISION})")
 set(META_CMAKE_INIT_SHA       "${GIT_SHA1}")
 
+# Set version number in an enivonment variable so AppVeyor find the dist files
+set(ENV{ECU_META_VERSION} ${META_VERSION})
+
 string(MAKE_C_IDENTIFIER ${META_PROJECT_NAME} META_PROJECT_ID)
 string(TOUPPER ${META_PROJECT_ID} META_PROJECT_ID)
 

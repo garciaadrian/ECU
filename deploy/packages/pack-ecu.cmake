@@ -15,7 +15,7 @@ endif()
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
     # Windows installer
     set(OPTION_PACK_GENERATOR "NSIS;ZIP" CACHE STRING "Package targets")
-    set(PACK_COMPONENT_INSTALL ON)
+    set(PACK_COMPONENT_INSTALL OFF)
     set(PACK_INCLUDE_TOPDIR OFF)
 elseif(UNIX AND SYSTEM_DIR_INSTALL)
     # System installation packages for unix systems
@@ -47,8 +47,8 @@ endif()
 # Package components
 # 
 
-set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "${META_PROJECT_NAME} library")
-set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Runtime components for ${META_PROJECT_NAME} library")
+set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "${META_PROJECT_NAME}")
+set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Runtime components for ${META_PROJECT_NAME}")
 set(CPACK_COMPONENT_RUNTIME_REQUIRED TRUE)
 
 set(CPACK_COMPONENT_DEV_DISPLAY_NAME "C/C++ development files")
@@ -163,7 +163,7 @@ if(X64)
 endif()
 
 # Package options
-#set(CPACK_NSIS_DISPLAY_NAME "${package_name}-${META_VERSION}")
+set(CPACK_NSIS_DISPLAY_NAME "${package_name}-${META_VERSION}")
 set(CPACK_NSIS_MUI_ICON      "${PROJECT_SOURCE_DIR}/deploy/images/logo.ico")
 set(CPACK_NSIS_MUI_UNIICON   "${PROJECT_SOURCE_DIR}/deploy/images/logo.ico")
 

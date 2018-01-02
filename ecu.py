@@ -324,6 +324,7 @@ def get_clang_format_binary():
         'C:\\Program Files (x86)\\LLVM\\bin\\clang-format.exe',
         'clang-format-3.8',
         'clang-format',
+        os.path.join(self_path, 'tools\build\clang-format.exe')
     ]
     for binary in attempts:
         if has_bin(binary):

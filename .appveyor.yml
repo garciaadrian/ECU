@@ -18,10 +18,11 @@ before_build:
 build_script:
   - cmd: ers.bat build --config Release
   - cmd: python ecu.py pack
+  - cmd: echo %ECU_META_VERSION%
 
 artifacts:
-  - path: build/ecu-%ECU_META_VERSION%.zip
-  - path: build/ecu-%ECU_META_VERSION%.exe
+  - path: build/*.zip
+  - path: build/*.exe
     
 deploy:
   - provider: Environment

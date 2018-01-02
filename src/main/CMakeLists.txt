@@ -38,6 +38,37 @@ add_executable(${target}
   main_resources.rc
   )
 
+if(TARGET Qt5::windeployqt)
+  # execute windeployqt in a tmp directory then copy to bin directory
+  add_custom_command(TARGET ${target}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory
+    "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+    COMMAND set PATH=%PATH%$<SEMICOLON>${qt5_install_prefix}/bin
+    COMMAND Qt5::windeployqt --dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
+    "$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_NAME:${target}>"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_BINARY_DIR}/windeployqt" "$<TARGET_FILE_DIR:${target}>"
+    )
+
+  # copy deployment directory during installation
+  install(
+    DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
+    DESTINATION ${INSTALL_DATA}
+    COMPONENT runtime
+    )
+endif()
+
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+
+include(InstallRequiredSystemLibraries)
+
+install(
+    PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
+    DESTINATION ${INSTALL_BIN}
+)
+
 # Create namespaced alias
 add_executable(${META_PROJECT_NAME}::${target} ALIAS ${target})
 

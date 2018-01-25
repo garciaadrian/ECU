@@ -215,10 +215,10 @@ def shell_call(command, throw_on_error=True, stdout_path=None):
     try:
         if throw_on_error:
             result = 1
-            subprocess.check_call(command, shell=False, stdout=stdout_file)
+            subprocess.check_call(command, shell=True, stdout=stdout_file)
             result = 0
         else:
-            result = subprocess.call(command, shell=False, stdout=stdout_file)
+            result = subprocess.call(command, shell=True, stdout=stdout_file)
     finally:
         if stdout_file:
             stdout_file.close()
@@ -1223,10 +1223,16 @@ def find_ecu_source_files():
     Returns:
       A list of file paths.
     """
-    return [os.path.join(root, name)
+    paths = [os.path.join(root, name)
             for root, dirs, files in os.walk('src')
             for name in files
             if name.endswith(('.cc', '.c', '.h', '.inl'))]
+
+    # TODO(garciaadrian): move googletest to extern
+    for path in paths:
+        if "googletest" in path:
+            paths.remove(path)
+    return paths
 
 
 def find_all_source_files():
@@ -1257,7 +1263,7 @@ class LintCommand(Command):
     def execute(self, args, pass_args, cwd):
         clang_format_binary = get_clang_format_binary()
 
-        difftemp = '.difftemp.txt'
+        difftemp = os.path.join(self_path, '.difftemp.txt')
 
         if args['all']:
             all_files = find_all_source_files()

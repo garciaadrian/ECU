@@ -1229,7 +1229,7 @@ def find_ecu_source_files():
             if name.endswith(('.cc', '.c', '.h', '.inl'))]
 
     # TODO(garciaadrian): move googletest to extern
-    for path in paths:
+    for path in paths[:]:
         if "googletest" in path:
             paths.remove(path)
     return paths

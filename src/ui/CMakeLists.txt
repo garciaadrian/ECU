@@ -37,6 +37,9 @@ set(sources
   ${source_path}/mainwindow.h
   ${source_path}/mainwindow.cc
   ${source_path}/mainwindow.ui
+  ${source_path}/ffb_widget.ui
+  ${source_path}/ffb_widget.h
+  ${source_path}/ffb_widget.cc
   )
 
 # Group source files
@@ -98,6 +101,7 @@ set_target_properties(${target}
 target_link_libraries(${target}
   PRIVATE
   Qt5::Widgets
+  ${META_PROJECT_NAME}::ffb
   ${DEFAULT_LIBRARIES}
   )
 

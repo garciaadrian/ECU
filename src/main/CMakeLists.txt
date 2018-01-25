@@ -111,6 +111,9 @@ target_link_libraries(${target}
   irsdk
   json
   g3logger
+
+  PUBLIC
+  ${DEFAULT_LINKER_OPTIONS}
   )
 
 

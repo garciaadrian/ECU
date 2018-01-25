@@ -95,6 +95,9 @@ set_target_properties(${target}
 target_link_libraries(${target}
   PRIVATE
   ${DEFAULT_LIBRARIES}
+
+  PUBLIC
+  ${DEFAULT_LINKER_OPTIONS}
   )
 
 #

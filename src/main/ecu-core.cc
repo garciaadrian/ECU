@@ -18,8 +18,6 @@
 #include <iostream>
 
 #include "gflags/gflags.h"
-#include "g3log/g3log.hpp"
-#include "g3log/logworker.hpp"
 #include <QApplication>
 #include <QDir>
 #include <QDebug>

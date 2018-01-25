@@ -9,30 +9,44 @@
 *******************************************************************************
 */
 
-#ifndef UI_MAINWINDOW_H_
-#define UI_MAINWINDOW_H_
+#ifndef UI_FFB_WIDGET_H_
+#define UI_FFB_WIDGET_H_
 
-#include <QMainWindow>
+#include <QWidget>
+
+#include <memory>
+
+namespace ecu {
+namespace joy {
+class DeviceManager;
+}  // namespace joy
+}  // namespace ecu
 
 namespace Ui {
-class MainWindow;
+class FFBWidget;
 }
 
-class FFBWidget;
-
-class Mainwindow : public QMainWindow {
+class FFBWidget : public QWidget {
   Q_OBJECT
 
  public:
-  explicit Mainwindow(QWidget* parent = nullptr);
-  ~Mainwindow() override;
+  explicit FFBWidget(QWidget* parent = nullptr);
+  ~FFBWidget() override;
+
+ public slots:
+  void AddDevice(const QString& device);
+  void RemoveDevice(const QString& device);
 
  private slots:
-  void on_actionAbout_triggered();
+  void on_comboBox_currentIndexChanged(const QString& device);
+
+  void on_horizontalSlider_sliderMoved(int position);
 
  private:
-  Ui::MainWindow* ui;
-  FFBWidget* ffb_widget;
+  Ui::FFBWidget* ui = nullptr;
+  std::unique_ptr<ecu::joy::DeviceManager> device_manager_{};
+
+  void SetSliderLablels();
 };
 
-#endif  // UI_MAINWINDOW_H_
+#endif  // UI_FFB_WIDGET_H_

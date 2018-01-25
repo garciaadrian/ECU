@@ -9,7 +9,18 @@
 *******************************************************************************
 */
 
-#ifndef IRACING_SESSION_H_
-#define IRACING_SESSION_H_
+#include "ffb/ffb_thread.h"
 
-#endif  // IRACING_SESSION_H_
+#include "ffb/di_manager.h"
+
+#include <ECU/ECU-version.h>
+
+ForcefeedbackThread::ForcefeedbackThread(QObject* parent) : QThread(parent) {}
+
+ForcefeedbackThread::~ForcefeedbackThread() {
+  mutex_.lock();
+  condition_.wakeOne();
+  mutex_.unlock();
+
+  wait();
+}

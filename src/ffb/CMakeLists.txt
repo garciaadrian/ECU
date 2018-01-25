@@ -35,6 +35,17 @@ set(headers
 
 set(sources
   ${source_path}/feeder.h
+  ${source_path}/feeder.cc
+  ${source_path}/di_device.h
+  ${source_path}/di_device.cc
+  ${source_path}/ffb_thread.h
+  ${source_path}/ffb_thread.cc
+  ${source_path}/ffb_monitor.cc
+  ${source_path}/ffb_monitor.h
+  ${source_path}/di_manager.h
+  ${source_path}/di_manager.cc
+  ${source_path}/atomicops.h
+  ${source_path}/readerwriterqueue.h
   )
 
 # Group source files
@@ -93,9 +104,31 @@ set_target_properties(${target}
 # Libraries
 #
 
+# TODO(garciaadrian): Move this to external dependencies
+set(VJOY_INTERFACE_DLL "${extern_dir}/vJoydriver/lib/amd64/vJoyInterface.dll")
+set(VJOY_INTERFACE_LIB "${extern_dir}/vJoydriver/lib/amd64/vJoyInterface.lib")
+
+add_custom_command(TARGET ${target} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+  "${VJOY_INTERFACE_DLL}"
+  $<TARGET_FILE_DIR:${target}>
+  )
+
+install(FILES ${VJOY_INTERFACE_DLL}
+  DESTINATION ${INSTALL_BIN} COMPONENT runtime
+  )
+
 target_link_libraries(${target}
   PRIVATE
+  Qt5::Widgets
+  dxguid
+  dinput8
+  Winmm
+  ${VJOY_INTERFACE_LIB}
   ${DEFAULT_LIBRARIES}
+
+  PUBLIC
+  ${DEFAULT_LINKER_OPTIONS}
   )
 
 #

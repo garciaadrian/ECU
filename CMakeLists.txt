@@ -22,6 +22,7 @@ include(GenerateExportHeader)
 include(cmake/GetGitRevisionDescription.cmake)
 include(cmake/HealthCheck.cmake)
 include(cmake/GenerateTemplateExportHeader.cmake)
+include(cmake/ucm/cmake/ucm.cmake)
 
 #
 # Project description and (meta) information

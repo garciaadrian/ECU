@@ -15,15 +15,23 @@ endif()
 
 # 
 # Project options
-# 
+#
+
+set(LINK_FLAGS_RELEASE
+  /LTCG /LTCG:incremental
+  )
+
+set(LINK_FLAGS_DEBUG
+  /Debug /OPT:REF /OPT:ICF
+  )
 
 set(DEFAULT_PROJECT_OPTIONS
     DEBUG_POSTFIX             "d"
     CXX_STANDARD              14 # Not available before CMake 3.1; see below for manual command line argument addition
     LINKER_LANGUAGE           "CXX"
     POSITION_INDEPENDENT_CODE ON
-    CXX_VISIBILITY_PRESET     "hidden"
-)
+    CXX_VISIBILITY_PRESET     "hidden"    
+ )
 
 
 # 
@@ -40,13 +48,19 @@ set(DEFAULT_INCLUDE_DIRECTORIES)
 set(DEFAULT_LIBRARIES)
 
 
+#
+# Linker flags
+#
+
+set(DEFAULT_LINKER_OPTIONS)
+
 # 
 # Compile definitions
 # 
 
 set(DEFAULT_COMPILE_DEFINITIONS
     SYSTEM_${SYSTEM_NAME_UPPER}
-)
+    )
 
 # MSVC/clang-cl compiler definitions
 if ("${SYSTEM_NAME_UPPER}" MATCHES "WINDOWS")
@@ -56,7 +70,7 @@ if ("${SYSTEM_NAME_UPPER}" MATCHES "WINDOWS")
         _UNICODE
         UNICODE
         NOMINMAX                 # Silence warning C4003
-        WIN32_LEAN_AND_MEAN      # Prevent Windows.h from including Winsock.h
+        WIN32_LEAN_AND_MEAN      # Prevent Windows.h from including Winsock.
     )
 endif ()
 
@@ -67,8 +81,15 @@ endif ()
 
 set(DEFAULT_COMPILE_OPTIONS)
 
-# MSVC/clang-cl compiler options
+# MSVC/clang-cl compiler and linker options
 if ("${SYSTEM_NAME_UPPER}" MATCHES "WINDOWS")
+  set(CMAKE_CXX_WARNING_LEVEL 4)
+  IF (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  ELSE (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  ENDIF (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+  
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
         /MP           # -> build with multiple processes
         /W4           # -> warning level 4
@@ -88,10 +109,12 @@ if ("${SYSTEM_NAME_UPPER}" MATCHES "WINDOWS")
         /GS-          # -> buffer security check: no 
         /GL           # -> whole program optimization: enable link-time code generation (disables Zi)
         /GF           # -> enable string pooling
+        /Ox
+        /Zc:inline
         >
         
         # No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
-    )
+        )
 endif ()
 
 # GCC and Clang ON LINUX compiler options
@@ -139,11 +162,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}"
 endif ()
 
 
-# 
-# Linker options
-# 
 
-set(DEFAULT_LINKER_OPTIONS)
 
 # Use pthreads on mingw and linux
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_SYSTEM_NAME}" MATCHES "Linux")

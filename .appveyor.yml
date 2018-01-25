@@ -15,9 +15,6 @@ skip_commits:
 pull_requests:
   do_not_increment_build_number: true
 
-before_build:
-  - cmd: ers.bat lint --all
-
 install:
   - cmd: set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
   - cmd: ers.bat setup
@@ -26,6 +23,7 @@ configuration:
   - Release
 
 before_build:
+  - cmd: ers.bat lint --all
   - set PATH=%PATH%;%QTDIR%
 
 build_script:
